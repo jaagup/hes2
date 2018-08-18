@@ -20,7 +20,7 @@ public class DepartmentPanel extends VerticalPanel{
   private Company company;
   public DepartmentPanel() {
 	  super();
-	//  createNewDepartmentPanel();
+//	  createNewDepartmentPanel();
   }
 	private void createNewDepartmentPanel() {
 		super.clear();
@@ -47,10 +47,15 @@ public class DepartmentPanel extends VerticalPanel{
 		    }
 		});
 	}
+	
+  public void createEditDepartmentPanel(Department selectedDepartment) {
+	  departmentOld=selectedDepartment;
+	  departmentText.setText(selectedDepartment.getDepartmentName());
+  }
 
   public void clear(Company company) {
 	  this.company=company;
-	  createNewDepartmentPanel();
+	  createNewDepartmentPanel();	
   }
   public void saveDepartment(List<Department> departmentList, AsyncCallback<String> storeDepartmentCallback) {
 	  if(departmentText.getText().isEmpty()) { Window.alert("nimi puudub"); return ;}

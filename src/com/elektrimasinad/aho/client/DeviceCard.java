@@ -607,7 +607,8 @@ public class DeviceCard implements EntryPoint {
 		departmentListPanel.add(buttonsPanel);
 		
 		//Header Panel
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedCompany.getCompanyName());
+//		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedCompany.getCompanyName());
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("OSAKOND");
 		departmentListPanel.add(headerPanel);
 		
 		//Locations list
@@ -666,17 +667,17 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
-		/*
+		
 		Label lEdit = new Label("Andmed");
 		lEdit.setStyleName("backSaveLabel");
 		lEdit.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				createEditCompanyView();
+				createEditDepartmentView();
 			}
 			
-		});*/
+		});
 		Label lNewLocation = new Label("Lisa \u00FCksus");
 		lNewLocation.setStyleName("backSaveLabel wide");
 		lNewLocation.addClickHandler(new ClickHandler() {
@@ -694,8 +695,8 @@ public class DeviceCard implements EntryPoint {
 		buttonsPanel.add(lBack);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
 		buttonsPanel.setCellWidth(lBack, "43%");
-		//buttonsPanel.add(lEdit);
-		//buttonsPanel.setCellWidth(lEdit, "15%");
+		buttonsPanel.add(lEdit);
+		buttonsPanel.setCellWidth(lEdit, "15%");
 		buttonsPanel.add(lDelete);
 		buttonsPanel.setCellWidth(lDelete, "30%");
 		buttonsPanel.add(lNewLocation);
@@ -704,7 +705,7 @@ public class DeviceCard implements EntryPoint {
 		unitListPanel.add(buttonsPanel);
 		
 		//Header Panel
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedCompany.getCompanyName()+"-"+selectedDepartment.getDepartmentName());
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("osakond-"+selectedDepartment.getDepartmentName());
 		unitListPanel.add(headerPanel);
 		
 		//Locations list
@@ -944,6 +945,12 @@ public class DeviceCard implements EntryPoint {
 	private void createEditCompanyView() {
 		createNewCompanyView();
 		newCompanyPanel.createEditCompanyPanel(selectedCompany);
+	}
+
+	private void createEditDepartmentView() {
+		createNewDepartmentView();
+		//newDepartmentPanel.clear(selectedCompany);
+		newDepartmentPanel.createEditDepartmentPanel(selectedDepartment);
 	}
 
 	private DepartmentPanel createNewDepartmentView() {

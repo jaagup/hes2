@@ -393,12 +393,12 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		try {
 			e = ds.get(KeyFactory.stringToKey(updatedDepartment.getDepartmentKey()));
 			//Check if unit name has been changed
-			if (!e.getProperty("Unit").toString().equalsIgnoreCase(updatedDepartment.getDepartmentName())) {
+			if (!e.getProperty("Department").toString().equalsIgnoreCase(updatedDepartment.getDepartmentName())) {
 				//Check if unit with specified name already exists
 				List<Department> departmentList = getDepartments(updatedDepartment.getCompanyKey());
 				for (Department d : departmentList) {
 					if (d.getDepartmentName().equalsIgnoreCase(updatedDepartment.getDepartmentName())) {
-						return "Unit with that name already exists!"; //TODO exception instead?
+						return "Department with that name already exists!"; //TODO exception instead?
 					}
 				}
 			}
