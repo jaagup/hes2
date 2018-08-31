@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.elektrimasinad.aho.shared.Company;
+import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
 import com.elektrimasinad.aho.shared.Unit;
 import com.google.gwt.core.client.GWT;
@@ -36,6 +37,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class DeviceCardPanel extends VerticalPanel {
 	private Device device;
+	private Department department;
 	private Unit location;
 	private Company company;
 	Widget deviceName;
@@ -96,10 +98,11 @@ public class DeviceCardPanel extends VerticalPanel {
 		
 	}
 	
-	public void createDeviceView(Company company, Unit location, Device device) {
+	public void createDeviceView(Company company, Department department, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
 		this.device = device;
 		this.company = company;
+		this.department=department;
 		this.location = location;
 		createDeviceCard(false);
 	}
@@ -119,10 +122,11 @@ public class DeviceCardPanel extends VerticalPanel {
 		});
 	}
 	
-	public void createNewDeviceView(Company company, Unit location) {
+	public void createNewDeviceView(Company company, Department department, Unit location) {
 		device = new Device(location.getUnitKey());
 		this.company = company;
 		this.location = location;
+		this.department=department;
 		createDeviceCard(true);
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
@@ -148,14 +152,14 @@ public class DeviceCardPanel extends VerticalPanel {
 			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 			locationName = AhoWidgets.createLabel(device.getLocationName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		}
-		Label lCompanyName = AhoWidgets.createLabel(company.getCompanyName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		Label lDepartmentName = AhoWidgets.createLabel(department.getDepartmentName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		Label lUnit = AhoWidgets.createLabel(location.getUnit(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-		HorizontalPanel companyNamePanel = new HorizontalPanel();
-		companyNamePanel.setStyleName("aho-panel1");
-		companyNamePanel.add(AhoWidgets.createLabel("Ettev\u00F5te", "aho-label1", null));
-		companyNamePanel.add(lCompanyName);
-		companyNamePanel.setCellHorizontalAlignment(lCompanyName, HasHorizontalAlignment.ALIGN_RIGHT);
-		add(companyNamePanel);
+		HorizontalPanel departmentNamePanel = new HorizontalPanel();
+		departmentNamePanel.setStyleName("aho-panel1");
+		departmentNamePanel.add(AhoWidgets.createLabel("Osakond", "aho-label1", null));
+		departmentNamePanel.add(lDepartmentName);
+		departmentNamePanel.setCellHorizontalAlignment(lDepartmentName, HasHorizontalAlignment.ALIGN_RIGHT);
+		add(departmentNamePanel);
 		HorizontalPanel unitPanel = new HorizontalPanel();
 		unitPanel.setStyleName("aho-panel1");
 		unitPanel.add(AhoWidgets.createLabel("\u00FCksus", "aho-label1", null));

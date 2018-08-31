@@ -7,6 +7,7 @@ import java.util.List;
 import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
+import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Unit;
@@ -48,7 +49,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class DeviceCard implements EntryPoint {
 	
-	private static DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
+	static DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
 	private AsyncCallback<List<Company>> getCompanyListCallback;
 	private AsyncCallback<List<Department>> getDepartmentListCallback;
 	private AsyncCallback<List<Unit>> getUnitListCallback;
@@ -56,10 +57,14 @@ public class DeviceCard implements EntryPoint {
 	private AsyncCallback<String> storeCompanyCallback;
 	private AsyncCallback<String> storeDepartmentCallback;
 	private AsyncCallback<String> storeUnitCallback;
-	private AsyncCallback<String> storeDeviceCallback;
+	AsyncCallback<String> storeDeviceCallback;
 	private AsyncCallback<Measurement> getLastMeasurementCallback;
 	private AsyncCallback<String> storeMeasurementCallback;
 	private AsyncCallback<Company> getCompanyCallback;
+	private AsyncCallback<Device> getDeviceCallback;
+	private AsyncCallback<Unit> getUnitCallback;
+	private AsyncCallback<Department> getDepartmentCallback;
+	private AsyncCallback<MaintenanceItem> getMaintenanceItemCallback;
 	
 	private int MAIN_WIDTH /*= 900*/;
 	private int CONTENT_WIDTH = 800;
@@ -71,18 +76,20 @@ public class DeviceCard implements EntryPoint {
 	private VerticalPanel mainPanel;
 	private DeviceCardPanel deviceCardPanel = new DeviceCardPanel();;
 	private DeviceMaintenancePanel deviceMaintenancePanel = new DeviceMaintenancePanel();
+	private DeviceMaintenancePanel2 deviceMaintenancePanel2 = new DeviceMaintenancePanel2(this);
 	private DeviceEditPanel deviceEditPanel = new DeviceEditPanel();
 	private VerticalPanel lastMeasurementPanel = new VerticalPanel();
 	private AbsolutePanel headerPanel;
 	private DeckPanel contentPanel;
 	//private Device device;
 	private String selectedDeviceName;
-	private Company selectedCompany;
+	Company selectedCompany;
 	Label companyNameLabel=new Label("!!");
-	private Department selectedDepartment;
-	private Unit selectedUnit;
-	private Device selectedDevice;
+	Department selectedDepartment;
+    Unit selectedUnit;
+	Device selectedDevice;
 	private Measurement measurement;
+	MaintenanceItem selectedMaintenanceItem;
 	
 	private VerticalPanel companyListPanel = new VerticalPanel();
 	private CompanyPanel newCompanyPanel = new CompanyPanel();
@@ -98,13 +105,22 @@ public class DeviceCard implements EntryPoint {
 	private boolean isMobileView;
 	private Storage sessionStore;
 	private String accountKey = null;
+	DebugClientSide Debug = new DebugClientSide();
 	
 	@Override
 	public void onModuleLoad() {
+		Debug.enable();
+		Debug.log("Debug enabled");
 		sessionStore = Storage.getSessionStorageIfSupported();
 		accountKey = sessionStore.getItem("Account");
 		if ( accountKey == null) {
 			Window.Location.assign("/Login.html");
+		}
+		String param=Window.Location.getParameter("dnr");
+		if(param!=null) {
+		   Debug.log("Tuli "+param);
+		} else {
+		   Debug.log("dnr puudub");
 		}
 		getCompanyCallback = new AsyncCallback<Company>() {
 			
@@ -123,6 +139,93 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		};
+		getDeviceCallback = new AsyncCallback<Device>() {
+			
+			@Override
+			public void onFailure(Throwable arg0) {
+				// TODO Auto-generated method stub
+				Window.alert("failed device");
+			}
+
+			@Override
+			public void onSuccess(Device arg0) {
+				// TODO Auto-generated method stub
+				selectedDevice = arg0;
+				Debug.log(selectedDevice.getDeviceName()+" yksinda "+selectedDevice.getUnitKey());
+				deviceTreeService.getUnit(selectedDevice.getUnitKey(), getUnitCallback);
+			}
+			
+		};
+		
+		getUnitCallback = new AsyncCallback<Unit>() {
+			
+			@Override
+			public void onFailure(Throwable arg0) {
+				// TODO Auto-generated method stub
+				Window.alert("failed unit");
+			}
+
+			@Override
+			public void onSuccess(Unit arg0) {
+				// TODO Auto-generated method stub
+				selectedUnit = arg0;
+				Debug.log(selectedUnit.getUnit()+" yksus "+selectedUnit.getDepartmentKey());
+				deviceTreeService.getDepartment(selectedUnit.getDepartmentKey(), getDepartmentCallback);
+			}
+			
+		};
+
+
+		getDepartmentCallback = new AsyncCallback<Department>() {
+			
+			@Override
+			public void onFailure(Throwable arg0) {
+				// TODO Auto-generated method stub
+				Window.alert("failed department");
+			}
+
+			@Override
+			public void onSuccess(Department arg0) {
+				// TODO Auto-generated method stub
+				selectedDepartment = arg0;
+				//createDeviceListPanel();
+				//createUnitListPanel();
+				//createDepartmentListPanel();
+		//		Debug.log(selectedDepartment.getDepartmentName()+" kaes");
+//				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
+				String actionParameter=Window.Location.getParameter("action");
+				if(actionParameter!=null) {
+					if(actionParameter.contentEquals("addPlannerItem")) {
+				      createDeviceEditPanelView();
+					}
+					if(actionParameter.contentEquals("showPlannerItem")) {
+						String maintenanceCode=Window.Location.getParameter("maintenanceCode");
+						if(maintenanceCode!=null) {
+							deviceTreeService.getMaintenanceEntry(maintenanceCode, getMaintenanceItemCallback);
+						}
+					}
+				}
+				//deviceTreeService.getDepartment(selectedUnit.getDepartmentKey(), getDepartmentCallback);
+			}
+			
+		};
+		
+		getMaintenanceItemCallback = new AsyncCallback<MaintenanceItem>() {
+			@Override
+			public void onFailure(Throwable arg0) {
+				// TODO Auto-generated method stub
+				Window.alert("failed maintenanceItem");
+			}
+			@Override
+			public void onSuccess(MaintenanceItem arg0) {
+			    selectedMaintenanceItem=arg0;
+			    createMaintenancePanel2();
+			}
+		};
+		
+
+
+		
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
 		if (Window.getClientWidth() < 1000) {
@@ -184,7 +287,7 @@ public class DeviceCard implements EntryPoint {
 			public void onSuccess(List<Unit> locations) {
 				//System.out.println(name);
 				unitList = locations;
-				createUnitListPanel();
+				createUnitListPanel(); 
 			}
 			
 			@Override
@@ -403,6 +506,7 @@ public class DeviceCard implements EntryPoint {
 		contentPanel.add(lastMeasurementPanel);
 		contentPanel.add(deviceCardPanel);
 		contentPanel.add(deviceMaintenancePanel);
+		contentPanel.add(deviceMaintenancePanel2);
 		contentPanel.add(deviceEditPanel);
 		companyNameLabel.setText(selectedCompany.getCompanyName());
 		
@@ -415,6 +519,10 @@ public class DeviceCard implements EntryPoint {
 		//contentPanel.add(deviceTreePanel);
 		//contentPanel.showWidget(contentPanel.getWidgetIndex(deviceTreePanel));
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
+		String deviceKey=Window.Location.getParameter("deviceKey");
+		if(deviceKey!=null) {
+			deviceTreeService.getDevice(deviceKey, getDeviceCallback);
+		}
 	}
 	
 	private void fetchCompanies() {
@@ -642,6 +750,7 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				createDepartmentListPanel();
 				contentPanel.showWidget(contentPanel.getWidgetIndex(departmentListPanel));
 			}
 			
@@ -739,6 +848,7 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				createUnitListPanel();
 				contentPanel.showWidget(contentPanel.getWidgetIndex(unitListPanel));
 			}
 			
@@ -838,6 +948,7 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				createDeviceListPanel();
 				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
 			}
 			
@@ -1057,7 +1168,7 @@ public class DeviceCard implements EntryPoint {
 		
 		return newUnitPanel;
 	}
-	
+	/*
 	public void createMaintenancePanelView() {;
 		deviceMaintenancePanel.clear();
 		deviceMaintenancePanel.createNewDeviceMaintenancePanel(selectedDevice);
@@ -1087,6 +1198,36 @@ public class DeviceCard implements EntryPoint {
 		deviceMaintenancePanel.insert(maintHeader, 0);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceMaintenancePanel));
 	}
+	*/
+	public void createMaintenancePanel2() {
+		HorizontalPanel maintHeader = new HorizontalPanel();
+		deviceMaintenancePanel2.clear();
+        deviceMaintenancePanel2.create();	
+		final Label lBack = new Label("Tagasi 2a");
+		lBack.setStyleName("backSaveLabel");
+		lBack.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				createDeviceEditPanelView();
+				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceEditPanel));
+			}
+			
+		});
+		Button lBackButton = new Button();
+		lBackButton.setStyleName("backButton");
+		lBackButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				lBack.fireEvent(event);
+			}	
+		});
+		maintHeader.add(lBackButton);
+		maintHeader.add(lBack);
+		deviceMaintenancePanel2.insert(maintHeader, 0);
+		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceMaintenancePanel2));
+	}
 	
 	public void createDeviceEditPanelView() {
 		deviceEditPanel.clear();
@@ -1098,7 +1239,8 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
+				showDeviceCardView(selectedDevice.getDeviceName());
+//				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
 			}
 			
 		});
@@ -1120,7 +1262,8 @@ public class DeviceCard implements EntryPoint {
 		Button admin = new Button("+", new ClickHandler() {
 			  @Override
 			  public void onClick(ClickEvent event) {
-				  createMaintenancePanelView();
+				  DeviceCard.this.selectedMaintenanceItem=null;
+				  createMaintenancePanel2();
 		      }
 		    });
 		admin.setStyleName("maintenanceLink");
@@ -1238,7 +1381,7 @@ public class DeviceCard implements EntryPoint {
 			headerPanel.add(lMaintainanceLink);
 			//headerPanel.add(maintainanceLink);
 		}
-		deviceCardPanel.createDeviceView(selectedCompany, selectedUnit, selectedDevice);
+		deviceCardPanel.createDeviceView(selectedCompany, selectedDepartment, selectedUnit, selectedDevice);
 		deviceCardPanel.insert(backSavePanel, 0);
 		deviceCardPanel.insert(headerPanel, 1);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
@@ -1395,7 +1538,7 @@ public class DeviceCard implements EntryPoint {
 		backSavePanel.add(lNewDevice);
 		backSavePanel.setCellHorizontalAlignment(lNewDevice, HasHorizontalAlignment.ALIGN_RIGHT);
 		backSavePanel.setCellWidth(lNewDevice, "50%");
-		deviceCardPanel.createNewDeviceView(selectedCompany, selectedUnit);
+		deviceCardPanel.createNewDeviceView(selectedCompany, selectedDepartment,  selectedUnit);
 		deviceCardPanel.insert(backSavePanel, 0);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
 	}

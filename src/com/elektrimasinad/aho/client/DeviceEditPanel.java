@@ -61,7 +61,8 @@ public class DeviceEditPanel extends VerticalPanel {
 			public void onSelectionChange(SelectionChangeEvent arg0) {
 				// TODO Auto-generated method stub
 				MaintenanceItem selectedItem = (MaintenanceItem) tableSelModel.getSelectedObject();
-				showEditPanel(selectedItem);
+				Window.Location.assign("DeviceCard.html?deviceKey="+device.getDeviceKey()+"&maintenanceCode="+selectedItem.getMaintenanceID()+"&action=showPlannerItem");
+				//showEditPanel(selectedItem);
 			}
 			
 		});
@@ -133,7 +134,7 @@ public class DeviceEditPanel extends VerticalPanel {
 		maintenanceTable.addColumn(assignedEmployee, "Teostaja");
 		maintenanceTable.setSelectionModel(tableSelModel);
 	}
-	public void showEditPanel(MaintenanceItem m) {
+/*	public void showEditPanel(MaintenanceItem m) {
 		PopupPanel editPopup = new PopupPanel(false);
 		editPopup.setStyleName("maintenanceEditPopup");
 		VerticalPanel editPanel = new VerticalPanel();
@@ -186,5 +187,5 @@ public class DeviceEditPanel extends VerticalPanel {
 		editPanel.add(finishButton);
 		editPopup.add(editPanel);
 		editPopup.center();
-	}
+	}*/
 }

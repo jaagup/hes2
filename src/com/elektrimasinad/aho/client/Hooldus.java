@@ -4,6 +4,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -28,10 +29,12 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -46,6 +49,8 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.ibm.icu.util.Calendar;
 
 
@@ -86,7 +91,8 @@ public class Hooldus implements EntryPoint {
 	private boolean isDevMode;
 	private boolean isMobileView;
 	DebugClientSide Debug = new DebugClientSide();
-	
+	private Storage sessionStore;
+	private String accountKey = null;
 	
 	private List<DiagnostikaItem> DIAGNOSTIKA = new ArrayList<DiagnostikaItem>();
 	private List<PlannerItem> PLANNER = new ArrayList<PlannerItem>();
@@ -96,7 +102,12 @@ public class Hooldus implements EntryPoint {
 	public void onModuleLoad() {
 		Debug.enable();
 		Debug.log("Debug enabled");
-
+		sessionStore = Storage.getSessionStorageIfSupported();
+		accountKey = sessionStore.getItem("Account");
+		if ( accountKey == null) {
+			Window.Location.assign("/Login.html");
+			return;
+		} 
  		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
  		else isDevMode = false;
  		if (Window.getClientWidth() < 1000) {
@@ -243,14 +254,16 @@ public class Hooldus implements EntryPoint {
 		
 		firstInit();
 		updateWidgetSizes();
-		createUnitPanel();
+		//createUnitPanel();
+		
 	}
 
 	private void updateWidgetSizes() {
 		String contentWidth = "90%";
  		MAIN_WIDTH = 700;
+ 		MAIN_WIDTH = Window.getClientWidth();
  		if (isMobileView) {
- 			MAIN_WIDTH = Window.getClientWidth();
+ 			//MAIN_WIDTH = Window.getClientWidth();
  			contentWidth = "95%";
  		}
 		mainPanel.setWidth(MAIN_WIDTH + "px");
@@ -271,8 +284,9 @@ public class Hooldus implements EntryPoint {
 		content2Panel.add(table2Panel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(tablePanel));
 		content2Panel.showWidget(content2Panel.getWidgetIndex(table2Panel));
+		Debug.log("init valmis");
 	}
-	
+	/*
 	private void createUnitPanel() {
 		unitPanel.clear();
 		unitPanel.setWidth("100%");
@@ -307,15 +321,16 @@ public class Hooldus implements EntryPoint {
 		unitPanel.add(buttonsPanel);
 		
 		//Header Panel
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedUnit.getUnit());
+//		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedUnit.getUnit());
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("Hoolduse leht");
 		unitPanel.add(headerPanel);
 		
-	
+	    Debug.log("324");
 		contentPanel.showWidget(contentPanel.getWidgetIndex(unitPanel));
+		Debug.log("326");
 	}
-	
-	private VerticalPanel createNewDataTable() {
-		
+	*/
+	private VerticalPanel createNewDataTable() {		
 		String s = "raports size: " + Integer.toString(raports.size());
 		Debug.log(s);
 		String d = "puuduv ettevote";
@@ -329,26 +344,30 @@ public class Hooldus implements EntryPoint {
 			for (int y = 0; y < raportDataList.size(); y++) {
 				String measureKey = raportDataList.get(y).getRaportKey();
 				String raportKey = raports.get(x).getRaportKey();
-//				Debug.log(y + " measure key: " + measureKey);
-//				Debug.log(x + " raport key: " + raportKey);
+				Debug.log(y + " measure key: " + measureKey);
+				Debug.log(x + " raport key: " + raportKey);
 				if (measureKey.equals(raportKey)) {
 					String v = raportDataList.get(y).getComment();
 					diag.setComment(v);
 					String mMarking = raportDataList.get(y).getMarking();
 					diag.setMarking(mMarking);
-//					Debug.log("comment: " + v);
+					Debug.log("comment: " + v);
 					String st = raportDataList.get(y).getDeviceName();
 					diag.setDevice(st);
-//					Debug.log("name: " + st);
+					diag.setDeviceKey(raportDataList.get(y).getDeviceKey());
+					Debug.log("name: " + st+ " "+raportDataList.get(y).getDeviceKey());
 				}
 			}
-			
-			DIAGNOSTIKA.add(diag);
+			if(diag.getMarking()!=null && (diag.getMarking().contentEquals("alarm")  || diag.getMarking().contentEquals("hoiatus"))) {
+			  DIAGNOSTIKA.add(diag);
+			}
 			String tr = "diag object created nr: " + x;
-//			Debug.log(tr);
+			Debug.log(tr);
 		}
 		String a = "diagnostika size: " + Integer.toString(DIAGNOSTIKA.size());
     	Debug.log(a);
+    	Debug.log(DIAGNOSTIKA.get(0).getAddress());
+    	Debug.log(DIAGNOSTIKA.get(1).getAddress());
 		tablePanel = new VerticalPanel();
 		tablePanel.setStyleName("aho-panel1 table2");
 		tablePanel.setWidth("100%");
@@ -371,13 +390,19 @@ public class Hooldus implements EntryPoint {
 		Column<DiagnostikaItem, SafeHtml> markingColumn = new Column<DiagnostikaItem, SafeHtml>(new SafeHtmlCell()) {
 	    	@Override
 			public SafeHtml getValue(DiagnostikaItem object) {
-				if(object.getMarking().equals("alarm")) {
+	    		//return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString());
+	    		if(object.getMarking()==null) {return null;}
+	    		if(object.getMarking().contentEquals("alarm")) {return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString());}
+	    		if(object.getMarking().contentEquals("hoiatus")) {return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString());}
+	    		return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString());
+
+				/*if(object.getMarking().equals("alarm")) {
 						return object.getMarking().equals("alarm") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString()): null;
 					}else if (object.getMarking().equals("hoiatus")) {
 						return object.getMarking().equals("hoiatus") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString()): null;
 					} else {
 						return object.getMarking().equals("ok") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString()): null;
-					}
+					}*/
 			}
 		};
 		markingColumn.setCellStyleNames("markingCell");
@@ -429,6 +454,21 @@ public class Hooldus implements EntryPoint {
 	    table.addColumn(kommentaarColumn, "Kommentaar");
 	    
 	    
+		SingleSelectionModel<DiagnostikaItem> tableSelModel = new SingleSelectionModel<DiagnostikaItem>();
+		tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+			@Override
+			public void onSelectionChange(SelectionChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				DiagnostikaItem selectedItem = (DiagnostikaItem) tableSelModel.getSelectedObject();
+				//showEditPanel(selectedItem);
+				Debug.log(selectedItem.getDevice());
+				Window.Location.assign("/DeviceCard.html?deviceKey="+selectedItem.getDeviceKey()+"&action=addPlannerItem");
+			}
+			
+		});
+		table.setSelectionModel(tableSelModel);
+	    
 	    // Set the total row count. This isn't strictly necessary, but it affects
 	    // paging calculations, so its good habit to keep the row count up to date.
 	    table.setRowCount(DIAGNOSTIKA.size(), true);
@@ -437,6 +477,7 @@ public class Hooldus implements EntryPoint {
 	    table.setRowData(0, DIAGNOSTIKA);
 	    tablePanel.add(lLabel);
 	    tablePanel.add(table);
+	    Debug.log("ylemine valmis");
 	    return tablePanel;
 	}
 	private VerticalPanel createNewPlannerTable() {
@@ -452,22 +493,33 @@ public class Hooldus implements EntryPoint {
 		todayLabel.setStyleName("dateLabel g");
 		Label doLabel = new Label("Tulemas");
 		doLabel.setStyleName("dateLabel");
-		
+		Date now=new Date();
 		CellTable<PlannerItem> table = new CellTable<PlannerItem>();
+	    maintenance.sort(new Comparator<MaintenanceItem>() {
+	    	@Override
+	    	public int compare(MaintenanceItem m1, MaintenanceItem m2) {
+	    		return m1.getMaintenanceCompleteDate().compareTo(m2.getMaintenanceCompleteDate());
+	    	}
+	    });
 		firstloop:
 		for (int x = 0; x < maintenance.size(); x++) {
 			Debug.log("FIRST FOR LOOP");
 			Debug.log("		MAINTENANCE SIZE: " + maintenance.size());
 			PlannerItem plan = new PlannerItem();
 			plan.setAction(maintenance.get(x).getMaintenanceName());
+			plan.setKey(maintenance.get(x).getMaintenanceID());
 			//		plan.setDates(maintenance.get(x).getMaintenanceCompleteDate().toString());
 			Date d=maintenance.get(x).getMaintenanceCompleteDate();
+//			plan.setStyle("background-color: red");
+			if(d.compareTo(now)<0) {plan.setStyle("punataust");}
+			else {plan.setStyle("sinitaust");
+			  plan.setAddress("kauge");}
 			//Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			//String s = formatter.format(d);
 			//GregorianCalendar c=new GregorianCalendar();
 			//c.setTime(d);
 			//String ds=c.get(Calendar.DAY_OF_MONTH)+"."+c.get(Calendar.MONTH)+"."+c.get(Calendar.YEAR);
-			String s=d.getDate()+"."+d.getMonth()+"."+(d.getYear()+1900);
+			String s=d.getDate()+"."+(d.getMonth()+1)+"."+(d.getYear()+1900);
 			plan.setDates(s);
 			secondloop:
 				for (int y = 0; y < devices.size(); y++) {
@@ -475,13 +527,14 @@ public class Hooldus implements EntryPoint {
 					Debug.log("		DEVICES SIZE: " + devices.size());
 					String deviceKey = devices.get(y).getDeviceKey();
 					String mDeviceKey = maintenance.get(x).getMaintenanceDevice();
+					
 					Debug.log("				" + x + " maintenance key");
 					Debug.log("				" + y + " device key");
 						if (deviceKey.equals(mDeviceKey)) {
 							Debug.log("		MATCH FOUND");
 							String st = devices.get(y).getDeviceName();
 							plan.setDevice(st);
-							plan.setID(devices.get(y).getId());
+							//plan.setID(devices.get(y).getId());
 							plan.setDeviceObject(devices.get(y));
 							/*
 							deviceTreeService.getUnit(devices.get(y).getUnitKey(), new AsyncCallback<Unit>() {
@@ -509,6 +562,7 @@ public class Hooldus implements EntryPoint {
 												Debug.log("		RAPORTS SIZE: " + raports.size());
 												String mRaportKey = raportDataList.get(z).getRaportKey();
 												String raportKey = raports.get(r).getRaportKey();
+										
 
 												Debug.log("				" + z + " measurements raport key");
 												Debug.log("				" + r + " real raport key");
@@ -559,7 +613,7 @@ public class Hooldus implements EntryPoint {
 		TextColumn<PlannerItem> addressColumn = new TextColumn<PlannerItem>() {
 			@Override
 			public String getValue(PlannerItem object) {
-				return object.getAddress();
+				return object.getStyle();
 			}
 		};
 		table.addColumn(addressColumn, "\u00DCksus");
@@ -590,12 +644,36 @@ public class Hooldus implements EntryPoint {
 				return object.getAction();
 			}
 		};
+		table.setRowStyles(new RowStyles<PlannerItem>() {
+			@Override
+			public String getStyleNames(PlannerItem rowObject, int rowIndex) {
+				return rowObject.getStyle();
+			}
+		});
 		table.addColumn(actionColumn, "Tegevus");
-		    
+
+		
+		SingleSelectionModel<PlannerItem> tableSelModel = new SingleSelectionModel<PlannerItem>();
+		tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+			@Override
+			public void onSelectionChange(SelectionChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				PlannerItem selectedItem = (PlannerItem) tableSelModel.getSelectedObject();
+				//showEditPanel(selectedItem);
+				Debug.log(selectedItem.getDevice());
+				Window.Location.assign("/DeviceCard.html?deviceKey="+selectedItem.getDeviceObject().getDeviceKey()+
+						"&action=showPlannerItem&maintenanceCode="+selectedItem.getKey());
+			}
+			
+		});
+		table.setSelectionModel(tableSelModel);
+
+		
 		table.setRowCount(PLANNER.size(), true);
 		table.setRowData(0, PLANNER);
 		table.setColumnWidth(0, "80px");
-		/*
+		
 		AbsolutePanel markingPanel = new AbsolutePanel();
 	    markingPanel.setSize("100%", "50px");
 		markingPanel.add(AhoWidgets.getAHOImage("a", 14), 0, 5);
@@ -609,13 +687,13 @@ public class Hooldus implements EntryPoint {
 	    markingO.setStyleName("smallTextLabel");
 	    markingPanel.add(markingA, 25, 5);
 	    markingPanel.add(markingH, 25, 20);
-	    markingPanel.add(markingO, 25, 35);*/
+	    markingPanel.add(markingO, 25, 35);
 	    table.setColumnWidth(0, "35px");
 	    table.setColumnWidth(1, "35px");
 	    table.setColumnWidth(2, "35px");
 		table2Panel.add(lLabel);
 		table2Panel.add(table);
-//		table2Panel.add(markingPanel);
+		table2Panel.add(markingPanel);
 		return table2Panel;
 	}
 

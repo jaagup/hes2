@@ -26,6 +26,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.TimeZone;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -57,6 +58,7 @@ public class Aho implements EntryPoint {
 	protected Integer currentFocusedInputField;
 	private List<HasFocusHandlers> inputFieldList = new ArrayList<HasFocusHandlers>();
 	private Device selectedDevice = new Device();
+	//private Company selectedCompany;
 	private TreeItem selectedTreeItem;
 	private Measurement measurement = new Measurement();
 	
@@ -89,8 +91,17 @@ public class Aho implements EntryPoint {
 	private Image imgH;
 	private Image imgO;
 	private boolean isDevMode;
+	private Storage sessionStore;
+	private String accountKey = null;
 	
 	public void onModuleLoad() {
+		
+		sessionStore = Storage.getSessionStorageIfSupported();
+		accountKey = sessionStore.getItem("Account");
+		if ( accountKey == null) {
+			Window.Location.assign("/Login.html");
+			return;
+		} 
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
 		if (Window.getClientWidth() < 1000) {

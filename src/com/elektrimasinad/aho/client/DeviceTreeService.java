@@ -64,6 +64,7 @@ public interface DeviceTreeService extends RemoteService {
 	Company getCompany(String companyName);
 	Department getDepartment(String departmentKey);
 	Unit getUnit(String unitKey);
+	Device getDevice(String deviceKey);
 	
 
 }

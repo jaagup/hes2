@@ -5,9 +5,11 @@ public class PlannerItem {
 	    private String address;
 	    private String name;
 	    private String id;
+	    private String key;
 	    private String seade;
 	    private String tegevus;
 	    private Device deviceObject;
+	    private String style="";
 
 	    public PlannerItem() {
 	    	
@@ -36,9 +38,17 @@ public class PlannerItem {
 			this.id = id;
 		}
 	    
+	    public void setKey(String key) {
+	    	this.key=key;
+	    }
+	    
 	    public void setAction(String action) {
 			this.tegevus = action;
 		}
+	    
+	    public void setStyle(String style) {
+	    	this.style=style;
+	    }
 	    
 	    public String getDates() {
 	    	return this.kuup;
@@ -62,8 +72,14 @@ public class PlannerItem {
 	    public String getID() {
 	    	return this.id;
 		}
+	    public String getKey() {
+	    	return key;
+	    }
 	    public String getAction() {
 	    	return this.tegevus;
 		}
 	    
+	    public String getStyle() {
+	    	return this.style;
+	    }
 }

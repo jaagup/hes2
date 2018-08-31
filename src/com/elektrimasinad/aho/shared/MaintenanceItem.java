@@ -11,11 +11,11 @@ public class MaintenanceItem implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	//private String keyString;
+	private String keyString;
 	private String name;
 	private String desc;
-	private String problemDesc;
-	private String assignedTo;
+	private String problemDesc="";
+	private String assignedTo="";
 	private String materials;
 	private String notes;
 	private Date completionDate;
@@ -23,12 +23,15 @@ public class MaintenanceItem implements Serializable{
 	private String devKey;
 	private Integer interval;
 	private Double cost;
-	private Integer downtime;
-	private Integer timeSpent;
-	private Integer upload;
+	private Integer downtime=0;
+	private Integer timeSpent=0;
+	private Integer upload=0;
 	
 	public MaintenanceItem() {
 		
+	}
+	public void setMaintenanceID(String keyString) {
+		this.keyString=keyString;
 	}
 	public void setMaintenanceDevice(String deviceKey) {
 		this.devKey = deviceKey;
@@ -45,8 +48,8 @@ public class MaintenanceItem implements Serializable{
 	public void setMaintenanceState(String maintenanceState) {
 		this.type = maintenanceState;
 	}
-	public void setMaintenanceAssignedTo() {
-		this.assignedTo = "test";
+	public void setMaintenanceAssignedTo(String personName) {
+		this.assignedTo = personName;
 	}
 	public void setMaintenanceNotes(String notes) {
 		this.notes = notes;
@@ -72,6 +75,10 @@ public class MaintenanceItem implements Serializable{
 	/*public void setMaintenanceImage(Integer(Integer.toString(this.upload)) {
 		this.upload = upload;
 	}*/
+	
+	public String getMaintenanceID() {
+		return this.keyString;
+	}
 	public String getMaintenanceName() {
 		return this.name;
 	}

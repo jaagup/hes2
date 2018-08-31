@@ -98,6 +98,7 @@ public class DeviceMaintenancePanel extends VerticalPanel {
 		super();
 		
 	}
+	/*
 	public void createNewDeviceMaintenancePanel(Device device) {
 		sessionStore = Storage.getSessionStorageIfSupported();
 		storeCallback = new AsyncCallback<String>() {
@@ -300,20 +301,6 @@ public class DeviceMaintenancePanel extends VerticalPanel {
 	    upload.getElement().setAttribute("accept", "image/*");
 	    upload.getElement().setAttribute("capture", "camera");
 	    panel.setCellHorizontalAlignment(upload, HasHorizontalAlignment.ALIGN_LEFT);
-
-		/*
-		//image upload servlet
-		Blob imageFor(String name, HttpServletResponse res) {
-		    PersistenceManager pm = PMF.get().getPersistenceManager();
-		    Query query = pm.newQuery("select from MyImage " +
-		        "where name = nameParam " +
-		        "parameters String nameParam");
-		    List<MyImage> results = (List<MyImage>)query.execute(name);
-		    Blob image = results.iterator().next().getImage();
-		    res.setContentType("image/jpeg");
-		    res.getOutputStream().write(image.getBytes());
-		}*/
-		
 	    form.addSubmitHandler(new FormPanel.SubmitHandler() {
 	      public void onSubmit(SubmitEvent event) {
 	        if (tb9.getText().length() == 0) {
@@ -479,8 +466,23 @@ public class DeviceMaintenancePanel extends VerticalPanel {
 	    rb1.addClickHandler(ch);
 	    
 	    add(WorkPanel);
-	}
+	}*/
 	/*public getData() {
 		return key;
 	}*/
+
+	/*
+	//image upload servlet
+	Blob imageFor(String name, HttpServletResponse res) {
+	    PersistenceManager pm = PMF.get().getPersistenceManager();
+	    Query query = pm.newQuery("select from MyImage " +
+	        "where name = nameParam " +
+	        "parameters String nameParam");
+	    List<MyImage> results = (List<MyImage>)query.execute(name);
+	    Blob image = results.iterator().next().getImage();
+	    res.setContentType("image/jpeg");
+	    res.getOutputStream().write(image.getBytes());
+	}*/
+	
+
 }

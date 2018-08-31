@@ -1,6 +1,7 @@
 package com.elektrimasinad.aho.client;
 
 import java.util.ArrayList; 
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Unit;
 import com.gargoylesoftware.htmlunit.javascript.host.Console;
 import com.google.appengine.api.datastore.Key;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Tree;
@@ -18,8 +20,9 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class DeviceTree extends Tree {
 	private DeviceTreeServiceAsync deviceTreeService;
+	private Storage sessionStore;
 	
-	private AsyncCallback<List<Company>> getCompanyListCallback;
+	private AsyncCallback<Company> getCompanyCallback;
 	private AsyncCallback<List<Department>> getDepartmentListCallback;
 	private AsyncCallback<List<Unit>> getUnitListCallback;
 	private AsyncCallback<List<Device>> getDeviceListCallback;
@@ -31,12 +34,13 @@ public class DeviceTree extends Tree {
 	
 	public DeviceTree(DeviceTreeServiceAsync deviceTreeService) {
 		super();
+		sessionStore = Storage.getSessionStorageIfSupported();
 		this.deviceTreeService = deviceTreeService;
-		getCompanyListCallback = new AsyncCallback<List<Company>>() {
+		getCompanyCallback = new AsyncCallback<Company>() {
 			
 			@Override
-			public void onSuccess(List<Company> companies) {
-				addCompaniesToTree(companies);
+			public void onSuccess(Company company) {
+				addCompanyToTree(company);
 			}
 			
 			@Override
@@ -103,7 +107,9 @@ public class DeviceTree extends Tree {
 	}
 	
 	private void fetchCompanies() {
-		deviceTreeService.getCompanies(getCompanyListCallback);
+		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
+
+//		deviceTreeService.getCompany(getCompanyCallback);
 	}
 	public void fetchDepartments(Company company) {
 		deviceTreeService.getDepartments(company.getCompanyKey(), getDepartmentListCallback);
@@ -128,6 +134,14 @@ public class DeviceTree extends Tree {
 			this.addItem(companyItem);
 			
 		}
+	}
+	private void addCompanyToTree(Company company) {
+		TreeItem companyItem = new TreeItem();
+		companyItem.getElement().addClassName("gwt-TreeNode");
+		companyItem.setText(company.getCompanyName());
+		companyItem.setUserObject(company);
+		this.addItem(companyItem);
+		
 	}
 	
 	
@@ -174,7 +188,8 @@ public class DeviceTree extends Tree {
 						departmentItem.addItem(unitItem);
 						//getItem(i).addItem(unitItem);
 						//Window.alert("Lisas "+unitItem);
-						selItem = getItem(i);
+					//	selItem = getItem(i);
+						selItem=unitItem;
 					}
 				//}
 			}
@@ -192,8 +207,8 @@ public class DeviceTree extends Tree {
 					if (((Company)getItem(i).getUserObject()).getCompanyKey().equals(department.getCompanyKey())) {
 						TreeItem departmentItem = new TreeItem();
 						departmentItem.getElement().addClassName("gwt-TreeNode");
-						departmentItem.setText(department.getDepartmentName()+" d");
-						System.err.println("d "+department.getDepartmentName());
+						departmentItem.setText(department.getDepartmentName());
+					//	System.err.println("d "+department.getDepartmentName());
 						departmentItem.setUserObject(department);
 						getItem(i).addItem(departmentItem);
 						

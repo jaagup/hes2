@@ -5,6 +5,7 @@ public class DiagnostikaItem {
     private String name;
     private String id;
     private String seade;
+    private String deviceKey;
     private String kommentaar;
     private String marking;
 
@@ -18,6 +19,10 @@ public class DiagnostikaItem {
     
     public void setDevice(String deviceName) {
 		this.seade = deviceName;
+	}    
+    
+    public void setDeviceKey(String deviceKey) {
+		this.deviceKey = deviceKey;
 	}
     
     public void setAddress(String deviceAddress) {
@@ -39,7 +44,9 @@ public class DiagnostikaItem {
     public String getDevice() {
     	return this.seade;
 	}
-    
+    public String getDeviceKey() {
+    	return this.deviceKey;
+	}
     public String getAddress() {
     	return this.address;
 	}

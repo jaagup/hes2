@@ -1029,6 +1029,14 @@ h1 {
 .dateLabel {
 	top: 50px;
 }
+.punataust{
+	background-color: red;
+	font-size: 200%;
+}
+.sinitaust{
+	color: green;
+	background-color: lightblue;
+}
 .aho-label1 {
 	font-size: 46px;
 	padding-top: 20px;

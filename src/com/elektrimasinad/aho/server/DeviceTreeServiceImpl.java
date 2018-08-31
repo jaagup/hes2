@@ -95,9 +95,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			e.setProperty("Materials", m.getMaintenanceMaterials());
 			e.setProperty("Notes", m.getMaintenanceNotes());
 			Integer interval = m.getMaintenanceInterval();
+			try {
 			if(interval > 0 ) {
 				e.setProperty("Interval", interval);
 			}
+			} catch (Exception ex) {}
 			//e.setProperty("KeyString", KeyFactory.keyToString(e.getKey()));
 			ds.put(e);
 			return "Task stored";
@@ -110,12 +112,19 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Query query = new Query("MaintenanceEntry");
 		for(Entity e : ds.prepare(query).asIterable()) {
 			MaintenanceItem m = new MaintenanceItem();
+			m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
 			m.setMaintenanceDevice(e.getProperty("Device").toString());
 			m.setMaintenanceName(e.getProperty("Name").toString());
 			m.setMaintenanceDescription(e.getProperty("Description").toString());
 			m.setMaintenanceProblemDescription(e.getProperty("ProblemDescription").toString());
-			m.setMaintenanceState(e.getProperty("State").toString());
-			m.setMaintenanceAssignedTo();
+			if(e.getProperty("State")!=null) {
+			  m.setMaintenanceState(e.getProperty("State").toString());
+			} else {
+				m.setMaintenanceState("active");
+			}
+			if(e.getProperty("Person")!=null) {
+			m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
+			} 
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
@@ -133,12 +142,21 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		for(Entity e : ds.prepare(query).asIterable()) {
 			MaintenanceItem m = new MaintenanceItem();
 			//m.setMaintenanceKey(e.getProperty("KeyString").toString());
+			m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
 			m.setMaintenanceDevice(e.getProperty("Device").toString());
 			m.setMaintenanceName(e.getProperty("Name").toString());
 			m.setMaintenanceDescription(e.getProperty("Description").toString());
 			m.setMaintenanceProblemDescription(e.getProperty("ProblemDescription").toString());
-			m.setMaintenanceState(e.getProperty("State").toString());
-			m.setMaintenanceAssignedTo();
+			if(e.getProperty("State")!=null) {
+			try{m.setMaintenanceState(e.getProperty("State").toString());}
+			catch(Exception ex) {System.out.println(" 144 "+ex);
+			  }
+			} else {
+				m.setMaintenanceState("active");
+			}
+			if(e.getProperty("Person")!=null) {
+  			  m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
+			}
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
@@ -154,17 +172,26 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Entity e;
 		try {
 			e = ds.get(maintenanceKey);
+			m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
 			//m.setMaintenanceKey(e.getProperty("KeyString").toString());
 			m.setMaintenanceDevice(e.getProperty("Device").toString());
 			m.setMaintenanceName(e.getProperty("Name").toString());
 			m.setMaintenanceDescription(e.getProperty("Description").toString());
 			m.setMaintenanceProblemDescription(e.getProperty("ProblemDescription").toString());
+			if(e.getProperty("State")!=null) {
 			m.setMaintenanceState(e.getProperty("State").toString());
-			m.setMaintenanceAssignedTo();
+			} else {
+				m.setMaintenanceState("active");
+			}
+			if(e.getProperty("Person")!=null) {
+			m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
+			}
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
+			try {
 			m.setMaintenanceInterval(Integer.valueOf(e.getProperty("Interval").toString()));
+			} catch(Exception ex) {}
 		} catch (EntityNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -175,10 +202,13 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 	@Override
 	public String updateMaintenanceEntry(MaintenanceItem mNew) {
 		Entity e;
-		Iterable<Entity> nameCheck;
-		Query query = new Query("MaintenanceEntry");
-		query.setFilter(FilterOperator.EQUAL.of("Name", mNew.getMaintenanceName()));
-		e = ds.prepare(query).asSingleEntity();
+	//	Iterable<Entity> nameCheck;
+//		Query query = new Query("MaintenanceEntry");
+//		query.setFilter(FilterOperator.EQUAL.of("Name", mNew.getMaintenanceName()));
+	//	e = ds.prepare(query).asSingleEntity();
+		try {
+		e=ds.get(KeyFactory.stringToKey(mNew.getMaintenanceID()));
+		e.setProperty("Name", mNew.getMaintenanceName());
 		e.setProperty("Device", mNew.getMaintenanceDevice());
 		e.setProperty("Description", mNew.getMaintenanceDescription());
 		e.setProperty("ProblemDescription", mNew.getMaintenanceProblemDescription());
@@ -191,6 +221,10 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		e.setProperty("Interval", interval);
 		ds.put(e);
 		return "Task updated";
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return "entry update error";
 	}
 		//e.setProperty("KeyString", mNew.getMaintenanceKey());
 	@Override
@@ -252,8 +286,8 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		try {
 			e=ds.get(userDepartmentKey);
 			d.setDepartmentKey(departmentKey);
-			d.setDepartmentName(e.getProperty("DepartmentName").toString());
-			d.setCompanyKey(e.getProperty("CompanyKey").toString());
+			d.setDepartmentName(e.getProperty("Department").toString());
+			d.setCompanyKey(KeyFactory.keyToString(e.getParent()));
 			return d;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -268,9 +302,10 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Unit u = new Unit();
 		try {
 			e=ds.get(userUnitKey);
-			u.setDepartmentKey(e.getProperty("DepartmentKey").toString());
+//			u.setDepartmentKey(e.getProperty("DepartmentKey").toString());
+			u.setDepartmentKey(KeyFactory.keyToString(e.getParent()));
 			u.setUnit(e.getProperty("Unit").toString());
-			u.setUnitKey(e.getProperty("UnitKey").toString());
+			u.setUnitKey(KeyFactory.keyToString(e.getKey()));
 			return u;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -278,6 +313,20 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		return null;
 	}
 	
+	@Override
+	public Device getDevice(String deviceKey) {
+		Key userDeviceKey=KeyFactory.stringToKey(deviceKey);
+		Entity e;
+		Device d=new Device();
+		try {
+		  e=ds.get(userDeviceKey);	
+		  d=deviceFrom(e);
+		  return d;
+		}catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
 	
 	@Override
 	public List<Company> getCompanies() throws IllegalArgumentException {
@@ -602,6 +651,44 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		
 		return deviceList;
 	}
+	
+	private Device deviceFrom(Entity e) {
+		Device c = new Device();
+		if (e.getKey() != null && e.getProperty("DeviceName").toString() != null) {
+			c.setDeviceKey(KeyFactory.keyToString(e.getKey()));
+			c.setUnitKey(KeyFactory.keyToString(e.getParent()));
+			c.setId(e.getProperty("DeviceId").toString());
+			c.setDeviceName(e.getProperty("DeviceName").toString());
+			c.setLocationName(e.getProperty("Location").toString());
+			c.setDeviceNickname(e.getProperty("DeviceNickname").toString());
+			c.setDevicekWrpm(e.getProperty("kWrpm").toString());
+			c.setDeviceType(e.getProperty("DeviceType").toString());
+			c.setDeviceManufacturer(e.getProperty("DeviceManufacturer").toString());
+			c.setDElaager(e.getProperty("DElaager").toString());
+			c.setDEsimmer(e.getProperty("DEsimmer").toString());
+			c.setDEVtihend(e.getProperty("DEVtihend").toString());
+			c.setDEnotes(e.getProperty("DEnotes").toString());
+			c.setNDElaager(e.getProperty("NDElaager").toString());
+			c.setNDEsimmer(e.getProperty("NDEsimmer").toString());
+			c.setNDEVtihend(e.getProperty("NDEVtihend").toString());
+			c.setNDEnotes(e.getProperty("NDEnotes").toString());
+			if ((boolean) e.getProperty("HasCoupledDevice")) {
+				c.setCoupledDeviceName(e.getProperty("CoupledDeviceName").toString());
+				c.setCoupledDeviceType(e.getProperty("CoupledDeviceType").toString());
+				c.setCoupledDeviceManufacturer(e.getProperty("CoupledDeviceManufacturer").toString());
+				c.setMPlaager(e.getProperty("MPlaager").toString());
+				c.setMPsimmer(e.getProperty("MPsimmer").toString());
+				c.setMPVtihend(e.getProperty("MPVtihend").toString());
+				c.setMPnotes(e.getProperty("MPnotes").toString());
+				c.setTPlaager(e.getProperty("TPlaager").toString());
+				c.setTPsimmer(e.getProperty("TPsimmer").toString());
+				c.setTPVtihend(e.getProperty("TPVtihend").toString());
+				c.setTPnotes(e.getProperty("TPnotes").toString());
+			}
+		}
+		return c;
+	}
+	
 	@Override
 	public List<Device> getDevices(String unitKeyString) throws IllegalArgumentException {
 		Key locationKey = KeyFactory.stringToKey(unitKeyString);
@@ -772,6 +859,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Query query = new Query("Measurement").addSort("Date", Query.SortDirection.DESCENDING);
 		for (Entity e : ds.prepare(query).asIterable()) {
 			Measurement m = new Measurement();
+			m.setDeviceKey(KeyFactory.keyToString(e.getParent()));
 			m.setDeviceID(e.getProperty("DeviceID").toString());
 			m.setRaportKey(e.getProperty("RaportKey").toString());
 			m.setDate(e.getProperty("Date").toString());
