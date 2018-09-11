@@ -29,6 +29,7 @@ public class Measurement implements Serializable {
 	private String TPmms = "";
 	private String TPge = "";
 	private String TPcomment = "";
+	private String status="";
 
 	public Measurement() {
 		
@@ -194,6 +195,10 @@ public class Measurement implements Serializable {
 		TPcomment = tPcomment;
 	}
 	
-	
-
+	public String getStatus() {
+		return this.status;
+	}
+    public void setStatus(String status) {
+    	this.status=status;
+    }
 }

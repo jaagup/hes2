@@ -23,6 +23,7 @@ import com.google.gwt.i18n.client.TimeZone;
 import com.google.gwt.resources.client.CssResource.NotStrict;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -71,6 +72,10 @@ public class Raports implements EntryPoint {
 	private Widget inputDate;
 	private boolean isDevMode;
 	private boolean isMobileView;
+	private Storage sessionStore;
+	private String accountKey = null;
+	private AsyncCallback<Company> getCompanyCallback;
+
 	
 
 	@Override
@@ -94,6 +99,42 @@ public class Raports implements EntryPoint {
 		    	updateWidgetSizes();
 		    }
 		});
+		sessionStore = Storage.getSessionStorageIfSupported();
+		accountKey = sessionStore.getItem("Account");
+		if ( accountKey == null) {
+			Window.Location.assign("/Login.html");
+			return;
+		} 
+			HorizontalPanel navigationPanel = new HorizontalPanel();
+			getCompanyCallback = new AsyncCallback<Company>() {
+
+				@Override
+				public void onFailure(Throwable arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(Company arg0) {
+					// TODO Auto-generated method stub
+					selectedCompany = arg0;
+					Label companyNameLabel = new Label(selectedCompany.getCompanyName());
+					companyNameLabel.setStyleName("companyLabel");
+					Button logoutButton = new Button("Logi v\u00E4lja", new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent arg0) {
+							// TODO Auto-generated method stub
+							sessionStore.clear();
+							Window.Location.assign("/Login.html");
+						}
+						
+					});
+					logoutButton.setStyleName("loginBtn");
+					navigationPanel.add(companyNameLabel);
+					navigationPanel.add(logoutButton);
+				}
+			};
 		
 		storeRaportCallback = new AsyncCallback<String>() {
 			
@@ -169,10 +210,12 @@ public class Raports implements EntryPoint {
 		});
 		
 		
-		HorizontalPanel navigationPanel = new HorizontalPanel();
+//		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
 		navigationPanel.setCellWidth(headerImage, "52px");
+		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
+
 		AbsolutePanel headerPanel = new AbsolutePanel();		
 		headerPanel.setStyleName("headerBackground");
 		headerPanel.add(navigationPanel);

@@ -12,6 +12,7 @@ public class MaintenanceItem implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private String keyString;
+	private String connectedMeasurementKeyString="";
 	private String name;
 	private String desc;
 	private String problemDesc="";
@@ -26,12 +27,18 @@ public class MaintenanceItem implements Serializable{
 	private Integer downtime=0;
 	private Integer timeSpent=0;
 	private Integer upload=0;
+	private String deviceName;
+	private String unitName;
+	private String departmentName;
 	
 	public MaintenanceItem() {
 		
 	}
 	public void setMaintenanceID(String keyString) {
 		this.keyString=keyString;
+	}
+	public void setConnectedMeasurementKeyString(String s) {
+		this.connectedMeasurementKeyString=s;
 	}
 	public void setMaintenanceDevice(String deviceKey) {
 		this.devKey = deviceKey;
@@ -78,6 +85,9 @@ public class MaintenanceItem implements Serializable{
 	
 	public String getMaintenanceID() {
 		return this.keyString;
+	}
+	public String getConnectedMeasurementKeyString() {
+		return this.connectedMeasurementKeyString;
 	}
 	public String getMaintenanceName() {
 		return this.name;
@@ -136,5 +146,23 @@ public class MaintenanceItem implements Serializable{
 		data.add(Data5);
 		data.add(Data6);
 		return data;
+	}
+	public void setDeviceName(String deviceName) {
+		this.deviceName=deviceName;
+	}
+	public String getDeviceName() {
+		return this.deviceName;
+	}
+	public void setUnitName(String unitName) {
+		this.unitName=unitName;
+	}
+	public String getUnitName() {
+		return this.unitName;
+	}
+	public void setDepartmentName(String departmentName) {
+		this.departmentName=departmentName;
+	}
+	public String getDepartmentName() {
+		return this.departmentName;
 	}
 }

@@ -64,4 +64,8 @@ public interface DeviceTreeServiceAsync {
     void getDepartment(String departmentKey, AsyncCallback<Department> callback); 
     void getUnit(String unitKey, AsyncCallback<Unit> callback);
     void getDevice(String deviceKey, AsyncCallback<Device> callback);
+    
+    void getCompanyUnits(String companyKey, AsyncCallback<List<Unit>> callback);
+    void getCompanyDevices(String companyKey, AsyncCallback<List<Device>> callback);
+    void getCompanyMaintenanceItems(String companyKey, AsyncCallback<List<MaintenanceItem>> callback);
 }

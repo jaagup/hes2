@@ -12,6 +12,7 @@ public class Unit implements Serializable {
 	private String unitKey;
 	private String departmentKey;
 	private String unit;
+	private String departmentName;
 	private List<Device> deviceList = new ArrayList<Device>();
 	
 	public Unit() {}
@@ -47,6 +48,14 @@ public class Unit implements Serializable {
 	 */
 	public void setDepartmentKey(String departmentKey) {
 		this.departmentKey = departmentKey;
+	}
+	//temporary name
+	public void setDepartmentName(String departmentName) {
+		this.departmentName=departmentName;
+	}
+	
+	public String getDepartmentName() {
+		return this.departmentName;
 	}
 	
 	/**

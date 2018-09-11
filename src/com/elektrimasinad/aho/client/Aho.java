@@ -93,6 +93,9 @@ public class Aho implements EntryPoint {
 	private boolean isDevMode;
 	private Storage sessionStore;
 	private String accountKey = null;
+	private AsyncCallback<Company> getCompanyCallback;
+	Company selectedCompany;
+
 	
 	public void onModuleLoad() {
 		
@@ -102,6 +105,39 @@ public class Aho implements EntryPoint {
 			Window.Location.assign("/Login.html");
 			return;
 		} 
+		
+			HorizontalPanel navigationPanel = new HorizontalPanel();
+			getCompanyCallback = new AsyncCallback<Company>() {
+
+				@Override
+				public void onFailure(Throwable arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(Company arg0) {
+					// TODO Auto-generated method stub
+					selectedCompany = arg0;
+					Label companyNameLabel = new Label(selectedCompany.getCompanyName());
+					companyNameLabel.setStyleName("companyLabel");
+					Button logoutButton = new Button("Logi v\u00E4lja", new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent arg0) {
+							// TODO Auto-generated method stub
+							sessionStore.clear();
+							Window.Location.assign("/Login.html");
+						}
+						
+					});
+					logoutButton.setStyleName("loginBtn");
+					navigationPanel.add(companyNameLabel);
+					navigationPanel.add(logoutButton);
+				}
+			};
+
+		
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
 		if (Window.getClientWidth() < 1000) {
@@ -121,6 +157,8 @@ public class Aho implements EntryPoint {
 		    	updateWidgetSizes();
 		    }
 		});
+		
+		
 		
 		storeMeasurementCallback = new AsyncCallback<String>() {
 			
@@ -198,10 +236,12 @@ public class Aho implements EntryPoint {
 			
 		});
 		
-		HorizontalPanel navigationPanel = new HorizontalPanel();
+//		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
 		navigationPanel.setCellWidth(headerImage, "52px");
+		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
+
 		headerPanel = new AbsolutePanel();
 		headerPanel.setStyleName("headerBackground");
 		headerPanel.add(navigationPanel);

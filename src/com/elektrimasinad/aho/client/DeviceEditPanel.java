@@ -113,13 +113,23 @@ public class DeviceEditPanel extends VerticalPanel {
 				return item;
 			}
 		};
-		DateCell dateCell = new DateCell();
+
+/*		DateCell dateCell = new DateCell();
 		Column<MaintenanceItem, Date> dateCol = new Column<MaintenanceItem, Date>(dateCell) {
 
 			@Override
 			public Date getValue(MaintenanceItem m) {
 				Date item = m.getMaintenanceCompleteDate();
 				return item;
+			}
+		};
+*/
+//		DateCell dateCell = new DateCell();
+		TextColumn<MaintenanceItem> dateCol = new TextColumn<MaintenanceItem>() {
+
+			@Override
+			public String getValue(MaintenanceItem m) {
+				return DeviceMaintenancePanel2.dateString(m.getMaintenanceCompleteDate());
 			}
 		};
 		TextColumn<MaintenanceItem> assignedEmployee = new TextColumn<MaintenanceItem>() {

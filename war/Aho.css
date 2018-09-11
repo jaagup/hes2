@@ -579,6 +579,9 @@ h1 {
 	margin-top: 14px;
 	width: 340px;
 }
+.aho-datebox{
+	background-color: yellow;
+}
 .deletePrompt {
 	background-color: #006CB5;
 }
@@ -1031,7 +1034,7 @@ h1 {
 }
 .punataust{
 	background-color: red;
-	font-size: 200%;
+	//font-size: 200%;
 }
 .sinitaust{
 	color: green;

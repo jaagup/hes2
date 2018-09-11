@@ -204,6 +204,9 @@ public class DeviceCard implements EntryPoint {
 							deviceTreeService.getMaintenanceEntry(maintenanceCode, getMaintenanceItemCallback);
 						}
 					}
+					if(actionParameter.contentEquals("createPlannerItem")) {
+						createDeviceEditPanelView();
+					}
 				}
 				//deviceTreeService.getDepartment(selectedUnit.getDepartmentKey(), getDepartmentCallback);
 			}
@@ -1203,7 +1206,7 @@ public class DeviceCard implements EntryPoint {
 		HorizontalPanel maintHeader = new HorizontalPanel();
 		deviceMaintenancePanel2.clear();
         deviceMaintenancePanel2.create();	
-		final Label lBack = new Label("Tagasi 2a");
+		final Label lBack = new Label("Tagasi 2a "+selectedDepartment.getDepartmentName()+" - "+selectedUnit.getUnit()+" "+selectedDevice.getDeviceName());
 		lBack.setStyleName("backSaveLabel");
 		lBack.addClickHandler(new ClickHandler() {
 			
@@ -1277,7 +1280,14 @@ public class DeviceCard implements EntryPoint {
 		deviceEditPanel.createNewDeviceEditPanel(selectedDevice);
 		deviceEditPanel.insert(maintHeader, 0);
 		deviceEditPanel.insert(buttonTime, 1);
-		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceEditPanel));
+		if(Window.Location.getParameter("DiagnosticKey")!=null) {
+			  DeviceCard.this.selectedMaintenanceItem=null;
+			createMaintenancePanel2();
+		   Debug.log("loi paneeli");
+		} else {
+		    contentPanel.showWidget(contentPanel.getWidgetIndex(deviceEditPanel));
+		    Debug.log("tavaline paneel");
+		}
 	}
 	
 	private void createEditLocationView() {

@@ -10,6 +10,7 @@ import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Unit;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -66,5 +67,9 @@ public interface DeviceTreeService extends RemoteService {
 	Unit getUnit(String unitKey);
 	Device getDevice(String deviceKey);
 	
+    
+    List<Unit> getCompanyUnits(String companyKey) throws IllegalArgumentException;
+    List<Device> getCompanyDevices(String companyKey) throws IllegalArgumentException;
+    List<MaintenanceItem> getCompanyMaintenanceItems(String companyKey) throws IllegalArgumentException;
 
 }

@@ -17,6 +17,8 @@ public class Device implements Serializable {
 	private String devicekWrpm;
 	private String deviceType;
 	private String deviceManufacturer;
+	private String unitName;
+	private String departmentName;
 	
 	private String DElaager;
 	private String DEsimmer;
@@ -217,6 +219,23 @@ public class Device implements Serializable {
 		this.locationKey = locationKey;
 	}
 
+	//temporary
+	public void setUnitName(String unitName) {
+		this.unitName=unitName;
+	}
+	
+	public String getUnitName() {
+		return this.unitName;
+	}
+	
+	public void setDepartmentName(String departmentName) {
+		this.departmentName=departmentName;
+	}
+	
+	public String getDepartmentName() {
+		return this.departmentName;
+	}
+	
 	/**
 	 * @return the deviceKey
 	 */

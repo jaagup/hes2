@@ -141,6 +141,7 @@ public class DeviceTree extends Tree {
 		companyItem.setText(company.getCompanyName());
 		companyItem.setUserObject(company);
 		this.addItem(companyItem);
+		fetchDepartments(company);
 		
 	}
 	
