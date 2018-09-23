@@ -37,7 +37,7 @@ public class AhoWidgets {
 		headerPanel.add(lDeviceHeader);
 		if (labelText.equals("Seadme \u00FCldandmed")) {
 			Button maintainanceLink = new Button();
-			Label lMaintainanceLink = new Label("Hooldustegevused");
+			Label lMaintainanceLink = new Label("Hooldus");
 			lMaintainanceLink.setStyleName("aho-label2-maintLink");
 			maintainanceLink.setStyleName("maintainanceLink");
 			maintainanceLink.addClickHandler(new ClickHandler() {

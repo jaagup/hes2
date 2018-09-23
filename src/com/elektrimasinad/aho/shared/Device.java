@@ -14,6 +14,7 @@ public class Device implements Serializable {
 	private String deviceName;
 	private String locationName;
 	private String deviceNickname = "El.mootor";
+	private String deviceComment ="";
 	private String devicekWrpm;
 	private String deviceType;
 	private String deviceManufacturer;
@@ -33,6 +34,7 @@ public class Device implements Serializable {
 	private String coupledDeviceName;
 	private String coupledDeviceType;
 	private String coupledDeviceManufacturer;
+	private String coupledDeviceComment;
 	
 	private String MPlaager;
 	private String MPsimmer;
@@ -293,6 +295,14 @@ public class Device implements Serializable {
 	public void setDeviceNickname(String deviceNickname) {
 		this.deviceNickname = deviceNickname;
 	}
+	
+	public String getDeviceComment() {
+		return deviceComment;
+	}
+	
+	public void setDeviceComment(String deviceComment) {
+		this.deviceComment=deviceComment;
+	}
 
 	public String getDevicekWrpm() {
 		return devicekWrpm;
@@ -318,6 +328,14 @@ public class Device implements Serializable {
 		this.deviceManufacturer = deviceManufacturer;
 	}
 
+	public String getCoupledDeviceComment() {
+		return this.coupledDeviceComment;
+	}
+	
+	public void setCoupledDeviceComment(String coupledDeviceComment) {
+		this.coupledDeviceComment=coupledDeviceComment;
+	}
+	
 	public String getDElaager() {
 		return DElaager;
 	}

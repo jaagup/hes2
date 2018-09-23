@@ -11,8 +11,11 @@ public class Measurement implements Serializable {
 	
 	private String deviceID = "";
 	private String deviceName = "";
+	private String unitName="";
+	private String departmentName="";
 	private String deviceKey = "";
 	private String raportKey = "";
+	private String raportID="";
 	private String measurementKey = "";
 	private String date = "";
 	private String marking = "";
@@ -50,6 +53,22 @@ public class Measurement implements Serializable {
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
+	
+	public String getUnitName() {
+		return this.unitName;
+	}
+	
+	public void setUnitName(String unitName) {
+		this.unitName=unitName;
+	}
+	
+	public String getDepartmentName() {
+		return this.departmentName;
+	}
+	
+	public void setDepartmentName(String departmentName) {
+		this.departmentName=departmentName;
+	}
 
 	public String getDeviceKey() {
 		return deviceKey;
@@ -66,7 +85,15 @@ public class Measurement implements Serializable {
 	public void setRaportKey(String raportKey) {
 		this.raportKey = raportKey;
 	}
+	
+	public String getRaportID() {
+		return this.raportID;
+	}
 
+	public void setRaportID(String raportID) {
+		this.raportID=raportID;
+	}
+	
 	public String getMeasurementKey() {
 		return measurementKey;
 	}

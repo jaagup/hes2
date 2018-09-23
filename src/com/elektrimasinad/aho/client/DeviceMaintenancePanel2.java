@@ -202,6 +202,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    	saveButton.setText("Uuenda");
 	    }
 	    add(saveButton);
+		saveButton.setStyleName("panelButton");
 
 	    HorizontalPanel dublicatePanel=new HorizontalPanel();
 	    dublicatePanel.setStyleName("aho-panel1");
@@ -223,6 +224,8 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 			      deviceCard.deviceTreeService.storeMaintenanceEntry(m, deviceCard.selectedCompany.getCompanyKey(), storeCallback);	    			  
 	    	}
 	    });
+		dublicateButton.setStyleName("panelButton");
+
 	    dublicatePanel.add(dublicateButton);
 	    dublicatePanel.add(dublicateBox);
 	    add(dublicatePanel);
@@ -303,5 +306,6 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		      }
 		});
 		add(w);
+		w.setStyleName("panelButton");
     }
 }

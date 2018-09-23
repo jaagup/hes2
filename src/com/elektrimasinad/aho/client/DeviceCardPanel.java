@@ -49,6 +49,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	private int IMAGES_PER_ROW = 5;
 	private List<Image> images = new ArrayList<Image>();
 	private Widget pDeviceInput;
+	private Widget pDeviceCommentInput;
 	private Widget pDevicePowerInput;
 	private Widget pDeviceTypeInput;
 	private Widget pDeviceManufacturerInput;
@@ -61,6 +62,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Widget pTihend2;
 	private Widget pNotes2;
 	private Widget cDeviceInput;
+	private Widget cDeviceCommentInput;
 	private Widget cDeviceTypeInput;
 	private Widget cDeviceManufacturerInput;
 	private Widget cLaager1;
@@ -236,7 +238,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		Grid grid = new Grid(5, 5);
 		grid.setStyleName("aho-panel1 table");
 		
-		Label lDevice = AhoWidgets.createLabel("", "aho-label3", null);
+		Label lDevice = AhoWidgets.createLabel("Seadme abinimi", "aho-label3", null);
 		Label lDevicePower = AhoWidgets.createLabel("kW/rpm", "aho-label3", null);
 		Label lType = AhoWidgets.createLabel("T\u00FC\u00FCp", "aho-label3", null);
 		Label lManufacturer = AhoWidgets.createLabel("Tootja", "aho-label3", null);
@@ -254,6 +256,7 @@ public class DeviceCardPanel extends VerticalPanel {
 			lDevicePower.setText("");
 			if (isEditView) {
 				cDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceName());
+				cDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceComment());
 				cDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getCoupledDeviceType());
 				cDeviceManufacturerInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceManufacturer());
 				cLaager1 = AhoWidgets.createTextbox("aho-textbox1 small", device.getMPlaager());
@@ -265,21 +268,23 @@ public class DeviceCardPanel extends VerticalPanel {
 				cTihend2 = AhoWidgets.createTextbox("aho-textbox1 small", device.getTPVtihend());
 				cNotes2 = AhoWidgets.createTextbox("aho-textbox1 medium", device.getTPnotes());
 			} else {
-				cDeviceInput = AhoWidgets.createLabel(device.getCoupledDeviceName(), "aho-label3 black", null);
-				cDeviceTypeInput = AhoWidgets.createLabel(device.getCoupledDeviceType(), "aho-label3 black", null);
-				cDeviceManufacturerInput = AhoWidgets.createLabel(device.getCoupledDeviceManufacturer(), "aho-label3 black", null);
-				cLaager1 = AhoWidgets.createLabel(device.getMPlaager(), "aho-label3 black", null);
-				cSimmer1 = AhoWidgets.createLabel(device.getMPsimmer(), "aho-label3 black", null);
-				cTihend1 = AhoWidgets.createLabel(device.getMPVtihend(), "aho-label3 black", null);
-				cNotes1 = AhoWidgets.createLabel(device.getMPnotes(), "aho-label3 black", null);
-				cLaager2 = AhoWidgets.createLabel(device.getTPlaager(), "aho-label3 black", null);
-				cSimmer2 = AhoWidgets.createLabel(device.getTPsimmer(), "aho-label3 black", null);
-				cTihend2 = AhoWidgets.createLabel(device.getTPVtihend(), "aho-label3 black", null);
-				cNotes2 = AhoWidgets.createLabel(device.getTPnotes(), "aho-label3 black", null);
+				cDeviceInput = AhoWidgets.createLabel(device.getCoupledDeviceName(), "aho-label3 blue", null);
+				cDeviceCommentInput = AhoWidgets.createLabel(device.getCoupledDeviceComment(), "aho-label3 blue", null);
+				cDeviceTypeInput = AhoWidgets.createLabel(device.getCoupledDeviceType(), "aho-label3 blue", null);
+				cDeviceManufacturerInput = AhoWidgets.createLabel(device.getCoupledDeviceManufacturer(), "aho-label3 blue", null);
+				cLaager1 = AhoWidgets.createLabel(device.getMPlaager(), "aho-label3 blue", null);
+				cSimmer1 = AhoWidgets.createLabel(device.getMPsimmer(), "aho-label3 blue", null);
+				cTihend1 = AhoWidgets.createLabel(device.getMPVtihend(), "aho-label3 blue", null);
+				cNotes1 = AhoWidgets.createLabel(device.getMPnotes(), "aho-label3 blue", null);
+				cLaager2 = AhoWidgets.createLabel(device.getTPlaager(), "aho-label3 blue", null);
+				cSimmer2 = AhoWidgets.createLabel(device.getTPsimmer(), "aho-label3 blue", null);
+				cTihend2 = AhoWidgets.createLabel(device.getTPVtihend(), "aho-label3 blue", null);
+				cNotes2 = AhoWidgets.createLabel(device.getTPnotes(), "aho-label3 blue", null);
 			}
 			grid.setWidget(1, 0, cDeviceInput);
 			grid.setWidget(1, 3, cDeviceTypeInput);
 			grid.setWidget(1, 4, cDeviceManufacturerInput);
+			grid.setWidget(2, 0, cDeviceCommentInput);
 			grid.setWidget(3, 1, cLaager1);
 			grid.setWidget(3, 2, cSimmer1);
 			grid.setWidget(3, 3, cTihend1);
@@ -291,6 +296,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		} else {
 			if (isEditView) {
 				pDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceNickname());
+				pDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceComment());
 				pDevicePowerInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDevicekWrpm());
 				pDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDeviceType());
 				pDeviceManufacturerInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceManufacturer());
@@ -303,23 +309,25 @@ public class DeviceCardPanel extends VerticalPanel {
 				pTihend2 = AhoWidgets.createTextbox("aho-textbox1 small", device.getNDEVtihend());
 				pNotes2 = AhoWidgets.createTextbox("aho-textbox1 medium", device.getNDEnotes());
 			} else {
-				pDeviceInput = AhoWidgets.createLabel(device.getDeviceNickname(), "aho-label3 black", null);
-				pDevicePowerInput = AhoWidgets.createLabel(device.getDevicekWrpm(), "aho-label3 black", null);
-				pDeviceTypeInput = AhoWidgets.createLabel(device.getDeviceType(), "aho-label3 black", null);
-				pDeviceManufacturerInput = AhoWidgets.createLabel(device.getDeviceManufacturer(), "aho-label3 black", null);
-				pLaager1 = AhoWidgets.createLabel(device.getDElaager(), "aho-label3 black", null);
-				pSimmer1 = AhoWidgets.createLabel(device.getDEsimmer(), "aho-label3 black", null);
-				pTihend1 = AhoWidgets.createLabel(device.getDEVtihend(), "aho-label3 black", null);
-				pNotes1 = AhoWidgets.createLabel(device.getDEnotes(), "aho-label3 black", null);
-				pLaager2 = AhoWidgets.createLabel(device.getNDElaager(), "aho-label3 black", null);
-				pSimmer2 = AhoWidgets.createLabel(device.getNDEsimmer(), "aho-label3 black", null);
-				pTihend2 = AhoWidgets.createLabel(device.getNDEVtihend(), "aho-label3 black", null);
-				pNotes2 = AhoWidgets.createLabel(device.getNDEnotes(), "aho-label3 black", null);
+				pDeviceInput = AhoWidgets.createLabel(device.getDeviceNickname(), "aho-label3 blue", null);
+				pDeviceCommentInput = AhoWidgets.createLabel(device.getDeviceComment(), "aho-label3 blue", null);
+				pDevicePowerInput = AhoWidgets.createLabel(device.getDevicekWrpm(), "aho-label3 blue", null);
+				pDeviceTypeInput = AhoWidgets.createLabel(device.getDeviceType(), "aho-label3  blue", null);
+				pDeviceManufacturerInput = AhoWidgets.createLabel(device.getDeviceManufacturer(), "aho-label3  blue", null);
+				pLaager1 = AhoWidgets.createLabel(device.getDElaager(), "aho-label3  blue", null);
+				pSimmer1 = AhoWidgets.createLabel(device.getDEsimmer(), "aho-label3  blue", null);
+				pTihend1 = AhoWidgets.createLabel(device.getDEVtihend(), "aho-label3  blue", null);
+				pNotes1 = AhoWidgets.createLabel(device.getDEnotes(), "aho-label3  blue", null);
+				pLaager2 = AhoWidgets.createLabel(device.getNDElaager(), "aho-label3  blue", null);
+				pSimmer2 = AhoWidgets.createLabel(device.getNDEsimmer(), "aho-label3  blue", null);
+				pTihend2 = AhoWidgets.createLabel(device.getNDEVtihend(), "aho-label3  blue", null);
+				pNotes2 = AhoWidgets.createLabel(device.getNDEnotes(), "aho-label3  blue", null);
 			}
 			grid.setWidget(1, 0, pDeviceInput);
 			grid.setWidget(1, 2, pDevicePowerInput);
 			grid.setWidget(1, 3, pDeviceTypeInput);
 			grid.setWidget(1, 4, pDeviceManufacturerInput);
+			grid.setWidget(2, 0, pDeviceCommentInput);
 			grid.setWidget(3, 1, pLaager1);
 			grid.setWidget(3, 2, pSimmer1);
 			grid.setWidget(3, 3, pTihend1);
@@ -431,6 +439,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	public void updateDeviceData(Device device, AsyncCallback<String> storeDeviceCallback) {
 		device.setId(((TextBox)deviceId).getText());
 		device.setDeviceName(((TextBox)deviceName).getText());
+		device.setDeviceComment(((TextBox)pDeviceCommentInput).getText());
 		device.setLocationName(((TextBox)locationName).getText());
 		device.setDeviceNickname(((TextBox)pDeviceInput).getText());
 		device.setDevicekWrpm(((TextBox)pDevicePowerInput).getText());
@@ -446,6 +455,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		device.setNDEnotes(((TextBox)pNotes2).getText());
 		if (device.hasCoupledDevice()) {
 			device.setCoupledDeviceName(((TextBox)cDeviceInput).getText());
+			device.setCoupledDeviceComment(((TextBox)cDeviceCommentInput).getText());
 			device.setCoupledDeviceType(((TextBox)cDeviceTypeInput).getText());
 			device.setCoupledDeviceManufacturer(((TextBox)cDeviceManufacturerInput).getText());
 			device.setMPlaager(((TextBox)cLaager1).getText());
@@ -464,6 +474,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	public void createDevice(List<Device> deviceList, AsyncCallback<String> storeDeviceCallback) {
 		device.setId(((TextBox)deviceId).getText());
 		device.setDeviceName(((TextBox)deviceName).getText());
+		device.setDeviceComment(((TextBox)pDeviceCommentInput).getText());
 		device.setLocationName(((TextBox)locationName).getText());
 		device.setDeviceNickname(((TextBox)pDeviceInput).getText());
 		device.setDevicekWrpm(((TextBox)pDevicePowerInput).getText());
@@ -479,6 +490,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		device.setNDEnotes(((TextBox)pNotes2).getText());
 		if (device.hasCoupledDevice()) {
 			device.setCoupledDeviceName(((TextBox)cDeviceInput).getText());
+			device.setCoupledDeviceComment(((TextBox)cDeviceCommentInput).getText());
 			device.setCoupledDeviceType(((TextBox)cDeviceTypeInput).getText());
 			device.setCoupledDeviceManufacturer(((TextBox)cDeviceManufacturerInput).getText());
 			device.setMPlaager(((TextBox)cLaager1).getText());

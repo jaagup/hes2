@@ -54,13 +54,15 @@ public class Login implements EntryPoint{
 	
 	@Override
 	public void onModuleLoad() {
-		String[] testNames = {"elektrimasinad", "mitte_elektrimasinad", "auruseadmed"};
+/*
+  		String[] testNames = {"elektrimasinad", "mitte_elektrimasinad", "auruseadmed"};
+ 
 		for (int i = 0; i < 3; i++) {
 			Company testCompany = new Company();
 			testCompany.setCompanyName(testNames[i]);
 			deviceTreeService.storeCompany(testCompany, testCompany.getCompanyName(), "test", storeCompanyCallback);
 		}
-		
+*/		
 		sessionStore = Storage.getSessionStorageIfSupported();
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
@@ -112,6 +114,7 @@ public class Login implements EntryPoint{
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
+				Window.alert("sisenemisprobleem");
 				
 			}
 		};
@@ -153,10 +156,12 @@ public class Login implements EntryPoint{
 			}
 			
 		});
+		Image elektrimasinadImage=new Image("res/valgelogo.png");
 		
 		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
+		navigationPanel.add(elektrimasinadImage);
 		navigationPanel.setCellWidth(headerImage, "52px");
 		headerPanel = new AbsolutePanel();
 		headerPanel.setStyleName("headerBackground");

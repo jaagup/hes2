@@ -50,15 +50,18 @@ public class Admin implements EntryPoint{
 	private AsyncCallback<String> createAdminAccountCallback;
 	protected List<Measurement> measurements;
 	private List<Company> companyList = new ArrayList<Company>();
+	private CompanyPanel companyPanel=new CompanyPanel();
 	private boolean isDevMode;
 	private boolean isMobileView;
 	private String accountKey;
 	private Storage sessionStore;
 	private Label userLabel;
+	DebugClientSide Debug = new DebugClientSide();
+
 	
 	@Override
 	public void onModuleLoad() {
-		
+		Debug.enable();
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
 		if (Window.getClientWidth() < 1000) {
@@ -99,6 +102,7 @@ public class Admin implements EntryPoint{
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
+				Window.alert("update error "+arg0);
 				
 			}
 
@@ -106,6 +110,7 @@ public class Admin implements EntryPoint{
 			public void onSuccess(String arg0) {
 				// TODO Auto-generated method stub
 				Window.alert("Company updated!");
+				fetchCompanies();
 			}
 			
 		};
@@ -116,11 +121,13 @@ public class Admin implements EntryPoint{
 				//System.out.println(name);
 				companyList = companies;
 				createCompanyListPanel();
+				Debug.log("Paneel loodud");
+				
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println(caught);
+				Debug.log("Loetelu probleem: "+caught);
 			}
 			
 		};
@@ -146,13 +153,13 @@ public class Admin implements EntryPoint{
 			
 			@Override
 			public void onSuccess(String name) {
-				System.out.println(name);
+				//Window.alert("Loodi "+name);
 				fetchCompanies();
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println(caught);
+				Window.alert("Probleem loomisel "+caught);
 			}
 			
 		};
@@ -171,7 +178,7 @@ public class Admin implements EntryPoint{
 			}
 			
 		};
-		userInfoService.createAdminAccount("admin", "test", createAdminAccountCallback);
+//		userInfoService.createAdminAccount("admin", "test", createAdminAccountCallback);
 		
 		RootPanel root = RootPanel.get();
 		root.setStyleName("mainBackground2");
@@ -254,6 +261,7 @@ public class Admin implements EntryPoint{
 		createAdminLogonPanel();
 	}
 	public VerticalPanel createCompanyListPanel() {
+		contentPanel.clear();
 		companyListPanel.clear();
 		companyListPanel.setWidth("100%");
 		
@@ -287,6 +295,16 @@ public class Admin implements EntryPoint{
 			companyListPanel.add(lCompany);
 		}
 		
+		Label companyAddLabel=new Label("* Lisa ettev\u00F5te");
+		companyAddLabel.setStyleName("aho-listItem");
+		companyListPanel.add(companyAddLabel);
+		companyAddLabel.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+//			  contentPanel.showWidget(contentPanel.getWidgetIndex(companyPanel));	
+				createNewCompanyPanel();
+			}
+		});
+		contentPanel.add(companyListPanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(companyListPanel));
 		
 		return companyListPanel;
@@ -354,25 +372,29 @@ public class Admin implements EntryPoint{
 		contentPanel.add(loginPanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(loginPanel));
 	}
-	private void createEditPanel(Company c) {
+
+	private void createEditPanel(final Company c) {
 		contentPanel.clear();
 		VerticalPanel editCompany = new VerticalPanel();
 		Label editCompanyNameLabel = new Label("Nimi");
 		TextBox editCompanyName = new TextBox();
+	/*	Window.alert("kompanii "+c.getCompanyName()+" "+
+				sessionStore.getItem("adminPanelSelectedCompany")
+		);*/
 		editCompanyName.setValue(c.getCompanyName());
-		Label editCompanyUsernameLabel = new Label("Kasutajanimi");
-		TextBox editCompanyUsername = new TextBox();
-		editCompanyName.setValue(c.getCompanyUsername());
-		Label editCompanyPasswordLabel = new Label("Salasõna");
+//		Label editCompanyUsernameLabel = new Label("Kasutajanimi");
+//		TextBox editCompanyUsername = new TextBox();
+//		editCompanyUsername.setValue(c.getCompanyUsername());
+		Label editCompanyPasswordLabel = new Label("Salas\u00F5na");
 		PasswordTextBox editCompanyPassword = new PasswordTextBox();
-		editCompanyName.setValue(c.getCompanyPassword());
+		//editCompanyName.setValue(c.getCompanyPassword());
 		Button editCompanySave = new Button("Salvesta", new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent arg0) {
 				// TODO Auto-generated method stub
 				c.setCompanyName(editCompanyName.getValue().toString());
-				c.setCompanyUsername(editCompanyUsername.getValue().toString());
+				c.setCompanyUsername(editCompanyName.getValue().toString());
 				c.setCompanyPassword(editCompanyPassword.getValue().toString());
 				deviceTreeService.updateCompany(c, updateCompanyCallback);
 			}
@@ -380,12 +402,49 @@ public class Admin implements EntryPoint{
 		});
 		editCompany.add(editCompanyNameLabel);
 		editCompany.add(editCompanyName);
-		editCompany.add(editCompanyUsernameLabel);
-		editCompany.add(editCompanyUsername);
+//		editCompany.add(editCompanyUsernameLabel);
+//		editCompany.add(editCompanyUsername);
 		editCompany.add(editCompanyPasswordLabel);
 		editCompany.add(editCompanyPassword);
 		editCompany.add(editCompanySave);
 		contentPanel.add(editCompany);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(editCompany));
-	}
+	
 }
+
+private void createNewCompanyPanel() {
+	contentPanel.clear();
+	VerticalPanel editCompany = new VerticalPanel();
+	Label editCompanyNameLabel = new Label("Nimi");
+	TextBox editCompanyName = new TextBox();
+//	Label editCompanyUsernameLabel = new Label("Kasutajanimi");
+//	TextBox editCompanyUsername = new TextBox();
+	Label editCompanyPasswordLabel = new Label("Salas\u00F5na");
+	PasswordTextBox editCompanyPassword = new PasswordTextBox();
+	Button editCompanySave = new Button("Loo ettev\u00F5te", new ClickHandler() {
+
+		@Override
+		public void onClick(ClickEvent arg0) {
+			// TODO Auto-generated method stub
+			Company c=new Company();
+			c.setCompanyName(editCompanyName.getValue().toString());
+			c.setCompanyUsername(editCompanyName.getValue().toString());
+			c.setCompanyPassword(editCompanyPassword.getValue().toString());
+			deviceTreeService.storeCompany(c,c.getCompanyUsername(), c.getCompanyPassword(),  storeCompanyCallback);
+		}
+		
+	});
+	editCompany.add(editCompanyNameLabel);
+	editCompany.add(editCompanyName);
+//	editCompany.add(editCompanyUsernameLabel);
+//	editCompany.add(editCompanyUsername);
+	editCompany.add(editCompanyPasswordLabel);
+	editCompany.add(editCompanyPassword);
+	editCompany.add(editCompanySave);
+	contentPanel.add(editCompany);
+	contentPanel.showWidget(contentPanel.getWidgetIndex(editCompany));
+}
+}
+
+
+

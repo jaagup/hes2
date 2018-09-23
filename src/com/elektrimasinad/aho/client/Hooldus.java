@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
 
 import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Device;
@@ -65,6 +66,7 @@ public class Hooldus implements EntryPoint {
 	protected AsyncCallback<List<Measurement>> getRaportDataCallback;
 	private AsyncCallback<Company> getCompanyCallback;
 	private AsyncCallback<List<MaintenanceItem>> getCompanyMaintenanceItemsCallback;
+	private AsyncCallback<List<Measurement>> getCompanyMeasurementsCallback;
 
 	
 	private int MAIN_WIDTH = 900;
@@ -74,6 +76,7 @@ public class Hooldus implements EntryPoint {
 	private List<Device> devices = new ArrayList<Device>();
 	private List<MaintenanceItem> maintenance = new ArrayList<MaintenanceItem>();
 	private List<MaintenanceItem> maintenance2 = new ArrayList<MaintenanceItem>();
+	private List<Measurement> measurements2 = new ArrayList<Measurement>();
 	private static List<Measurement> raportDataList;
 	
 	private DeviceTree devTree;
@@ -179,7 +182,9 @@ public class Hooldus implements EntryPoint {
 				maintenance2=items;
 				Debug.log("uued saabusid");
 				Debug.log(maintenance2.toString());
-				init();
+//				deviceTreeService.getCompanyMeasurements( callback);
+				deviceTreeService.getCompanyMeasurements(sessionStore.getItem("Account"), getCompanyMeasurementsCallback);
+
 			}
 			@Override
 			public void onFailure(Throwable caught) {
@@ -187,7 +192,23 @@ public class Hooldus implements EntryPoint {
 				Debug.log("Maintenance Items error "+caught);
 			}
 		};
-		getRaportsCallback = new AsyncCallback<List<Raport>>() {
+		getCompanyMeasurementsCallback=new AsyncCallback<List<Measurement>>() {
+			@Override
+			public void onSuccess(List<Measurement> items) {
+			
+				measurements2=items;
+				Debug.log("uued mootmised saabusid");
+				Debug.log(measurements2.toString());
+				init();
+			}
+			@Override
+			public void onFailure(Throwable caught) {
+				//System.err.println(caught);
+				Debug.log("Measurement Items error "+caught);
+			}
+		};
+
+/*		getRaportsCallback = new AsyncCallback<List<Raport>>() {
 			@Override
 			public void onSuccess(List<Raport> raportList) {
 				//System.out.println(name);
@@ -216,7 +237,7 @@ public class Hooldus implements EntryPoint {
 				if (deviceList != null) {
 					devices = deviceList;
 					Debug.log("Seadmed imporditud.");
-					deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
+//					deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
 					
 					
 				} else {
@@ -275,6 +296,7 @@ public class Hooldus implements EntryPoint {
 			}
 			
 		};
+	*/
 		CellTable<DiagnostikaItem> table = new CellTable<DiagnostikaItem>();
 		RootPanel root = RootPanel.get();
 		root.setStyleName("mainBackground2");
@@ -336,13 +358,15 @@ public class Hooldus implements EntryPoint {
 	private void firstInit() {
 		devTree = new DeviceTree(deviceTreeService);
 		devTree.getElement().addClassName("gwt-Tree");
-		deviceTreeService.getListRaports(getRaportsCallback);
+		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
+
+		//deviceTreeService.getListRaports(getRaportsCallback);
 	}
 	private void init() {
 			
-		String m = "measurement size: " + Integer.toString(raportDataList.size());
-		Debug.log(m);
-		createNewDataTable();
+		//String m = "measurement size: " + Integer.toString(raportDataList.size());
+		//Debug.log(m);
+		createNewDataTable2();
 		createNewPlannerTable2();
 		contentPanel.add(tablePanel);
 		content2Panel.add(table2Panel);
@@ -394,7 +418,145 @@ public class Hooldus implements EntryPoint {
 		Debug.log("326");
 	}
 	*/
-	private VerticalPanel createNewDataTable() {		
+	
+	private VerticalPanel createNewDataTable2() {
+		tablePanel = new VerticalPanel();
+		tablePanel.setStyleName("aho-panel1 table2");
+		tablePanel.setWidth("100%");
+		Label lLabel = new Label("Diagnostika ja monitooring");
+		lLabel.setStyleName("backSaveLabel noPointer");
+		// HOOLDUSTEGEVUSTE PILT
+		Image hooldusImage = new Image("res/pikto-hooldus.png");
+ 		hooldusImage.setStyleName("aho-hooldusImage");
+ 		hooldusImage.addClickHandler(new ClickHandler() {
+ 			
+ 			@Override
+ 			public void onClick(ClickEvent event) {
+ 				if(isDevMode) Window.Location.assign(Window.Location.getHref().replace("index", "DeviceCard"));
+ 				else Window.Location.assign("/DeviceCard.html");
+ 			}
+ 			
+ 		});
+ 		
+		CellTable<Measurement> table = new CellTable<Measurement>();
+		Column<Measurement, SafeHtml> markingColumn = new Column<Measurement, SafeHtml>(new SafeHtmlCell()) {
+	    	@Override
+			public SafeHtml getValue(Measurement object) {
+	    		//return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString());
+	    		if(object.getMarking()==null) {return null;}
+	    		if(object.getMarking().contentEquals("alarm")) {return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString());}
+	    		if(object.getMarking().contentEquals("hoiatus")) {return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString());}
+	    		return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString());
+
+				/*if(object.getMarking().equals("alarm")) {
+						return object.getMarking().equals("alarm") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString()): null;
+					}else if (object.getMarking().equals("hoiatus")) {
+						return object.getMarking().equals("hoiatus") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString()): null;
+					} else {
+						return object.getMarking().equals("ok") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString()): null;
+			}
+					}*/
+		}
+		};
+		
+		markingColumn.setCellStyleNames("markingCell");
+		table.setColumnWidth(0, "60px");
+	    table.addColumn(markingColumn);
+	    	
+	    TextColumn<Measurement> nameColumn = new TextColumn<Measurement>() {
+	      @Override
+	      public String getValue(Measurement object) {
+	        return object.getDepartmentName();
+	      }
+	    };
+	    table.addColumn(nameColumn, "Osakond");
+
+	    // Add a text column to show the address.
+	    TextColumn<Measurement> addressColumn = new TextColumn<Measurement>() {
+	      @Override
+	      public String getValue(Measurement object) {
+	        return object.getUnitName();
+	      }
+	    };
+	    table.addColumn(addressColumn, "\u00FCksus");
+	    
+	 // Add a text column to show the ID.
+	    TextColumn<Measurement> idColumn = new TextColumn<Measurement>() {
+	      @Override
+	      public String getValue(Measurement object) {
+	        return object.getRaportID();
+	      }
+	    };
+	    table.addColumn(idColumn, "ID.nr");
+	    
+	    // Add a text column to show the device name.
+	    TextColumn<Measurement> seadeColumn = new TextColumn<Measurement>() {
+	      @Override
+	      public String getValue(Measurement object) {
+	        return object.getDeviceName();
+	      }
+	    };
+	    table.addColumn(seadeColumn, "Seade");
+	    
+	    // Add a text column to show the comment.
+	    TextColumn<Measurement> kommentaarColumn = new TextColumn<Measurement>() {
+	      @Override
+	      public String getValue(Measurement object) {
+	        return object.getComment();
+	      }
+	    };
+	    table.addColumn(kommentaarColumn, "Kommentaar");
+	    
+	    
+		SingleSelectionModel<Measurement> tableSelModel = new SingleSelectionModel<Measurement>();
+		tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+			@Override
+			public void onSelectionChange(SelectionChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				Measurement selectedItem = (Measurement) tableSelModel.getSelectedObject();
+				//showEditPanel(selectedItem);
+				//Debug.log(selectedItem.getDevice());
+//				Window.Location.assign("/DeviceCard.html?deviceKey="+selectedItem.getDeviceKey()+"&action=addPlannerItem");
+				Window.Location.assign("/DeviceCard.html?deviceKey="+selectedItem.getDeviceKey()+"&action=createPlannerItem&problemDescription="+selectedItem.getComment()+"&DiagnosticKey="+selectedItem.getMeasurementKey());
+			}
+			
+		});
+		table.setSelectionModel(tableSelModel);
+		List<Measurement> measurements3=
+  	      measurements2.stream().filter((m) -> m.getRaportKey().length()>0).
+	      filter((m) -> (m.getMarking().contentEquals("alarm") || 
+	    		    m.getMarking().contentEquals("hoiatus")) && !m.getStatus().contentEquals("archived")).collect(toList()); 
+	    // Set the total row count. This isn't strictly necessary, but it affects
+	    // paging calculations, so its good habit to keep the row count up to date.
+	    table.setRowCount(measurements3.size(), true);
+	    table.setWidth("710px", true);
+	    // Push the data into the widget.
+	    table.setRowData(0, measurements3);
+	    tablePanel.add(lLabel);
+	    ScrollPanel sp=new ScrollPanel(table);
+	    sp.setSize("720px", "200px");
+	    tablePanel.add(sp);
+		AbsolutePanel markingPanel = new AbsolutePanel();
+	    markingPanel.setSize("100%", "50px");
+		markingPanel.add(AhoWidgets.getAHOImage("a", 14), 0, 5);
+		markingPanel.add(AhoWidgets.getAHOImage("h", 14), 0, 20);
+		//markingPanel.add(AhoWidgets.getAHOImage("o", 14), 0, 35);
+	    Label markingA = new Label("Alarm. Oluline k\u00F5rvalekalle normist. Soovitatav tegevus");
+	    Label markingH = new Label("Hoiatus. T\u00E4heldatav k\u00F5rvalekalle normist. V\u00E4lja selgitada p\u00F5hjus v\u00F5i j\u00E4lgida arengut.");
+	    //Label markingO = new Label("N\u00E4itajad normi piirides");
+	    markingA.setStyleName("smallTextLabel");
+	    markingH.setStyleName("smallTextLabel");
+	    //markingO.setStyleName("smallTextLabel");
+	    markingPanel.add(markingA, 25, 5);
+	    markingPanel.add(markingH, 25, 20);
+	    //markingPanel.add(markingO, 25, 35);
+		tablePanel.add(markingPanel);
+
+	    Debug.log("ylemine valmis");
+		return tablePanel;
+	}
+/*	private VerticalPanel createNewDataTable() {		
 		String s = "raports size: " + Integer.toString(raports.size());
 		Debug.log(s);
 		String d = "puuduv ettevote";
@@ -468,14 +630,6 @@ public class Hooldus implements EntryPoint {
 	    		if(object.getMarking().contentEquals("hoiatus")) {return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString());}
 	    		return  SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString());
 
-				/*if(object.getMarking().equals("alarm")) {
-						return object.getMarking().equals("alarm") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("a", 24).toString()): null;
-					}else if (object.getMarking().equals("hoiatus")) {
-						return object.getMarking().equals("hoiatus") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("h", 24).toString()): null;
-					} else {
-						return object.getMarking().equals("ok") ? SafeHtmlUtils.fromTrustedString(AhoWidgets.getAHOImage("o", 24).toString()): null;
-			}
-					}*/
 		}
 		};
 		
@@ -558,23 +712,27 @@ public class Hooldus implements EntryPoint {
 	    markingPanel.setSize("100%", "50px");
 		markingPanel.add(AhoWidgets.getAHOImage("a", 14), 0, 5);
 		markingPanel.add(AhoWidgets.getAHOImage("h", 14), 0, 20);
-		markingPanel.add(AhoWidgets.getAHOImage("o", 14), 0, 35);
+		//markingPanel.add(AhoWidgets.getAHOImage("o", 14), 0, 35);
 	    Label markingA = new Label("Alarm. Oluline k\u00F5rvalekalle normist. Soovitatav tegevus");
 	    Label markingH = new Label("Hoiatus. T\u00E4heldatav k\u00F5rvalekalle normist. V\u00E4lja selgitada p\u00F5hjus v\u00F5i j\u00E4lgida arengut.");
-	    Label markingO = new Label("N\u00E4itajad normi piirides");
+	    //Label markingO = new Label("N\u00E4itajad normi piirides");
 	    markingA.setStyleName("smallTextLabel");
 	    markingH.setStyleName("smallTextLabel");
-	    markingO.setStyleName("smallTextLabel");
+	    //markingO.setStyleName("smallTextLabel");
 	    markingPanel.add(markingA, 25, 5);
 	    markingPanel.add(markingH, 25, 20);
-	    markingPanel.add(markingO, 25, 35);
+	    //markingPanel.add(markingO, 25, 35);
 		tablePanel.add(markingPanel);
 
 	    Debug.log("ylemine valmis");
 	    return tablePanel;
 	}
-	private VerticalPanel createNewPlannerTable2() {
+*/
+private VerticalPanel createNewPlannerTable2() {
 		table2Panel = new VerticalPanel();
+		Label lLabel = new Label("Planeeritavad tegevused");
+		lLabel.setStyleName("backSaveLabel noPointer");
+        table2Panel.add(lLabel);
 		table2Panel.setStyleName("aho-panel1 table center");
 		table2Panel.setWidth("720px");
         CellTable<MaintenanceItem> table=new CellTable<MaintenanceItem>();
@@ -690,7 +848,8 @@ public class Hooldus implements EntryPoint {
 		
 		return table2Panel;
 	}
-	private VerticalPanel createNewPlannerTable() {
+/*	
+private VerticalPanel createNewPlannerTable() {
 		table2Panel = new VerticalPanel();
 		table2Panel.setStyleName("aho-panel1 table center");
 		table2Panel.setWidth("720px");
@@ -753,15 +912,6 @@ public class Hooldus implements EntryPoint {
 							plan.setDevice(st);
 							//plan.setID(devices.get(y).getId());
 							plan.setDeviceObject(devices.get(y));
-							/*
-							deviceTreeService.getUnit(devices.get(y).getUnitKey(), new AsyncCallback<Unit>() {
-								public void onSuccess(Unit u) {
-                                   plan.setName(u.getUnit());				
-								}
-								public void onFailure(Throwable t) {
-									t.printStackTrace();
-								}
-							});*/
 							thirdloop:
 								for (int z = 0; z < raportDataList.size(); z++) {
 									Debug.log("THIRD FOR LOOP");
@@ -785,16 +935,6 @@ public class Hooldus implements EntryPoint {
 												Debug.log("				" + r + " real raport key");
 													if (mRaportKey.equals(raportKey)) {
 														Debug.log("		MATCH FOUND");
-//														plan.setName(raports.get(r).getCompanyName());
-								/*						deviceTreeService.getUnit(devices.get(y).getUnitKey(), new AsyncCallback<Unit>() {
-															public void onSuccess(Unit u) {
-																
-															}
-															public void onFailure(Throwable t) {
-																t.printStackTrace();
-															}
-														});*/
-											//			plan.setName(devices.get(y).get);
 														plan.setAddress(raports.get(r).getUnitName());
 														plan.setID(raports.get(r).getRaportID());
 														if (x==maintenance.size()-1) {
@@ -827,15 +967,7 @@ public class Hooldus implements EntryPoint {
 		markingColumn.setCellStyleNames("markingCell");
 		table.setColumnWidth(0, "60px");
 	    table.addColumn(markingColumn, "Kuup");
-	    /*
-		TextColumn<PlannerItem> datesColumn = new TextColumn<PlannerItem>() {
-		   @Override
-		   public String getValue(PlannerItem object) {
-		      return object.getDates();
-		   }
-		};
-		table.addColumn(datesColumn, "Kuup");
-*/
+	
 		TextColumn<PlannerItem> nameColumn = new TextColumn<PlannerItem>() {
 			@Override
 			public String getValue(PlannerItem object) {
@@ -918,5 +1050,5 @@ public class Hooldus implements EntryPoint {
 		table2Panel.add(sp);
 		return table2Panel;
 	}
-
+*/
 }

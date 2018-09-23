@@ -102,6 +102,7 @@ public class UserInfoServiceImpl extends RemoteServiceServlet implements UserInf
 			byte[] saltArr = salt.getBytes();
 			try {
 				String hashedPassword = hashPassword(password, saltArr);
+				System.out.println(hashedPassword);
 				e.setProperty("Username", username);
 				e.setProperty("Password", hashedPassword);
 				ds.put(e);

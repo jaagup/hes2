@@ -719,7 +719,7 @@ public class DeviceCard implements EntryPoint {
 		
 		//Header Panel
 //		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedCompany.getCompanyName());
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("OSAKOND");
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("OSAKONNAD");
 		departmentListPanel.add(headerPanel);
 		
 		//Locations list
@@ -817,7 +817,7 @@ public class DeviceCard implements EntryPoint {
 		unitListPanel.add(buttonsPanel);
 		
 		//Header Panel
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("osakond-"+selectedDepartment.getDepartmentName());
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("osakond-"+selectedDepartment.getDepartmentName() + "- \u00FCksused");
 		unitListPanel.add(headerPanel);
 		
 		//Locations list
@@ -915,7 +915,7 @@ public class DeviceCard implements EntryPoint {
 		deviceListPanel.add(buttonsPanel);
 		
 		//Header Panel
-		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedDepartment.getDepartmentName()+"-"+selectedUnit.getUnit());
+		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedDepartment.getDepartmentName()+"-"+selectedUnit.getUnit()+ "- \u00FCksuse seadmed");
 		deviceListPanel.add(headerPanel);
 		
 		//Device list
@@ -1206,7 +1206,7 @@ public class DeviceCard implements EntryPoint {
 		HorizontalPanel maintHeader = new HorizontalPanel();
 		deviceMaintenancePanel2.clear();
         deviceMaintenancePanel2.create();	
-		final Label lBack = new Label("Tagasi 2a "+selectedDepartment.getDepartmentName()+" - "+selectedUnit.getUnit()+" "+selectedDevice.getDeviceName());
+		final Label lBack = new Label("Tagasi "+selectedDepartment.getDepartmentName()+" - "+selectedUnit.getUnit()+" "+selectedDevice.getDeviceName());
 		lBack.setStyleName("backSaveLabel");
 		lBack.addClickHandler(new ClickHandler() {
 			
@@ -1236,7 +1236,7 @@ public class DeviceCard implements EntryPoint {
 		deviceEditPanel.clear();
 		
 		HorizontalPanel maintHeader = new HorizontalPanel();
-		final Label lBack = new Label("Tagasi 3");
+		final Label lBack = new Label("Tagasi");
 		lBack.setStyleName("backSaveLabel");
 		lBack.addClickHandler(new ClickHandler() {
 			
@@ -1258,9 +1258,13 @@ public class DeviceCard implements EntryPoint {
 			}	
 		});
 		
-		HorizontalPanel buttonTime = AhoWidgets.createContentHeader(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
-		   selectedUnit.getUnit()+" -" +selectedDevice.getDeviceName() + " hooldust\u00F6\u00F6d");
+//		HorizontalPanel buttonTime = AhoWidgets.createContentHeader(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
+//				   selectedUnit.getUnit()+" -" +selectedDevice.getDeviceName() + " hooldust\u00F6\u00F6d");
+//				buttonTime.setWidth("100%");
+		HorizontalPanel buttonTime = AhoWidgets.createContentHeader("");
 		buttonTime.setWidth("100%");
+		Label header=new Label(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
+				   selectedUnit.getUnit()+" -" +selectedDevice.getDeviceName() + " hooldust\u00F6\u00F6d");
 		Label admin1 = new Label("Lisa hooldust\u00F6\u00F6");
 		Button admin = new Button("+", new ClickHandler() {
 			  @Override
@@ -1269,9 +1273,11 @@ public class DeviceCard implements EntryPoint {
 				  createMaintenancePanel2();
 		      }
 		    });
+		header.setStyleName("maintenanceLink");
 		admin.setStyleName("maintenanceLink");
 		admin1.setStyleName("aho-label2-maintLink");
 		RootPanel.get().add(admin);
+		buttonTime.add(header);
 		buttonTime.add(admin1);
 		buttonTime.add(admin);
 		
@@ -1378,7 +1384,7 @@ public class DeviceCard implements EntryPoint {
 		headerPanel.add(lDeviceHeader);
 		if (labelText.equals("Seadme \u00FCldandmed")) {
 			//Button maintainanceLink = new Button();
-			Label lMaintainanceLink = new Label("Hooldustegevused");
+			Label lMaintainanceLink = new Label("Hooldus");
 			lMaintainanceLink.setStyleName("aho-label2-maintLink");
 			//maintainanceLink.setStyleName("maintainanceLink link");
 			//maintainanceLink.setText("+");
@@ -1401,7 +1407,7 @@ public class DeviceCard implements EntryPoint {
 		deviceCardPanel.clear();
 		
 		//Cancel/save panel
-		final Label lCancel = new Label("Tagasi 1");
+		final Label lCancel = new Label("Tagasi");
 		lCancel.setStyleName("backSaveLabel cancel");
 		lCancel.addClickHandler(new ClickHandler() {
 			

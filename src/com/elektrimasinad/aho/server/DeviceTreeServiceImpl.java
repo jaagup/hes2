@@ -103,10 +103,13 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			} catch (Exception ex) {}
 			//e.setProperty("KeyString", KeyFactory.keyToString(e.getKey()));
 			ds.put(e);
-			if(m.getConnectedMeasurementKeyString()!=null) {
-			   Measurement mm=getMeasurement(m.getConnectedMeasurementKeyString());
+			System.out.println("Mootmise uuring " +m.getConnectedMeasurementKeyString());
+			if(m.getConnectedMeasurementKeyString()!=null && m.getConnectedMeasurementKeyString().length()>0) {
+	            System.out.println("Proovib muuta");
+				Measurement mm=getMeasurement(m.getConnectedMeasurementKeyString());
 			   mm.setStatus("archived");
 			   updateMeasurement(mm);
+			   System.out.println("muudetud");
 			}
 			return "Task stored";
 		//}
@@ -486,6 +489,29 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		return items;
 	}
 
+	public List<Measurement> getCompanyMeasurements(String companyKey) throws IllegalArgumentException{
+		System.err.println("Mootmiste algus");
+		List<Measurement> items=new ArrayList<Measurement>();
+		List<Device> devices=getCompanyDevices(companyKey);
+		System.out.println("seadmed: "+devices);
+		for(Device d: devices) {
+		   List<Measurement> localItems=getMeasurements(d.getDeviceKey());
+		   System.out.println(localItems);
+		   for(Measurement m: localItems) {
+			   m.setDeviceName(d.getDeviceName());
+			   m.setDepartmentName(d.getDepartmentName());
+			   m.setUnitName(d.getUnitName());
+			   if(m.getRaportKey().length()>0) {
+				   Raport r=getRaport(m.getRaportKey());
+				   m.setRaportID(r.getRaportID());
+			   }
+			   items.add(m);
+		   }
+		}
+		System.out.println("Mootmisi: "+items.size()+" "+items);
+		return items;
+	}
+	
 	@Override
 	public String updateDepartment(Department updatedDepartment) throws IllegalArgumentException {
 		Entity e;
@@ -627,6 +653,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Entity e = new Entity("Device", locationKey);
 		e.setProperty("DeviceId", device.getId());
 		e.setProperty("DeviceName", device.getDeviceName());
+		e.setProperty("DeviceComment", device.getDeviceComment());
 		e.setProperty("Location", device.getLocationName());
 		e.setProperty("DeviceNickname", device.getDeviceNickname());
 		e.setProperty("kWrpm", device.getDevicekWrpm());
@@ -641,6 +668,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		e.setProperty("NDEVtihend", device.getNDEVtihend());
 		e.setProperty("NDEnotes", device.getNDEnotes());
 			e.setProperty("CoupledDeviceName", device.getCoupledDeviceName());
+			e.setProperty("CoupledDeviceComment", device.getCoupledDeviceComment());
 			e.setProperty("CoupledDeviceType", device.getCoupledDeviceType());
 			e.setProperty("CoupledDeviceManufacturer", device.getCoupledDeviceManufacturer());
 			e.setProperty("MPlaager", device.getMPlaager());
@@ -709,6 +737,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			c.setUnitKey(KeyFactory.keyToString(e.getParent()));
 			c.setId(e.getProperty("DeviceId").toString());
 			c.setDeviceName(e.getProperty("DeviceName").toString());
+			c.setDeviceComment((e.getProperty("DeviceComment")!=null?e.getProperty("DeviceComment").toString():""));
 			c.setLocationName(e.getProperty("Location").toString());
 			c.setDeviceNickname(e.getProperty("DeviceNickname").toString());
 			c.setDevicekWrpm(e.getProperty("kWrpm").toString());
@@ -724,6 +753,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			c.setNDEnotes(e.getProperty("NDEnotes").toString());
 			if ((boolean) e.getProperty("HasCoupledDevice")) {
 				c.setCoupledDeviceName(e.getProperty("CoupledDeviceName").toString());
+				c.setCoupledDeviceComment((e.getProperty("CoupledDeviceComment")!=null?e.getProperty("CoupledDeviceComment").toString():""));
 				c.setCoupledDeviceType(e.getProperty("CoupledDeviceType").toString());
 				c.setCoupledDeviceManufacturer(e.getProperty("CoupledDeviceManufacturer").toString());
 				c.setMPlaager(e.getProperty("MPlaager").toString());
@@ -752,6 +782,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 				c.setUnitKey(unitKeyString);
 				c.setId(e.getProperty("DeviceId").toString());
 				c.setDeviceName(e.getProperty("DeviceName").toString());
+				c.setDeviceComment((e.getProperty("DeviceComment")!=null?e.getProperty("DeviceComment").toString():""));
 				c.setLocationName(e.getProperty("Location").toString());
 				c.setDeviceNickname(e.getProperty("DeviceNickname").toString());
 				c.setDevicekWrpm(e.getProperty("kWrpm").toString());
@@ -769,6 +800,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 					c.setCoupledDeviceName(e.getProperty("CoupledDeviceName").toString());
 					c.setCoupledDeviceType(e.getProperty("CoupledDeviceType").toString());
 					c.setCoupledDeviceManufacturer(e.getProperty("CoupledDeviceManufacturer").toString());
+					c.setCoupledDeviceComment((e.getProperty("CoupledDeviceComment")!=null?e.getProperty("CoupledDeviceComment").toString():""));
 					c.setMPlaager(e.getProperty("MPlaager").toString());
 					c.setMPsimmer(e.getProperty("MPsimmer").toString());
 					c.setMPVtihend(e.getProperty("MPVtihend").toString());
@@ -805,6 +837,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			//Update device if device does not already exist
 			e.setProperty("DeviceId", updatedDevice.getId());
 			e.setProperty("DeviceName", updatedDevice.getDeviceName());
+			e.setProperty("DeviceComment", updatedDevice.getDeviceComment());
 			e.setProperty("Location", updatedDevice.getLocationName());
 			e.setProperty("DeviceNickname", updatedDevice.getDeviceNickname());
 			e.setProperty("kWrpm", updatedDevice.getDevicekWrpm());
@@ -818,7 +851,8 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			e.setProperty("NDEsimmer", updatedDevice.getNDEsimmer());
 			e.setProperty("NDEVtihend", updatedDevice.getNDEVtihend());
 			e.setProperty("NDEnotes", updatedDevice.getNDEnotes());
-				e.setProperty("CoupledDeviceName", updatedDevice.getCoupledDeviceName());
+			e.setProperty("CoupledDeviceName", updatedDevice.getCoupledDeviceName());
+			e.setProperty("CoupledDeviceComment", updatedDevice.getCoupledDeviceComment());
 				e.setProperty("CoupledDeviceType", updatedDevice.getCoupledDeviceType());
 				e.setProperty("CoupledDeviceManufacturer", updatedDevice.getCoupledDeviceManufacturer());
 				e.setProperty("MPlaager", updatedDevice.getMPlaager());

@@ -152,6 +152,10 @@ h1 {
    	height: 95px;
 }
 
+.panelButton{
+	font-size: 50px;
+	height: 95px;
+}
 
 .loginBtn {
 	background-color: #000099;
@@ -231,7 +235,7 @@ h1 {
 .aho-headerImage {
 	display: block;
 	width: 100px;
-	height: 45px;
+	height: 60px;
 	cursor: pointer;
 	float: left;
 }
@@ -248,10 +252,10 @@ h1 {
 	
 }*/
 .aho-piktoImage {
-  	padding: 7px;
-  	margin: 15px auto;
-  	width: 100px;
-  	height: 115px;
+  	padding: 3px;
+  	margin: 10px auto;
+  	width: 115px;
+  	height: 135px;
   	cursor: pointer;	
 }
 
@@ -509,7 +513,7 @@ h1 {
 	width: 100%;
 	text-align: -webkit-right;
 	padding-top: 15px;
-	font-size: 20px;
+	font-size: 30px;
 	font-weight: 600;
 }
 .aho-label2.thin {
@@ -525,6 +529,9 @@ h1 {
 }
 .aho-label3.black {
 	color: black;
+}
+.aho-label3.blue {
+	color: blue;
 }
 .aho-listItem {
 	color: #006BA7;
@@ -981,7 +988,7 @@ h1 {
 
 .loginUser {
 	padding: 20px 80px;
-	font-size: 35px;
+	font-size: 60px;
 }
 
 .loginPanel {
