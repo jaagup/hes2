@@ -147,7 +147,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		//Content panels
 		if (isEditable) {
 			deviceId = AhoWidgets.createTextbox("aho-textbox1", device.getId());
-			deviceName = AhoWidgets.createTextbox("aho-textbox1 large", device.getDeviceName());
+			deviceName = AhoWidgets.createTextbox("aho-textbox1", device.getDeviceName());
 			locationName = AhoWidgets.createTextbox("aho-textbox1", device.getLocationName());
 		} else {
 			deviceId = AhoWidgets.createLabel(device.getId(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);

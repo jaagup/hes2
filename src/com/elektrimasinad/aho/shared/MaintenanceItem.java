@@ -28,6 +28,7 @@ public class MaintenanceItem implements Serializable{
 	private Integer timeSpent=0;
 	private Integer upload=0;
 	private String deviceName;
+	private String deviceID="";
 	private String unitName;
 	private String departmentName;
 	
@@ -152,6 +153,12 @@ public class MaintenanceItem implements Serializable{
 	}
 	public String getDeviceName() {
 		return this.deviceName;
+	}
+	public void setDeviceID(String deviceID) {
+		this.deviceID=deviceID;
+	}
+	public String getDeviceID() {
+		return this.deviceID;
 	}
 	public void setUnitName(String unitName) {
 		this.unitName=unitName;

@@ -1,3 +1,3 @@
 # Module hooldus
 # RPC service class, partial path of RPC policy file
-com.elektrimasinad.aho.client.DeviceTreeService, F7ED868DCADE53F845897F3A1FD9BFBA.gwt.rpc
+com.elektrimasinad.aho.client.DeviceTreeService, 4BBC711B3ADDD850E871FB6F556F9A0F.gwt.rpc

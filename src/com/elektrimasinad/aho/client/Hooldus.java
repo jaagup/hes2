@@ -297,7 +297,7 @@ public class Hooldus implements EntryPoint {
 			
 		};
 	*/
-		CellTable<DiagnostikaItem> table = new CellTable<DiagnostikaItem>();
+		//CellTable<DiagnostikaItem> table = new CellTable<DiagnostikaItem>();
 		RootPanel root = RootPanel.get();
 		root.setStyleName("mainBackground2");
 		
@@ -335,7 +335,6 @@ public class Hooldus implements EntryPoint {
 		mainPanel.setCellHorizontalAlignment(content2Panel, HasHorizontalAlignment.ALIGN_CENTER);
 		
 		root.add(mainPanel);
-		
 		firstInit();
 		updateWidgetSizes();
 		//createUnitPanel();
@@ -484,8 +483,9 @@ public class Hooldus implements EntryPoint {
 	    TextColumn<Measurement> idColumn = new TextColumn<Measurement>() {
 	      @Override
 	      public String getValue(Measurement object) {
-	        return object.getRaportID();
-	      }
+	          //return object.getRaportID();
+	          return object.getDeviceID();
+	    	      }
 	    };
 	    table.addColumn(idColumn, "ID.nr");
 	    
@@ -769,7 +769,7 @@ private VerticalPanel createNewPlannerTable2() {
 	    TextColumn<MaintenanceItem> nameColumn = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem object) {
-				return object.getMaintenanceName();
+				return object.getDepartmentName();
 			}
 		};
 		table.addColumn(nameColumn, "Osakond");
@@ -777,7 +777,7 @@ private VerticalPanel createNewPlannerTable2() {
 		TextColumn<MaintenanceItem> addressColumn = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem object) {
-				return object.getDepartmentName();
+				return object.getUnitName();
 			}
 		};
 		table.addColumn(addressColumn, "\u00DCksus");
@@ -785,7 +785,7 @@ private VerticalPanel createNewPlannerTable2() {
 		TextColumn<MaintenanceItem> idColumn = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem object) {
-				return object.getUnitName();
+				return object.getDeviceID();
 			}
 		};
 		table.addColumn(idColumn, "ID.nr");
@@ -801,7 +801,7 @@ private VerticalPanel createNewPlannerTable2() {
 		TextColumn<MaintenanceItem> actionColumn = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem object) {
-				return object.getMaintenanceDescription();
+				return object.getMaintenanceName();
 			}
 		};
 		/*
@@ -829,7 +829,7 @@ private VerticalPanel createNewPlannerTable2() {
 			
 		});
 		table.setSelectionModel(tableSelModel);
-
+        maintenance2=maintenance2.stream().filter((m) -> !m.getMaintenanceState().contentEquals("done")).collect(toList());
 		
 		table.setRowCount(maintenance2.size(), true);
 		

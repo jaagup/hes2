@@ -167,7 +167,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    personTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceAssignedTo());
 	    personPanel.add(personLabel);
 	    personPanel.add(personTb);
-	    notesLabel.setStyleName("aho-label1");
+	    personLabel.setStyleName("aho-label1");
 	    personTb.setStyleName("aho-textbox1");
 	    add(personPanel);
 	    

@@ -1273,7 +1273,7 @@ public class DeviceCard implements EntryPoint {
 				  createMaintenancePanel2();
 		      }
 		    });
-		header.setStyleName("maintenanceLink");
+		header.setStyleName("maintenanceHeaderText");
 		admin.setStyleName("maintenanceLink");
 		admin1.setStyleName("aho-label2-maintLink");
 		RootPanel.get().add(admin);

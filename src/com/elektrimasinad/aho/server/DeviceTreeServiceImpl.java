@@ -481,6 +481,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			List<MaintenanceItem> localItems=getMaintenanceEntriesFromKey(d.getDeviceKey());
 			for(MaintenanceItem m: localItems) {
 				m.setDeviceName(d.getDeviceName());
+				m.setDeviceID(d.getId());
 				m.setUnitName(d.getUnitName());
 				m.setDepartmentName(d.getDepartmentName());
 				items.add(m);
@@ -499,6 +500,8 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		   System.out.println(localItems);
 		   for(Measurement m: localItems) {
 			   m.setDeviceName(d.getDeviceName());
+			   m.setDeviceID(d.getId());
+			   System.out.println(m.getDeviceName()+" did "+ m.getDeviceID());
 			   m.setDepartmentName(d.getDepartmentName());
 			   m.setUnitName(d.getUnitName());
 			   if(m.getRaportKey().length()>0) {

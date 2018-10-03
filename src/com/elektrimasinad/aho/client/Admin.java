@@ -102,14 +102,14 @@ public class Admin implements EntryPoint{
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-				Window.alert("update error "+arg0);
+				Debug.log("update error "+arg0);
 				
 			}
 
 			@Override
 			public void onSuccess(String arg0) {
 				// TODO Auto-generated method stub
-				Window.alert("Company updated!");
+				Debug.log("Company updated!");
 				fetchCompanies();
 			}
 			
@@ -168,17 +168,17 @@ public class Admin implements EntryPoint{
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-				
+			   Debug.log(arg0+"");	
 			}
 
 			@Override
 			public void onSuccess(String arg0) {
 				// TODO Auto-generated method stub
-				Window.alert(arg0);
+				Debug.log(arg0);
 			}
 			
 		};
-//		userInfoService.createAdminAccount("admin", "test", createAdminAccountCallback);
+		userInfoService.createAdminAccount("admin", "test", createAdminAccountCallback);
 		
 		RootPanel root = RootPanel.get();
 		root.setStyleName("mainBackground2");
