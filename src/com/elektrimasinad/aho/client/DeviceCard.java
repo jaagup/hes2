@@ -17,6 +17,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -1206,8 +1207,11 @@ public class DeviceCard implements EntryPoint {
 		HorizontalPanel maintHeader = new HorizontalPanel();
 		deviceMaintenancePanel2.clear();
         deviceMaintenancePanel2.create();	
-		final Label lBack = new Label("Tagasi "+selectedDepartment.getDepartmentName()+" - "+selectedUnit.getUnit()+" "+selectedDevice.getDeviceName());
+        maintHeader.setWidth("100%");
+		final Label lBack = new Label("Tagasi ");
+		final Label lInfo = new Label(selectedDepartment.getDepartmentName()+" - "+selectedUnit.getUnit()+" "+selectedDevice.getDeviceName());
 		lBack.setStyleName("backSaveLabel");
+		lInfo.setStyleName("backSaveLabel");
 		lBack.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -1228,6 +1232,10 @@ public class DeviceCard implements EntryPoint {
 		});
 		maintHeader.add(lBackButton);
 		maintHeader.add(lBack);
+
+		maintHeader.add(lInfo);
+		maintHeader.setCellHorizontalAlignment(lInfo, HasHorizontalAlignment.ALIGN_RIGHT);
+		
 		deviceMaintenancePanel2.insert(maintHeader, 0);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceMaintenancePanel2));
 	}
@@ -1266,13 +1274,18 @@ public class DeviceCard implements EntryPoint {
 		Label header=new Label(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
 				   selectedUnit.getUnit()+" -" +selectedDevice.getDeviceName() + " hooldust\u00F6\u00F6d");
 		Label admin1 = new Label("Lisa hooldust\u00F6\u00F6");
-		Button admin = new Button("+", new ClickHandler() {
+		final Button admin = new Button("+", new ClickHandler() {
 			  @Override
 			  public void onClick(ClickEvent event) {
 				  DeviceCard.this.selectedMaintenanceItem=null;
 				  createMaintenancePanel2();
 		      }
 		    });
+		admin1.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				admin.click();
+			}
+		});
 		header.setStyleName("maintenanceHeaderText");
 		admin.setStyleName("maintenanceLink");
 		admin1.setStyleName("aho-label2-maintLink");

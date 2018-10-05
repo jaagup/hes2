@@ -11,6 +11,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.storage.client.Storage;
@@ -71,6 +73,7 @@ public class Login implements EntryPoint{
 		} else {
 			isMobileView = false;
 		}
+//		isMobileView=false;
 		Window.addResizeHandler(new ResizeHandler() {
 
 		    @Override
@@ -80,6 +83,7 @@ public class Login implements EntryPoint{
 				} else {
 					isMobileView = false;
 				}
+				//isMobileView=false;
 		    	updateWidgetSizes();
 		    }
 		});
@@ -156,15 +160,20 @@ public class Login implements EntryPoint{
 			}
 			
 		});
-		Image elektrimasinadImage=new Image("res/valgelogo.png");
+//		Image elektrimasinadImage=new Image("res/valgelogo.png");
+//		Image elektrimasinadImage=new Image("res/elektrimasinad.gif");
+		Image elektrimasinadImage=new Image("res/elektrimasinad_labipaistev.png");
 		
 		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
+		headerImage.setHeight("45px");
 		navigationPanel.add(elektrimasinadImage);
-		navigationPanel.setCellWidth(headerImage, "52px");
+		elektrimasinadImage.setHeight("45px");
+//		navigationPanel.setCellWidth(headerImage, "52px");
+		navigationPanel.setCellWidth(headerImage, "180px");
 		headerPanel = new AbsolutePanel();
-		headerPanel.setStyleName("headerBackground");
+		headerPanel.setStyleName("loginHeaderBackground");
 		headerPanel.add(navigationPanel);
 		mainPanel.add(headerPanel);
 		
@@ -269,6 +278,17 @@ public class Login implements EntryPoint{
 				userInfoService.getAccountData(loginUser.getValue(), loginPass.getValue(), companyName, getAccountDataCallback);
 			}
 			
+		});
+		loginPass.addKeyDownHandler(new KeyDownHandler() {
+			
+			@Override
+			public void onKeyDown(KeyDownEvent arg0) {
+               int kood=arg0.getNativeKeyCode();
+               DebugClientSide.log("kood: "+kood);
+               if(kood==13) {
+            	   loginButton.click();
+               }
+			}
 		});
 		loginButton.setStyleName("loginBtn");
 		loginPanel.add(userLabel);

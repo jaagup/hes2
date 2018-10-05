@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
@@ -77,7 +78,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    HorizontalPanel DescriptionPanel = new HorizontalPanel();
 	    DescriptionPanel.setStyleName("aho-panel1");
 	    Label tb11 = new Label("T\u00F6\u00F6 kirjeldus");
-		TextBox tb1 = new TextBox();
+		TextArea tb1 = new TextArea();
 		DescriptionPanel.setCellHorizontalAlignment(tb1, HasHorizontalAlignment.ALIGN_RIGHT);
 		DescriptionPanel.add(tb11);
 		DescriptionPanel.add(tb1);
@@ -92,7 +93,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    ProbDescPanel.setStyleName("aho-panel1");
 //	    ProbDescPanel.setWidth("100%");
 		Label tb22 = new Label("Probleemi kirjeldus");
-		TextBox tb2 = new TextBox();
+		TextArea tb2 = new TextArea();
 		ProbDescPanel.setCellHorizontalAlignment(tb2, HasHorizontalAlignment.ALIGN_RIGHT);
 		tb2.setText(deviceCard.selectedMaintenanceItem.getMaintenanceProblemDescription());
 		if(Window.Location.getParameter("problemDescription")!=null) {
@@ -141,7 +142,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    HorizontalPanel materialPanel=new HorizontalPanel();
 	    materialPanel.setStyleName("aho-panel1");
 	    Label materialLabel=new Label("Materjalid");
-	    TextBox materialTb=new TextBox();
+	    TextArea materialTb=new TextArea();
 	    materialTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceMaterials());
 	    materialPanel.add(materialLabel);
 	    materialPanel.add(materialTb);
@@ -152,7 +153,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    HorizontalPanel notesPanel=new HorizontalPanel();
 	    notesPanel.setStyleName("aho-panel1");
 	    Label notesLabel=new Label("M\u00E4rkused");
-	    TextBox notesTb=new TextBox();
+	    TextArea notesTb=new TextArea();
 	    notesTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceNotes());
 	    notesPanel.add(notesLabel);
 	    notesPanel.add(notesTb);
@@ -206,8 +207,10 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 
 	    HorizontalPanel dublicatePanel=new HorizontalPanel();
 	    dublicatePanel.setStyleName("aho-panel1");
-	    DateBox dublicateBox=new DateBox();
-	    dublicateBox.setValue(new Date(new Date().getTime()+1000*60*60*24*7));
+		final DatePicker dublicateDateBox= new DatePicker();
+		final Label dublicateDateText = new Label();
+
+	    
 	    Button dublicateButton=new Button("Loo duplikaat", new ClickHandler() {
 	    	@Override
 	    	public void onClick(ClickEvent event) {
@@ -218,7 +221,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  m.setMaintenanceAssignedTo(personTb.getValue());
-	    		  m.setMaintenanceCompleteDate(dublicateBox.getValue());
+	    		  m.setMaintenanceCompleteDate(dublicateDateBox.getValue());
 	    		  m.setMaintenanceMaterials(materialTb.getText());
 	    		  m.setMaintenanceNotes(notesTb.getValue());
 			      deviceCard.deviceTreeService.storeMaintenanceEntry(m, deviceCard.selectedCompany.getCompanyKey(), storeCallback);	    			  
@@ -227,7 +230,41 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		dublicateButton.setStyleName("panelButton");
 
 	    dublicatePanel.add(dublicateButton);
-	    dublicatePanel.add(dublicateBox);
+	    
+	    
+//		ReadyBy.add(Time);
+		dublicatePanel.add(dublicateDateText);
+		dublicatePanel.add(dublicateDateBox);
+		dublicateDateBox.setYearAndMonthDropdownVisible(true);
+		   dublicateDateBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
+			      public void onValueChange(ValueChangeEvent<Date> event) {
+			        Date date = (Date)event.getValue();
+			     //   String dateString = DateTimeFormat.getMediumDateFormat().format(date);
+			        dublicateDateText.setText(dateString(date));
+			        dublicateDateBox.setStyleName("dateBoxBig");
+			      }
+			    });
+	//	dateBox.setStyleName("aho-datebox");
+		dublicateDateBox.setValue(new Date(new Date().getTime()+7*24*3600));
+	/*	Date ndate=deviceCard.selectedMaintenanceItem.getMaintenanceCompleteDate();
+		if(ndate==null) {
+	        dateBox.setValue(new Date());
+		} else {
+			dateBox.setValue(ndate);
+		}*/
+        dublicateDateText.setText(dateString(dublicateDateBox.getValue()));
+        
+//	    ReadyBy.setStyleName("aho-panel1");
+	//    Time.setStyleName("aho-label1");
+	    dublicateDateBox.setWidth("100%");
+	  //  add(ReadyBy);
+
+	    
+	    
+//	    DateBox dublicateBox=new DateBox();
+//	    dublicateBox.setValue(new Date(new Date().getTime()+1000*60*60*24*7));
+	    dublicatePanel.add(dublicateDateText);
+	    dublicatePanel.add(dublicateDateBox);
 	    add(dublicatePanel);
 	    HorizontalPanel downtimePanel=new HorizontalPanel();
 	    downtimePanel.setStyleName("aho-panel1");

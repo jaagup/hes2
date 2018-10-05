@@ -350,9 +350,13 @@ public class Hooldus implements EntryPoint {
  			//MAIN_WIDTH = Window.getClientWidth();
  			contentWidth = "95%";
  		}
+ 		/*
 		mainPanel.setWidth(MAIN_WIDTH + "px");
 		mainPanel.setHeight(Window.getClientHeight() + "px");
-		contentPanel.setWidth(CONTENT_WIDTH + "px");
+		contentPanel.setWidth(CONTENT_WIDTH + "px");*/
+ 		mainPanel.setWidth("100%");
+ 		contentPanel.setWidth("100%");
+ 		content2Panel.setWidth("100%");
 	}
 	private void firstInit() {
 		devTree = new DeviceTree(deviceTreeService);
@@ -460,6 +464,7 @@ public class Hooldus implements EntryPoint {
 		
 		markingColumn.setCellStyleNames("markingCell");
 		table.setColumnWidth(0, "60px");
+		table.setWidth("100%");
 	    table.addColumn(markingColumn);
 	    	
 	    TextColumn<Measurement> nameColumn = new TextColumn<Measurement>() {
@@ -530,12 +535,15 @@ public class Hooldus implements EntryPoint {
 	    // Set the total row count. This isn't strictly necessary, but it affects
 	    // paging calculations, so its good habit to keep the row count up to date.
 	    table.setRowCount(measurements3.size(), true);
-	    table.setWidth("710px", true);
+	    table.setWidth("100%");
+	    tablePanel.setWidth("100%");
+	    //tablePanel.getParent().setWidth("100%");
 	    // Push the data into the widget.
 	    table.setRowData(0, measurements3);
 	    tablePanel.add(lLabel);
 	    ScrollPanel sp=new ScrollPanel(table);
-	    sp.setSize("720px", "200px");
+//	    sp.setSize("720px", "200px");
+	    sp.setSize("100%", "200px");
 	    tablePanel.add(sp);
 		AbsolutePanel markingPanel = new AbsolutePanel();
 	    markingPanel.setSize("100%", "50px");
@@ -734,7 +742,7 @@ private VerticalPanel createNewPlannerTable2() {
 		lLabel.setStyleName("backSaveLabel noPointer");
         table2Panel.add(lLabel);
 		table2Panel.setStyleName("aho-panel1 table center");
-		table2Panel.setWidth("720px");
+		table2Panel.setWidth("100%");
         CellTable<MaintenanceItem> table=new CellTable<MaintenanceItem>();
 	    maintenance2.sort(new Comparator<MaintenanceItem>() {
 	    	@Override
@@ -834,15 +842,19 @@ private VerticalPanel createNewPlannerTable2() {
 		table.setRowCount(maintenance2.size(), true);
 		
 		table.setRowData(0, maintenance2);
-		table.setColumnWidth(0, "80px");
+		//table.setColumnWidth(0, "80px");
 		
-
+/*
 	    table.setColumnWidth(0, "35px");
 	    table.setColumnWidth(1, "35px");
 	    table.setColumnWidth(2, "35px");
+	    table.setColumnWidth(3, "35px");
+	    table.setColumnWidth(4, "35px");
+	    table.setColumnWidth(5, "300px");
+*/	    table.setWidth("100%");
 		//table2Panel.add(lLabel);
 		ScrollPanel sp=new ScrollPanel(table);
-		sp.setSize("720px", "200px");
+		sp.setSize("100%", "200px");
 		table2Panel.add(sp);
 		
 		
