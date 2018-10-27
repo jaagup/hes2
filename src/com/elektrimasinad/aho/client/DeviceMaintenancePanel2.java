@@ -5,14 +5,20 @@ import java.util.Date;
 import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -77,23 +83,35 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		
 	    HorizontalPanel DescriptionPanel = new HorizontalPanel();
 	    DescriptionPanel.setStyleName("aho-panel1");
-	    Label tb11 = new Label("T\u00F6\u00F6 kirjeldus");
-		TextArea tb1 = new TextArea();
-		DescriptionPanel.setCellHorizontalAlignment(tb1, HasHorizontalAlignment.ALIGN_RIGHT);
+	    Label tb11 = new Label("T\u00F6\u00F6 kategooria");
+	    ListBox lb1=new ListBox();
+	    lb1.addItem("Planeeritud/korraline hooldust\u00F6\u00F6");
+	    lb1.addItem("Erakorraline hooldust\u00F6\u00F6");
+	    lb1.addItem("M\u00F5\u00F5tmine/diagnostika");
+	    lb1.addItem("\u00DClevaatus");
+	    lb1.addItem("Rikke k\u00F5rvaldamine");
+	    lb1.addItem("M\u00E4\u00E4rde lisamine");
+	    try {lb1.setSelectedIndex(Integer.parseInt(deviceCard.selectedMaintenanceItem.getMaintenanceDescription()));}catch(Exception ex) {}
+	   // GridEditor
+//		TextArea tb1 = new TextArea();
+		DescriptionPanel.setCellHorizontalAlignment(lb1, HasHorizontalAlignment.ALIGN_RIGHT);
 		DescriptionPanel.add(tb11);
-		DescriptionPanel.add(tb1);
-		tb1.setText(deviceCard.selectedMaintenanceItem.getMaintenanceDescription());
-		tb1.setStyleName("aho-textbox1");
+		DescriptionPanel.add(lb1);
+//		tb1.setText(deviceCard.selectedMaintenanceItem.getMaintenanceDescription());
+		lb1.setStyleName("aho-textbox1");
 	    tb11.setStyleName("aho-label1");
 //	    DescriptionPanel.setWidth("100%");
 	    add(DescriptionPanel);
 //	    ProblemPanel.setCellHorizontalAlignment(tb1, HasHorizontalAlignment.ALIGN_RIGHT);
 		
 	    HorizontalPanel ProbDescPanel = new HorizontalPanel();
-	    ProbDescPanel.setStyleName("aho-panel1");
+	    ProbDescPanel.setStyleName("aho-panel1 expandable");
 //	    ProbDescPanel.setWidth("100%");
 		Label tb22 = new Label("Probleemi kirjeldus");
-		TextArea tb2 = new TextArea();
+		//TextArea tb2 = new TextArea();
+
+		ExtendedTextArea tb2 = new ExtendedTextArea();
+		tb2.setStyleName("aho-autoExtendingTextArea");
 		ProbDescPanel.setCellHorizontalAlignment(tb2, HasHorizontalAlignment.ALIGN_RIGHT);
 		tb2.setText(deviceCard.selectedMaintenanceItem.getMaintenanceProblemDescription());
 		if(Window.Location.getParameter("problemDescription")!=null) {
@@ -102,7 +120,38 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		if(Window.Location.getParameter("DiagnosticKey")!=null) {
 			deviceCard.selectedMaintenanceItem.setConnectedMeasurementKeyString(Window.Location.getParameter("DiagnosticKey"));
 		}
-		tb2.setStyleName("aho-textbox1");
+
+		tb2.setVisibleLines(1);
+	    tb2.addKeyUpHandler(new KeyUpHandler()
+	    {
+	        @Override
+	        public void onKeyUp(KeyUpEvent event)
+	        {
+	           tb2.setHeight("auto");
+	           tb2.setHeight(tb2.getElement().getScrollHeight() + "px");
+	           //updateWidgetSizes();
+	        }
+	    });
+
+	    tb2.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+	        @Override
+	        public void onValueChange(ValueChangeEvent<String> event) {
+	        	tb2.setHeight("auto");
+	        	tb2.setHeight(tb2.getElement().getScrollHeight() + "px");
+	        	//updateWidgetSizes();
+	        }
+	    });
+	    
+	 	Timer t2=new Timer() {
+    		public void run() {
+    		   	tb2.setHeight("auto");
+    	        tb2.setHeight(tb2.getElement().getScrollHeight() + "px");    		       			
+    		}
+    	};
+    	t2.schedule(2000);
+	
+//		tb2.setStyleName("aho-textbox1");
 	    tb22.setStyleName("aho-label1");
 	    ProbDescPanel.add(tb22);
 	    ProbDescPanel.add(tb2);
@@ -130,7 +179,9 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		if(ndate==null) {
 	        dateBox.setValue(new Date());
 		} else {
+			dateBox.setCurrentMonth(ndate);
 			dateBox.setValue(ndate);
+            dateBox.setVisible(true);			
 		}
         dateText.setText(dateString(dateBox.getValue()));
         
@@ -140,25 +191,92 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    add(ReadyBy);
 
 	    HorizontalPanel materialPanel=new HorizontalPanel();
-	    materialPanel.setStyleName("aho-panel1");
+	    materialPanel.setStyleName("aho-panel1 expandable");
 	    Label materialLabel=new Label("Materjalid");
-	    TextArea materialTb=new TextArea();
+//	    TextArea materialTb=new TextArea();
+		ExtendedTextArea materialTb = new ExtendedTextArea();
+		materialTb.setStyleName("aho-autoExtendingTextArea");
+		materialTb.setVisibleLines(1);
+	    materialTb.addKeyUpHandler(new KeyUpHandler()
+	    {
+	        @Override
+	        public void onKeyUp(KeyUpEvent event)
+	        {
+	           materialTb.setHeight("auto");
+	           materialTb.setHeight(materialTb.getElement().getScrollHeight() + "px");
+	           //updateWidgetSizes();
+	        }
+	    });
+
+	    materialTb.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+	        @Override
+	        public void onValueChange(ValueChangeEvent<String> event) {
+	        	materialTb.setHeight("auto");
+	            materialTb.setHeight(materialTb.getElement().getScrollHeight() + "px");
+	        	//updateWidgetSizes();
+	        }
+	    });
+	    
+
 	    materialTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceMaterials());
 	    materialPanel.add(materialLabel);
 	    materialPanel.add(materialTb);
+    	Timer t=new Timer() {
+    		public void run() {
+    		   	materialTb.setHeight("auto");
+    	        materialTb.setHeight(materialTb.getElement().getScrollHeight() + "px");    		       			
+    		}
+    	};
+    	t.schedule(2000);
 	    materialLabel.setStyleName("aho-label1");
-	    materialTb.setStyleName("aho-textbox1");
+//	    materialTb.setStyleName("aho-textbox1");
+	    
 	    add(materialPanel);
 	    
 	    HorizontalPanel notesPanel=new HorizontalPanel();
-	    notesPanel.setStyleName("aho-panel1");
+	    notesPanel.setStyleName("aho-panel1 expandable");
 	    Label notesLabel=new Label("M\u00E4rkused");
-	    TextArea notesTb=new TextArea();
+//	    TextArea notesTb=new TextArea();
+		ExtendedTextArea notesTb = new ExtendedTextArea();
+		notesTb.setStyleName("aho-autoExtendingTextArea");
 	    notesTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceNotes());
+	    
+	    notesTb.setVisibleLines(1);
+	    notesTb.addKeyUpHandler(new KeyUpHandler()
+	    {
+	        @Override
+	        public void onKeyUp(KeyUpEvent event)
+	        {
+	           notesTb.setHeight("auto");
+	           notesTb.setHeight(notesTb.getElement().getScrollHeight() + "px");
+	           //updateWidgetSizes();
+	        }
+	    });
+
+	    notesTb.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+	        @Override
+	        public void onValueChange(ValueChangeEvent<String> event) {
+	        	notesTb.setHeight("auto");
+	        	notesTb.setHeight(notesTb.getElement().getScrollHeight() + "px");
+	        	//updateWidgetSizes();
+	        }
+	    });
+	    
+
+	    
 	    notesPanel.add(notesLabel);
 	    notesPanel.add(notesTb);
+	 	Timer t3=new Timer() {
+    		public void run() {
+    		   	notesTb.setHeight("auto");
+    	        notesTb.setHeight(notesTb.getElement().getScrollHeight() + "px");    		       			
+    		}
+    	};
+    	t3.schedule(2000);
 	    notesLabel.setStyleName("aho-label1");
-	    notesTb.setStyleName("aho-textbox1");
+//	    notesTb.setStyleName("aho-textbox1");
 	    add(notesPanel);
 	    
 	    HorizontalPanel personPanel=new HorizontalPanel();
@@ -183,7 +301,8 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		MaintenanceItem m=deviceCard.selectedMaintenanceItem;
 	    		 m.setMaintenanceDevice(deviceCard.selectedDevice.getDeviceKey().toString());
 	    		  m.setMaintenanceName(tb0.getValue());
-	    		  m.setMaintenanceDescription(tb1.getValue());
+//	    		  m.setMaintenanceDescription(tb1.getValue());
+	    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  m.setMaintenanceAssignedTo(personTb.getValue());
@@ -201,7 +320,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    });
 	    if(deviceCard.selectedMaintenanceItem.getMaintenanceID()!=null) {
 	    	saveButton.setText("Uuenda");
-	    }
+	    } 	
 	    add(saveButton);
 		saveButton.setStyleName("panelButton");
 
@@ -217,7 +336,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		MaintenanceItem m=deviceCard.selectedMaintenanceItem;
 	    		 m.setMaintenanceDevice(deviceCard.selectedDevice.getDeviceKey().toString());
 	    		  m.setMaintenanceName(tb0.getValue()+"-koopia");
-	    		  m.setMaintenanceDescription(tb1.getValue());
+	    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  m.setMaintenanceAssignedTo(personTb.getValue());
@@ -315,7 +434,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 
 		    		 mi.setMaintenanceDevice(deviceCard.selectedDevice.getDeviceKey().toString());
 		    		  mi.setMaintenanceName(tb0.getValue());
-		    		  mi.setMaintenanceDescription(tb1.getValue());
+		    		  mi.setMaintenanceDescription(lb1.getSelectedIndex()+"");
 		    		  mi.setMaintenanceProblemDescription(tb2.getValue());
 		    		  //m.setMaintenanceState(state);
 		    		  mi.setMaintenanceAssignedTo(personTb.getValue());
@@ -325,9 +444,9 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 
 		    	  mi.setMaintenanceState("done");
 		    	  try {
-		    	  mi.setMaintenanceDowntime(Integer.parseInt(dtb.getValue()));
-		    	  mi.setMaintenanceTimeSpent(Integer.parseInt(timeSpentTb.getValue()));
-		    	  mi.setMaintenanceCost(Double.parseDouble(costTb.getValue()));
+		    	  mi.setMaintenanceDowntime(Double.parseDouble(dtb.getValue().replace(',', '.')));
+		    	  mi.setMaintenanceTimeSpent(Double.parseDouble(timeSpentTb.getValue().replace(',', '.')));
+		    	  mi.setMaintenanceCost(Double.parseDouble(costTb.getValue().replace(',', '.')));
 		    	  mi.setMaintenanceCompleteDate(new Date());
 	    		  if(mi.getMaintenanceID()==null) {
 			    	  deviceCard.deviceTreeService.storeMaintenanceEntry(mi, deviceCard.selectedCompany.getCompanyKey(), storeCallback);	    			  

@@ -81,6 +81,15 @@ h1 {
     cursor: pointer;
 }
 
+.datePickerDay{
+	font-size: 200%;
+}
+
+.gwt-TextArea{
+	font-size: 8px;
+}
+
+
 .grayPlaceholder::-webkit-input-placeholder {
    color: #b4b4b4;
 }
@@ -106,7 +115,7 @@ h1 {
 
 .panelBackground.b {
 	display: block;
-	overflow: hidden;
+	//overflow: hidden;
 }
 
 .mainBackground {
@@ -236,7 +245,7 @@ h1 {
 .aho-headerImage {
 	display: block;
 	//width: 100px;
-	height: 45px;
+	height: 90px;
 	cursor: pointer;
 	float: left;
 }
@@ -255,7 +264,7 @@ h1 {
 .aho-piktoImage {
   	padding: 3px;
   	margin: 10px auto;
-  	width: 200px;
+  	width: 150px;
   	//height: 180px;
   	cursor: pointer;	
 }
@@ -337,6 +346,7 @@ h1 {
   border-top: 1px solid #ccc;
   overflow: hidden;
 }
+
 .aho-measurementHeaderPanel {
 	box-shadow: 2.5px 4.33px 5px 0px rgba(0, 0, 0, 0.078);
 	margin-top: 1px;
@@ -560,7 +570,7 @@ h1 {
 	border-radius: 1px;
 	border-width: 1px;
 	border-color: #000000;
-	font-size: 20px;
+	font-size: 15px;
 	margin-left: 10px;
 	margin-top: 14px;
 	text-align: right;
@@ -961,13 +971,13 @@ h1 {
 	font-weight: 200;
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 10000px) {
 .headerBackground {
 	height: 90px;
 }
 
 .loginHeaderBackground {
-	height: 45px;
+	height: 90px;
 }
 
 .panelBackground {
@@ -980,9 +990,18 @@ h1 {
     height: 1955px !important;
 }
 .aho-headerImage {
-	height: 45%;
+	//height: 45%;
 	width: auto;
 }
+
+.aho-piktoImage {
+  	padding: 3px;
+  	margin: 10px auto;
+  	width: 200px;
+  	height: 250px;
+  	cursor: pointer;	
+}
+
 
 .companyLabel {
     font-size: 30px;
@@ -1003,7 +1022,7 @@ h1 {
 
 .loginPanel {
 	font-size: 50px;
-	margin-left: 20%;
+	margin-left: 10%;
 }
 
 .aho-navigationPanel {
@@ -1058,7 +1077,7 @@ h1 {
 	background-color: lightblue;
 }
 .aho-label1 {
-	font-size: 46px;
+	font-size: 26px;
 	padding-top: 20px;
 }
 .aho-label2 {
@@ -1084,11 +1103,11 @@ h1 {
 	height: 105px;
 }
 .aho-autoExtendingTextArea {
-	font-size: 44px;
+	//font-size: 44px;
 }
 .aho-textbox1 {
 	margin-top: 18px;
-	font-size: 46px;
+	font-size: 26px;
 }
 .aho-markingImg {
 	height: 92%;

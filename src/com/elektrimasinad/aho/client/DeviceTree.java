@@ -191,12 +191,15 @@ public class DeviceTree extends Tree {
 						//Window.alert("Lisas "+unitItem);
 					//	selItem = getItem(i);
 						selItem=unitItem;
+						//selItem.setState(true);
+						departmentItem.setState(true);
 					}
 				//}
 			}
 			}
 		}
-		openSelectedItem(selItem);
+	
+//		openSelectedItem(selItem);
 	}
 
 	
@@ -233,6 +236,7 @@ public class DeviceTree extends Tree {
 				styleDeviceItem(deviceItem);
 				selectedTreeItem.addItem(deviceItem);
 				selItem=deviceItem;
+				selectedTreeItem.setState(true);
 				} else {
 					Window.alert("Voti ei sobi");
 				}

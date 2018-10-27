@@ -10,23 +10,60 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.elektrimasinad.aho.shared.*;
+import com.elektrimasinad.aho.client.DeviceMaintenancePanel2;
 
+import java.util.Date;
+import java.util.List;
 /*import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;*/
 
-public class RaportServlet extends HttpServlet {
+public class RaportServlet extends DeviceTreeServiceImpl {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = -4210862892257557487L;
 
+    public static String dateString(Date d) {
+    	String s="";
+    	s+=d.getDate();
+    	if(s.length()<2) {s="0"+s;}
+    	s+=".";
+    	if(d.getMonth()<9) {
+    		s+="0"+(d.getMonth()+1);
+    	} else {
+    		s+=(d.getMonth()+1);
+    	}
+    	s+=".";
+    	s+=(d.getYear()+1900);
+    	return s;
+    }
+	
+	private String getMaintenanceItemsCSV(String companyKey){
+		List<MaintenanceItem> items=getCompanyMaintenanceItems(companyKey);
+		StringBuffer sb=new StringBuffer();
+		for(MaintenanceItem mi:items) { 
+			sb.append(dateString(mi.getMaintenanceCompleteDate())+","+mi.getDepartmentName()+","+mi.getUnitName()+","+
+		       mi.getDeviceName()+",\""+mi.getMaintenanceName()+"\","+mi.getMaintenanceDowntime()+","+mi.getMaintenanceTimeSpent()+","+mi.getMaintenanceCost()+"\n");
+		}
+		return sb.toString();
+	}
+	
 	protected void doGet( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException
-    {
-        String fileName = req.getParameter( "fileInfo1" );
-
+    { 
+//		resp.getWriter().println("tere");
+	//	System.out.println(req.getParameter("companyKey"));
+		   resp.setContentType("text/csv");
+           resp.setHeader("Content-Disposition", "attachment; filename=hooldused.csv");
+		resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey")));
+       // String fileName = req.getParameter( "fileInfo1" );
+       // resp.getWriter().println(fileName);
+//         resp.getWriter().println(req.getSession().getAttribute("Account"));
+     //  req.getParameter("companyKey");
+        // if(req.)
         /*int BUFFER = 1024 * 100;
         resp.setContentType( "application/octet-stream" );
         resp.setHeader( "Content-Disposition:", "attachment;filename=" + "\"" + fileName + "\"" );

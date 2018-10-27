@@ -1,6 +1,10 @@
 package com.elektrimasinad.aho.client;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +15,7 @@ import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Unit;
+import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -26,7 +31,12 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.TimeZone;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -36,12 +46,15 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -66,6 +79,7 @@ public class DeviceCard implements EntryPoint {
 	private AsyncCallback<Unit> getUnitCallback;
 	private AsyncCallback<Department> getDepartmentCallback;
 	private AsyncCallback<MaintenanceItem> getMaintenanceItemCallback;
+	private AsyncCallback<List<MaintenanceItem>> getCompanyMaintenanceItemsCallback;
 	
 	private int MAIN_WIDTH /*= 900*/;
 	private int CONTENT_WIDTH = 800;
@@ -80,6 +94,7 @@ public class DeviceCard implements EntryPoint {
 	private DeviceMaintenancePanel2 deviceMaintenancePanel2 = new DeviceMaintenancePanel2(this);
 	private DeviceEditPanel deviceEditPanel = new DeviceEditPanel();
 	private VerticalPanel lastMeasurementPanel = new VerticalPanel();
+	private VerticalPanel maintenanceListPanel=new VerticalPanel();
 	private AbsolutePanel headerPanel;
 	private DeckPanel contentPanel;
 	//private Device device;
@@ -91,6 +106,8 @@ public class DeviceCard implements EntryPoint {
 	Device selectedDevice;
 	private Measurement measurement;
 	MaintenanceItem selectedMaintenanceItem;
+	private List<MaintenanceItem> maintenance2 = new ArrayList<MaintenanceItem>();
+
 	
 	private VerticalPanel companyListPanel = new VerticalPanel();
 	private CompanyPanel newCompanyPanel = new CompanyPanel();
@@ -189,11 +206,6 @@ public class DeviceCard implements EntryPoint {
 			public void onSuccess(Department arg0) {
 				// TODO Auto-generated method stub
 				selectedDepartment = arg0;
-				//createDeviceListPanel();
-				//createUnitListPanel();
-				//createDepartmentListPanel();
-		//		Debug.log(selectedDepartment.getDepartmentName()+" kaes");
-//				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
 				String actionParameter=Window.Location.getParameter("action");
 				if(actionParameter!=null) {
 					if(actionParameter.contentEquals("addPlannerItem")) {
@@ -209,7 +221,6 @@ public class DeviceCard implements EntryPoint {
 						createDeviceEditPanelView();
 					}
 				}
-				//deviceTreeService.getDepartment(selectedUnit.getDepartmentKey(), getDepartmentCallback);
 			}
 			
 		};
@@ -217,7 +228,6 @@ public class DeviceCard implements EntryPoint {
 		getMaintenanceItemCallback = new AsyncCallback<MaintenanceItem>() {
 			@Override
 			public void onFailure(Throwable arg0) {
-				// TODO Auto-generated method stub
 				Window.alert("failed maintenanceItem");
 			}
 			@Override
@@ -228,7 +238,20 @@ public class DeviceCard implements EntryPoint {
 		};
 		
 
+		getCompanyMaintenanceItemsCallback=new AsyncCallback<List<MaintenanceItem>>() {
+			@Override
+			public void onSuccess(List<MaintenanceItem> items) {
+			
+				maintenance2=items;
+//				createMaintenanceListPanel();
 
+			}
+			@Override
+			public void onFailure(Throwable caught) {
+				//System.err.println(caught);
+				Debug.log("Maintenance Items error "+caught);
+			}
+		};
 		
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
@@ -254,7 +277,6 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onSuccess(List<Company> companies) {
-				//System.out.println(name);
 				companyList = companies;
 				createCompanyListPanel();
 			}
@@ -413,7 +435,6 @@ public class DeviceCard implements EntryPoint {
 			
 			@Override
 			public void onSuccess(List<Measurement> measurementList) {
-				//System.out.println(name);
 				if (measurementList != null) {
 					measurements = measurementList;
 				}
@@ -512,16 +533,8 @@ public class DeviceCard implements EntryPoint {
 		contentPanel.add(deviceMaintenancePanel);
 		contentPanel.add(deviceMaintenancePanel2);
 		contentPanel.add(deviceEditPanel);
+		contentPanel.add(maintenanceListPanel);
 		companyNameLabel.setText(selectedCompany.getCompanyName());
-		
-		//devTree = new DeviceTree();
-		//generateDemoTreeData();
-		//device = new Device("Tartu Graanul", "Graanuli tootmine", "Tehas1", "Haamerveski Champion", "110/1500", "1LE1503", "SIEMENS",
-		//		"6319/C3", "", "", "", "6319/C3", "", "", "", "Haamerveski", "", "", "22322", "", "", "", "22322", "", "", "");
-		//createDeviceTreePanel();
-		
-		//contentPanel.add(deviceTreePanel);
-		//contentPanel.showWidget(contentPanel.getWidgetIndex(deviceTreePanel));
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
 		String deviceKey=Window.Location.getParameter("deviceKey");
 		if(deviceKey!=null) {
@@ -529,9 +542,6 @@ public class DeviceCard implements EntryPoint {
 		}
 	}
 	
-	private void fetchCompanies() {
-		//deviceTreeService.getCompanies(getCompanyListCallback);
-	}
 	
 	private void fetchDepartments() {
 		deviceTreeService.getDepartments(sessionStore.getItem("Account"), getDepartmentListCallback);
@@ -546,45 +556,7 @@ public class DeviceCard implements EntryPoint {
 		deviceTreeService.getDevices(selectedUnit.getUnitKey(), getDeviceListCallback);
 	}
 
-	/*private void generateDemoData() {
-		//XXX demo data generator
-		
-		Company c1 = new Company("Firma1");
-		Location c1l1 = new Location("Pumbajaam1");
-		Device c1l1d1 = new Device("Pump1", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		Device c1l1d2 = new Device("Pump2", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		Device c1l1d3 = new Device("Pump3", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		c1l1.addDevice(c1l1d1);
-		c1l1.addDevice(c1l1d2);
-		c1l1.addDevice(c1l1d3);
-		c1.addLocation(c1l1);
-		Location c1l2 = new Location("Pumbajaam2");
-		Device c1l2d1 = new Device("Pump4", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		Device c1l2d2 = new Device("Pump5", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		Device c1l2d3 = new Device("Pump6", "110/1500", "1LE1503", "SIEMENS",
-				"6319/C3", "", "", "", "6319/C3", "", "", "", "Pump", "", "", "22322", "", "", "", "22322", "", "", "");
-		c1l2.addDevice(c1l2d1);
-		c1l2.addDevice(c1l2d2);
-		c1l2.addDevice(c1l2d3);
-		c1.addLocation(c1l2);
-		
-		Company c2 = new Company("Firma2");
-		Location c2l1 = new Location("Saeveski");
-		c2.addLocation(c2l1);
-		
-		Company c3 = new Company("Firma3");
-		Location c3l1 = new Location("Tootmishoone");
-		c3.addLocation(c3l1);
-		
-		companyList.add(c1);
-		companyList.add(c2);
-		companyList.add(c3);
-	}*/
+	
 	
 	public VerticalPanel createCompanyListPanel() {
 		companyListPanel.clear();
@@ -641,6 +613,8 @@ public class DeviceCard implements EntryPoint {
 	}
 
 	
+	
+	
 	private VerticalPanel createDepartmentListPanel() {
 		departmentListPanel.clear();
 		
@@ -666,32 +640,7 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
-		/*
-		 * Label lDelete = new Label("Kustuta");
-		 
-		lDelete.setStyleName("backSaveLabel");
-		lDelete.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				if(selectedDepartment!=null) {
-				String deleteKey = selectedDepartment.getDepartmentKey();
-				showDeletePrompt(deleteKey, "Department");
-				}
-			}
-			
-		});*/
-		/*
-		Label lEdit = new Label("Andmed");
-		lEdit.setStyleName("backSaveLabel");
-		lEdit.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				createEditCompanyView();
-			}
-			
-		});*/
+		
 		Label lNewLocation = new Label("Lisa osakond");
 		lNewLocation.setStyleName("backSaveLabel wide");
 		lNewLocation.addClickHandler(new ClickHandler() {
@@ -709,21 +658,24 @@ public class DeviceCard implements EntryPoint {
 		buttonsPanel.add(lBack);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
 		buttonsPanel.setCellWidth(lBack, "43%");
-		//buttonsPanel.add(lEdit);
-		//buttonsPanel.setCellWidth(lEdit, "15%");
-		//buttonsPanel.add(lDelete);
-		//buttonsPanel.setCellWidth(lDelete, "15%");
 		buttonsPanel.add(lNewLocation);
 		buttonsPanel.setCellHorizontalAlignment(lNewLocation, HasHorizontalAlignment.ALIGN_RIGHT);
 		buttonsPanel.setCellWidth(lNewLocation, "50%");
 		departmentListPanel.add(buttonsPanel);
 		
-		//Header Panel
-//		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedCompany.getCompanyName());
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("OSAKONNAD");
+	//	HorizontalPanel headerPanel=new HorizontalPanel();
+	//	headerPanel.add(new Label("OSAKONNAD"));
+	//	Label companyMaintenances=new Label("Hoolduste ajalugu");
+//		headerPanel.add(companyMaintenances);
+	/*	companyMaintenances.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				deviceTreeService.getCompanyMaintenanceItems(sessionStore.getItem("Account"), getCompanyMaintenanceItemsCallback);	
+				
+			}
+		});*/
 		departmentListPanel.add(headerPanel);
 		
-		//Locations list
 		for (final Department location : departmentList) {
 			Label lLocation = new Label(location.getDepartmentName());
 			lLocation.setStyleName("aho-listItem");
@@ -918,7 +870,20 @@ public class DeviceCard implements EntryPoint {
 		//Header Panel
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedDepartment.getDepartmentName()+"-"+selectedUnit.getUnit()+ "- \u00FCksuse seadmed");
 		deviceListPanel.add(headerPanel);
-		
+		Collections.sort(deviceList, new Comparator<Device>() {
+
+			@Override
+			public int compare(Device arg0, Device arg1) {
+				try{
+					return  Integer.parseInt(arg0.getId())-Integer.parseInt(arg1.getId());
+				}catch(Exception ex) {
+					Debug.log(arg0.getId()+" - "+arg1.getId()+" "+ex.getMessage());
+					return arg1.getId().compareTo(arg1.getId());
+				}
+//				return 0;
+			}
+			
+		});
 		//Device list
 		for (final Device device : deviceList) {
 			Label lDevice = new Label(device.getId() + " " + device.getDeviceName());
@@ -1172,37 +1137,7 @@ public class DeviceCard implements EntryPoint {
 		
 		return newUnitPanel;
 	}
-	/*
-	public void createMaintenancePanelView() {;
-		deviceMaintenancePanel.clear();
-		deviceMaintenancePanel.createNewDeviceMaintenancePanel(selectedDevice);
-		HorizontalPanel maintHeader = new HorizontalPanel();
-		final Label lBack = new Label("Tagasi 2");
-		lBack.setStyleName("backSaveLabel");
-		lBack.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				createDeviceEditPanelView();
-				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceEditPanel));
-			}
-			
-		});
-		Button lBackButton = new Button();
-		lBackButton.setStyleName("backButton");
-		lBackButton.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				lBack.fireEvent(event);
-			}	
-		});
-		maintHeader.add(lBackButton);
-		maintHeader.add(lBack);
-		deviceMaintenancePanel.insert(maintHeader, 0);
-		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceMaintenancePanel));
-	}
-	*/
+
 	public void createMaintenancePanel2() {
 		HorizontalPanel maintHeader = new HorizontalPanel();
 		deviceMaintenancePanel2.clear();
@@ -1251,7 +1186,6 @@ public class DeviceCard implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				showDeviceCardView(selectedDevice.getDeviceName());
-//				contentPanel.showWidget(contentPanel.getWidgetIndex(deviceCardPanel));
 			}
 			
 		});
@@ -1266,9 +1200,6 @@ public class DeviceCard implements EntryPoint {
 			}	
 		});
 		
-//		HorizontalPanel buttonTime = AhoWidgets.createContentHeader(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
-//				   selectedUnit.getUnit()+" -" +selectedDevice.getDeviceName() + " hooldust\u00F6\u00F6d");
-//				buttonTime.setWidth("100%");
 		HorizontalPanel buttonTime = AhoWidgets.createContentHeader("");
 		buttonTime.setWidth("100%");
 		Label header=new Label(selectedDevice.getId() +" " + selectedDepartment.getDepartmentName()+ " - " +
@@ -1296,9 +1227,11 @@ public class DeviceCard implements EntryPoint {
 		
 		maintHeader.add(lBack);
 		maintHeader.add(lBackButton);
+		//deviceEditPanel.insert(maintHeader, 0);
+		//deviceEditPanel.insert(buttonTime, 1);
+		deviceEditPanel.add(maintHeader);
+		deviceEditPanel.add(buttonTime);
 		deviceEditPanel.createNewDeviceEditPanel(selectedDevice);
-		deviceEditPanel.insert(maintHeader, 0);
-		deviceEditPanel.insert(buttonTime, 1);
 		if(Window.Location.getParameter("DiagnosticKey")!=null) {
 			  DeviceCard.this.selectedMaintenanceItem=null;
 			createMaintenancePanel2();

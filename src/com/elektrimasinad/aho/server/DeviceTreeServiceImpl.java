@@ -102,6 +102,10 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			}
 			} catch (Exception ex) {}
 			//e.setProperty("KeyString", KeyFactory.keyToString(e.getKey()));
+			e.setProperty("Downtime", m.getMaintenanceDowntime().toString());
+			e.setProperty("TimeSpent", m.getMaintenanceTimeSpent().toString());
+			System.out.println("Time spent salvestus" + e.getProperty("TimeSpent").toString());
+			e.setProperty("Cost", m.getMaintenanceCost().toString());
 			ds.put(e);
 			System.out.println("Mootmise uuring " +m.getConnectedMeasurementKeyString());
 			if(m.getConnectedMeasurementKeyString()!=null && m.getConnectedMeasurementKeyString().length()>0) {
@@ -115,6 +119,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		//}
 		
 	}
+	/*
 	@Override
 	public List<MaintenanceItem> getMaintenanceEntries() throws IllegalArgumentException {
 		List<MaintenanceItem> maintenanceItems = new ArrayList<MaintenanceItem>();
@@ -141,7 +146,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		}
 		
 		return maintenanceItems;
-	}
+	}*/
 	@Override
 	public List<MaintenanceItem> getMaintenanceEntriesFromKey(String maintenanceString) throws IllegalArgumentException {
 	//	Key userCompanyKey = KeyFactory.createKey("Companies", userCompanyName);
@@ -169,6 +174,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
+			try{m.setMaintenanceTimeSpent(Double.parseDouble(e.getProperty("TimeSpent").toString()));
+			  System.out.println("ajakulu "+ m.getMaintenanceTimeSpent()+" "+e.getProperty("TimeSpent").toString());
+			}catch(Exception ex) {}
+			try{m.setMaintenanceDowntime(Double.parseDouble(e.getProperty("Downtime").toString()));}catch(Exception ex) {}
+			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}
 			maintenanceItems.add(m);
 		}
 		
@@ -201,6 +211,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			try {
 			m.setMaintenanceInterval(Integer.valueOf(e.getProperty("Interval").toString()));
 			} catch(Exception ex) {}
+			try{m.setMaintenanceTimeSpent(Double.parseDouble(e.getProperty("TimeSpent").toString()));
+			  System.out.println("ajakulu "+ m.getMaintenanceTimeSpent()+" "+e.getProperty("TimeSpent").toString());
+			}catch(Exception ex) {ex.printStackTrace();}
+			try{m.setMaintenanceDowntime(Double.parseDouble(e.getProperty("Downtime").toString()));}catch(Exception ex) {}
+			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}
 		} catch (EntityNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -228,6 +243,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		e.setProperty("Notes", mNew.getMaintenanceNotes());
 		Integer interval = mNew.getMaintenanceInterval();
 		e.setProperty("Interval", interval);
+		e.setProperty("Downtime", mNew.getMaintenanceDowntime().toString());
+		e.setProperty("TimeSpent", mNew.getMaintenanceTimeSpent().toString());
+		System.out.println("Time spent salvestus" + e.getProperty("TimeSpent").toString());
+		e.setProperty("Cost", mNew.getMaintenanceCost().toString());
+
 		ds.put(e);
 		return "Task updated";
 		}catch(Exception ex) {

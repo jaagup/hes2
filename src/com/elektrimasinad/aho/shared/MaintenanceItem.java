@@ -23,9 +23,9 @@ public class MaintenanceItem implements Serializable{
 	private String type;
 	private String devKey;
 	private Integer interval;
-	private Double cost;
-	private Integer downtime=0;
-	private Integer timeSpent=0;
+	private Double cost=0.0;
+	private Double downtime=0.0;
+	private Double timeSpent=0.0;
 	private Integer upload=0;
 	private String deviceName;
 	private String deviceID="";
@@ -74,10 +74,10 @@ public class MaintenanceItem implements Serializable{
 	public void setMaintenanceCost(Double cost) {
 		this.cost = cost;
 	}
-	public void setMaintenanceDowntime(Integer downtime) {
+	public void setMaintenanceDowntime(Double downtime) {
 		this.downtime = downtime;
 	}
-	public void setMaintenanceTimeSpent(Integer timeSpent) {
+	public void setMaintenanceTimeSpent(Double timeSpent) {
 		this.timeSpent = timeSpent;
 	}
 	/*public void setMaintenanceImage(Integer(Integer.toString(this.upload)) {
@@ -123,10 +123,10 @@ public class MaintenanceItem implements Serializable{
 	public Double getMaintenanceCost() {
 		return this.cost;
 	}
-	public Integer getMaintenanceDowntime() {
+	public Double getMaintenanceDowntime() {
 		return this.downtime;
 	}
-	public Integer getMaintenanceTimeSpent() {
+	public Double getMaintenanceTimeSpent() {
 		return this.timeSpent;
 	}
 	/*public Integer getMaintenanceImage() {

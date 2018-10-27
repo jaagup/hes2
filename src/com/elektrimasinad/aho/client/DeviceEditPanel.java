@@ -49,9 +49,25 @@ public class DeviceEditPanel extends VerticalPanel {
 	private CellTable<MaintenanceItem> maintenanceTable;
 	private DeviceTreeServiceAsync deviceTreeService;
 	private AsyncCallback<String> updateMaintenanceEntryCallback;
+	AsyncCallback<List<MaintenanceItem>> getDeviceEntriesCallback;
+	DebugClientSide Debug = new DebugClientSide();
+	Button maintenanceHistoryButton=new Button("Kuva ajalugu");
+
 	//private DeviceCard createMaintenancePanelView = new DeviceCard();
 	public DeviceEditPanel() {
 		super();
+		maintenanceHistoryButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent e) {
+				if(maintenanceHistoryButton.getText().contentEquals("Kuva ajalugu")) {
+				  showMaintenanceHistoryList();
+				} else {
+					deviceTreeService.getMaintenanceEntriesFromKey(selectedDevice, getDeviceEntriesCallback);
+				}
+			}
+
+		});
+		Debug.enable();
 	}
 	public void createNewDeviceEditPanel(Device device) {
 		SingleSelectionModel<MaintenanceItem> tableSelModel = new SingleSelectionModel<MaintenanceItem>();
@@ -66,7 +82,7 @@ public class DeviceEditPanel extends VerticalPanel {
 			}
 			
 		});
-		AsyncCallback<List<MaintenanceItem>> getDeviceEntriesCallback = new AsyncCallback<List<MaintenanceItem>>() {
+		getDeviceEntriesCallback = new AsyncCallback<List<MaintenanceItem>>() {
 
 			@Override
 			public void onFailure(Throwable arg0) {
@@ -78,9 +94,17 @@ public class DeviceEditPanel extends VerticalPanel {
 				// TODO Auto-generated method stub
 				maintenanceList = retrievedMaintenanceList;
 //				maintenanceTable.setRowData(0, maintenanceList);
-				maintenanceTable.setRowData(0, 				
-						maintenanceList.stream().filter(m -> !m.getMaintenanceState().equals("done")).collect(Collectors.toList()));
+				List<MaintenanceItem> current=maintenanceList.stream().filter(m -> !m.getMaintenanceState().equals("done")).collect(Collectors.toList());
+				maintenanceTable.setRowData(0, current);
+				maintenanceTable.setRowCount(current.size());
+				//clear();
 				add(maintenanceTable);
+                if(maintenanceList.stream().filter(m -> m.getMaintenanceState().equals("done")).count()>0) {
+                //maintenanceHistoryButton.
+
+				add(maintenanceHistoryButton);
+				maintenanceHistoryButton.setText("Kuva ajalugu");
+                }
 			}
 			
 		};
@@ -99,7 +123,7 @@ public class DeviceEditPanel extends VerticalPanel {
 			}
 			
 		};
-		super.clear();
+		//super.clear();
 		deviceTreeService = DeviceCard.getDevicetreeservice();
 		selectedDevice = device.getDeviceKey();
 		deviceTreeService.getMaintenanceEntriesFromKey(selectedDevice, getDeviceEntriesCallback);
@@ -114,17 +138,6 @@ public class DeviceEditPanel extends VerticalPanel {
 			}
 		};
 
-/*		DateCell dateCell = new DateCell();
-		Column<MaintenanceItem, Date> dateCol = new Column<MaintenanceItem, Date>(dateCell) {
-
-			@Override
-			public Date getValue(MaintenanceItem m) {
-				Date item = m.getMaintenanceCompleteDate();
-				return item;
-			}
-		};
-*/
-//		DateCell dateCell = new DateCell();
 		TextColumn<MaintenanceItem> dateCol = new TextColumn<MaintenanceItem>() {
 
 			@Override
@@ -144,58 +157,15 @@ public class DeviceEditPanel extends VerticalPanel {
 		maintenanceTable.addColumn(assignedEmployee, "Teostaja");
 		maintenanceTable.setSelectionModel(tableSelModel);
 	}
-/*	public void showEditPanel(MaintenanceItem m) {
-		PopupPanel editPopup = new PopupPanel(false);
-		editPopup.setStyleName("maintenanceEditPopup");
-		VerticalPanel editPanel = new VerticalPanel();
-		Label editNameLabel = new Label(m.getMaintenanceName());
-		editNameLabel.setStyleName("maintenanceEditPopupLabel");
-		TextArea editDesc = new TextArea();
-		editDesc.setValue(m.getMaintenanceDescription());
-		TextArea editProblemDesc = new TextArea();
-		editProblemDesc.setValue(m.getMaintenanceProblemDescription());
-		TextArea editMaterials = new TextArea();
-		editMaterials.setValue(m.getMaintenanceMaterials());
-		TextArea editNotes = new TextArea();
-		editNotes.setValue(m.getMaintenanceNotes());
-		IntegerBox intervalBox = new IntegerBox();
-		intervalBox.setValue(m.getMaintenanceInterval());
-		Button editButton = new Button("Salvesta", new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				m.setMaintenanceName(m.getMaintenanceName());
-				m.setMaintenanceDescription(editDesc.getValue());
-				m.setMaintenanceProblemDescription(editProblemDesc.getValue());
-				m.setMaintenanceMaterials(editMaterials.getValue());
-				m.setMaintenanceNotes(editNotes.getValue());
-				m.setMaintenanceAssignedTo();
-				m.setMaintenanceCompleteDate(m.getMaintenanceCompleteDate());
-				m.setMaintenanceDevice(m.getMaintenanceDevice());
-				m.setMaintenanceInterval(intervalBox.getValue());
-				deviceTreeService.updateMaintenanceEntry(m, updateMaintenanceEntryCallback);
-				editPopup.hide();
-			}
-		});
-		Button finishButton=new Button("Lopeta", new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				m.setMaintenanceState("done");
-				deviceTreeService.updateMaintenanceEntry(m, updateMaintenanceEntryCallback);
-				editPopup.hide();
-			}
-		});
-		editPanel.add(editNameLabel);
-		editPanel.add(new Label("Kirjeldus:"));
-		editPanel.add(editDesc);
-		editPanel.add(new Label("Probleemi kirjeldus:"));
-		editPanel.add(editProblemDesc);
-		editPanel.add(new Label("Materjalid:"));
-		editPanel.add(editMaterials);
-		editPanel.add(new Label("M\u00E4rkused:"));
-		editPanel.add(editNotes);
-		editPanel.add(new Label("Intervall:"));
-		editPanel.add(intervalBox);
-		editPanel.add(editButton);
-		editPanel.add(finishButton);
-		editPopup.add(editPanel);
-		editPopup.center();
-	}*/
+
+	private void showMaintenanceHistoryList() {
+		List<MaintenanceItem> list3=maintenanceList.stream().filter(m -> m.getMaintenanceState().equals("done")).collect(Collectors.toList());
+		maintenanceTable.setRowData(0, list3);
+       
+		maintenanceTable.flush();
+		maintenanceTable.setRowCount(list3.size());
+		maintenanceHistoryButton.setText("Kuva tegemata hooldused");
+		Debug.log("kuvatakse ajalugu");
+	}
+
 }

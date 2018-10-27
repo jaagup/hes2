@@ -162,16 +162,18 @@ public class Login implements EntryPoint{
 		});
 //		Image elektrimasinadImage=new Image("res/valgelogo.png");
 //		Image elektrimasinadImage=new Image("res/elektrimasinad.gif");
-		Image elektrimasinadImage=new Image("res/elektrimasinad_labipaistev.png");
+//		Image elektrimasinadImage=new Image("res/elektrimasinad_labipaistev.png");
+		Image elektrimasinadImage=new Image("res/elektrimasinad2.jpeg");
 		
 		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
-		headerImage.setHeight("45px");
+		headerImage.setHeight("90px");
 		navigationPanel.add(elektrimasinadImage);
-		elektrimasinadImage.setHeight("45px");
+		elektrimasinadImage.setHeight("90px");
 //		navigationPanel.setCellWidth(headerImage, "52px");
-		navigationPanel.setCellWidth(headerImage, "180px");
+		navigationPanel.setCellWidth(headerImage, "250px");
+		navigationPanel.setCellHeight(headerImage, "90px");
 		headerPanel = new AbsolutePanel();
 		headerPanel.setStyleName("loginHeaderBackground");
 		headerPanel.add(navigationPanel);
@@ -259,6 +261,7 @@ public class Login implements EntryPoint{
 		contentPanel.clear();
 		VerticalPanel loginPanel = new VerticalPanel();
 		loginPanel.setStyleName("loginPanel");
+		loginPanel.setWidth("80%");
 		Label userLabel = new Label();
 		userLabel.setStyleName("userLabel");
 		userLabel.setText("Ettev\u00F5te");
