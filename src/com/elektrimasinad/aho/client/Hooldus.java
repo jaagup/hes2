@@ -323,7 +323,7 @@ public class Hooldus implements EntryPoint {
         upperPanel.add(bEkspordi);
         maintenanceListPanel.add(upperPanel);
 //        table2Panel.add(upperPanel);
-
+/*
         Label lKuup=new Label("Kuup");
         labelPanel.add(lKuup);
         Label lOsakond=new Label("Osakond");
@@ -336,6 +336,9 @@ public class Hooldus implements EntryPoint {
         labelPanel.add(lSeade);
         Label lTegevus=new Label("Tegevus");
         labelPanel.add(lTegevus);
+        Label lKat=new Label("Kat");
+        labelPanel.add(lKat);
+*/
         Label lSeisak=new Label("Seisaku aeg");
         labelPanel.add(lSeisak);
         Label lAjakulu=new Label("Ajakulu");
@@ -349,12 +352,15 @@ public class Hooldus implements EntryPoint {
         	  createNewPlannerTable2();	
         	}
         });
-  */      labelPanel.setCellWidth(lKuup,"10%");
+  */    
+        /*
+        labelPanel.setCellWidth(lKuup,"10%");
         labelPanel.setCellWidth(lOsakond,"10%");
         labelPanel.setCellWidth(lUksus,"10%");
         labelPanel.setCellWidth(lIdnr,"10%");
         labelPanel.setCellWidth(lSeade,"10%");
         labelPanel.setCellWidth(lTegevus,"20%");
+        labelPanel.setCellWidth(lKat,"10%");*/
         labelPanel.setCellWidth(lSeisak,"10%");
         labelPanel.setCellWidth(lAjakulu,"10%");
         labelPanel.setCellWidth(lMaksumus,"10%");
@@ -375,7 +381,7 @@ public class Hooldus implements EntryPoint {
 					Date now=new Date();
 					Date d=m.getMaintenanceCompleteDate();
 					String dstr=DeviceMaintenancePanel2.dateString(d);
-					String taust="gray";
+	/*				String taust="gray";
 //					plan.setStyle("background-color: red");
 					if(d.compareTo(now)<0 && (d.getDate()<now.getDate() || d.getMonth()<now.getMonth())) {taust="pink";}
 					else {
@@ -385,7 +391,7 @@ public class Hooldus implements EntryPoint {
 					     taust="lightblue";
 						}
 					}
-
+*/
 				   return SafeHtmlUtils.fromTrustedString(dstr);
 				}
 			}    ;    
@@ -440,6 +446,16 @@ public class Hooldus implements EntryPoint {
 			actionColumn.setSortable(true);
 			table.addColumn(actionColumn, "Tegevus");
 
+			TextColumn<MaintenanceItem> katColumn = new TextColumn<MaintenanceItem>() {
+				@Override
+				public String getValue(MaintenanceItem object) {
+					return object.getMaintenanceShortDescription();
+				}
+			};
+			katColumn.setSortable(true);
+			table.addColumn(katColumn, "Kat");
+
+			
 			TextColumn<MaintenanceItem> downtimeColumn = new TextColumn<MaintenanceItem>() {
 				@Override
 				public String getValue(MaintenanceItem object) {
@@ -514,6 +530,13 @@ public class Hooldus implements EntryPoint {
             	}
             });
 
+            columnSortHandler.setComparator(katColumn, new Comparator<MaintenanceItem>(){
+            	public int compare(MaintenanceItem m1, MaintenanceItem m2) {
+            		return m1.getMaintenanceShortDescription().compareToIgnoreCase(m2.getMaintenanceShortDescription());
+            	}
+            });
+
+            
             columnSortHandler.setComparator(downtimeColumn, new Comparator<MaintenanceItem>(){
             	public int compare(MaintenanceItem m1, MaintenanceItem m2) {
             		if( m1.getMaintenanceDowntime()<m2.getMaintenanceDowntime()) {return -1;}
@@ -544,33 +567,18 @@ public class Hooldus implements EntryPoint {
             table.getColumnSortList().push(addressColumn);			
             table.getColumnSortList().push(idColumn);			
             table.getColumnSortList().push(actionColumn);			
+            table.getColumnSortList().push(katColumn);			
             table.getColumnSortList().push(deviceColumn);			
             table.getColumnSortList().push(downtimeColumn);			
             table.getColumnSortList().push(timeSpentColumn);			
             table.getColumnSortList().push(costColumn);			
-/*
- * 			SingleSelectionModel<MaintenanceItem> tableSelModel = new SingleSelectionModel<MaintenanceItem>();
- *
-			tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-
-				@Override
-				public void onSelectionChange(SelectionChangeEvent arg0) {
-					// TODO Auto-generated method stub
-					MaintenanceItem selectedItem = (MaintenanceItem) tableSelModel.getSelectedObject();
-					//showEditPanel(selectedItem);
-				//	Debug.log(selectedItem.getDevice());
-					Window.Location.assign("/DeviceCard.html?deviceKey="+selectedItem.getMaintenanceDevice()+
-							"&action=showPlannerItem&maintenanceCode="+selectedItem.getMaintenanceID());
-				}
-				
-			});
-			table.setSelectionModel(tableSelModel);*/
 			
 			table.setRowCount(maintenance2a.size(), true);
 			
 			table.setRowData(0, maintenance2a);
 			maintenanceListPanel.add(table);
 			content2Panel.showWidget(content2Panel.getWidgetIndex(maintenanceListPanel));
+			contentPanel.setVisible(false);
             double sumDowntime=0;
             double sumTimeSpent=0;
             double sumCost=0;
@@ -907,6 +915,7 @@ public class Hooldus implements EntryPoint {
 		//table2Panel.add(sp);
         table2Panel.add(table);
 		content2Panel.showWidget(content2Panel.getWidgetIndex(table2Panel));
+		contentPanel.setVisible(true);
     //   Debug.log(maintenance2.size()+" "+maintenance2a.size());
 		
 		return table2Panel;

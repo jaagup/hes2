@@ -1,5 +1,7 @@
 package com.elektrimasinad.aho.server;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,10 +46,12 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 	
 	private String getMaintenanceItemsCSV(String companyKey){
 		List<MaintenanceItem> items=getCompanyMaintenanceItems(companyKey);
+        items=items.stream().filter((m) -> m.getMaintenanceState().contentEquals("done")).collect(toList());
+
 		StringBuffer sb=new StringBuffer();
 		for(MaintenanceItem mi:items) { 
 			sb.append(dateString(mi.getMaintenanceCompleteDate())+","+mi.getDepartmentName()+","+mi.getUnitName()+","+
-		       mi.getDeviceName()+",\""+mi.getMaintenanceName()+"\","+mi.getMaintenanceDowntime()+","+mi.getMaintenanceTimeSpent()+","+mi.getMaintenanceCost()+"\n");
+		       mi.getDeviceName()+",\""+mi.getMaintenanceName()+"\","+mi.getMaintenanceShortDescription()+","+mi.getMaintenanceDowntime()+","+mi.getMaintenanceTimeSpent()+","+mi.getMaintenanceCost()+"\n");
 		}
 		return sb.toString();
 	}

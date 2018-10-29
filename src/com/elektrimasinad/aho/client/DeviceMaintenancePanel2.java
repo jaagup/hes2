@@ -85,12 +85,13 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    DescriptionPanel.setStyleName("aho-panel1");
 	    Label tb11 = new Label("T\u00F6\u00F6 kategooria");
 	    ListBox lb1=new ListBox();
-	    lb1.addItem("Planeeritud/korraline hooldust\u00F6\u00F6");
-	    lb1.addItem("Erakorraline hooldust\u00F6\u00F6");
-	    lb1.addItem("M\u00F5\u00F5tmine/diagnostika");
-	    lb1.addItem("\u00DClevaatus");
-	    lb1.addItem("Rikke k\u00F5rvaldamine");
-	    lb1.addItem("M\u00E4\u00E4rde lisamine");
+	    lb1.addItem("Planeeritud/korraline hooldust\u00F6\u00F6 (KH)");
+	    lb1.addItem("Erakorraline hooldust\u00F6\u00F6 (EH)");
+	    lb1.addItem("M\u00F5\u00F5tmine/diagnostika (D)");
+	    lb1.addItem("\u00DClevaatus (\u00DC)");
+	    lb1.addItem("Rikke k\u00F5rvaldamine (R)");
+	    lb1.addItem("M\u00E4\u00E4rde lisamine (M)");
+	    lb1.addItem("Reguleerimine/h\u00E4\u00E4lestus (R/H)");
 	    try {lb1.setSelectedIndex(Integer.parseInt(deviceCard.selectedMaintenanceItem.getMaintenanceDescription()));}catch(Exception ex) {}
 	   // GridEditor
 //		TextArea tb1 = new TextArea();

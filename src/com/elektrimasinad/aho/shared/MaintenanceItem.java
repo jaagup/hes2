@@ -96,6 +96,14 @@ public class MaintenanceItem implements Serializable{
 	public String getMaintenanceDescription() {
 		return this.desc;
 	}
+	
+	static String[] shortDescriptions= {"KH", "DH", "D", "Ü", "R", "M", "R/H"};
+	public String getMaintenanceShortDescription() {
+		try {
+			return shortDescriptions[Integer.parseInt(getMaintenanceDescription())];
+		} catch(Exception ex) {return "XX";}
+	}
+	
 	public String getMaintenanceProblemDescription() {
 		return this.problemDesc;
 	}
