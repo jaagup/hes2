@@ -339,6 +339,8 @@ public class Hooldus implements EntryPoint {
         Label lKat=new Label("Kat");
         labelPanel.add(lKat);
 */
+        Label lTyhi=new Label("");
+        labelPanel.add(lTyhi);
         Label lSeisak=new Label("Seisaku aeg");
         labelPanel.add(lSeisak);
         Label lAjakulu=new Label("Ajakulu");
@@ -361,6 +363,7 @@ public class Hooldus implements EntryPoint {
         labelPanel.setCellWidth(lSeade,"10%");
         labelPanel.setCellWidth(lTegevus,"20%");
         labelPanel.setCellWidth(lKat,"10%");*/
+        labelPanel.setCellWidth(lTyhi, "70%");
         labelPanel.setCellWidth(lSeisak,"10%");
         labelPanel.setCellWidth(lAjakulu,"10%");
         labelPanel.setCellWidth(lMaksumus,"10%");
@@ -588,9 +591,9 @@ public class Hooldus implements EntryPoint {
             	sumCost+=mi.getMaintenanceCost();
             }
             
-            lSeisak.setText("Seisaku aeg: "+sumDowntime);
-            lAjakulu.setText("Ajakulu: "+sumTimeSpent);
-            lMaksumus.setText("Maksumus: "+sumCost);
+            lSeisak.setText("Seisaku aeg: "+((int)(sumDowntime*100))/100.0);
+            lAjakulu.setText("Ajakulu: "+((int)(sumTimeSpent*100))/100.0);
+            lMaksumus.setText("Maksumus: "+((int)(sumCost*100))/100);
             table.setHeight(maintenance2a.size()*50+"px");
 //			ScrollPanel sp=new ScrollPanel(table);
 //			sp.setSize("100%", "200px");
