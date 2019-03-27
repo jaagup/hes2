@@ -13,6 +13,7 @@ public class Company implements Serializable {
 	private String companyName;
 	private String username;
 	private String password;
+	private boolean hidden=false;
 	private List<Unit> locationList = new ArrayList<Unit>();
 	
 	public Company() {}
@@ -76,5 +77,12 @@ public class Company implements Serializable {
 	}
 	public void setCompanyPassword(String password) {
 		this.password = password;
+	}
+	
+	public void setHidden(boolean h) {
+		hidden=h;
+	}
+	public boolean getHidden() {
+		return hidden;
 	}
 }

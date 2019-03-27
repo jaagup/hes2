@@ -18,6 +18,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -29,8 +30,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class Admin implements EntryPoint{
-	
+public class Admin implements EntryPoint {
+
 	private int MAIN_WIDTH = 900;
 	private int CONTENT_WIDTH = 800;
 	private static final DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
@@ -50,7 +51,7 @@ public class Admin implements EntryPoint{
 	private AsyncCallback<String> createAdminAccountCallback;
 	protected List<Measurement> measurements;
 	private List<Company> companyList = new ArrayList<Company>();
-	private CompanyPanel companyPanel=new CompanyPanel();
+	private CompanyPanel companyPanel = new CompanyPanel();
 	private boolean isDevMode;
 	private boolean isMobileView;
 	private String accountKey;
@@ -58,12 +59,13 @@ public class Admin implements EntryPoint{
 	private Label userLabel;
 	DebugClientSide Debug = new DebugClientSide();
 
-	
 	@Override
 	public void onModuleLoad() {
 		Debug.enable();
-		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
-		else isDevMode = false;
+		if (Window.Location.getHref().contains("127.0.0.1"))
+			isDevMode = true;
+		else
+			isDevMode = false;
 		if (Window.getClientWidth() < 1000) {
 			isMobileView = true;
 		} else {
@@ -71,22 +73,22 @@ public class Admin implements EntryPoint{
 		}
 		Window.addResizeHandler(new ResizeHandler() {
 
-		    @Override
-		    public void onResize(ResizeEvent event) {
-		    	if (Window.getClientWidth() < 1000) {
+			@Override
+			public void onResize(ResizeEvent event) {
+				if (Window.getClientWidth() < 1000) {
 					isMobileView = true;
 				} else {
 					isMobileView = false;
 				}
-		    	updateWidgetSizes();
-		    }
+				updateWidgetSizes();
+			}
 		});
 		getAdminAccountDataCallback = new AsyncCallback<String>() {
 
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -95,15 +97,15 @@ public class Admin implements EntryPoint{
 				sessionStore.setItem("hasAdminLogon", arg0);
 				Window.Location.reload();
 			}
-			
+
 		};
 		updateCompanyCallback = new AsyncCallback<String>() {
 
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-				Debug.log("update error "+arg0);
-				
+				Debug.log("update error " + arg0);
+
 			}
 
 			@Override
@@ -112,63 +114,63 @@ public class Admin implements EntryPoint{
 				Debug.log("Company updated!");
 				fetchCompanies();
 			}
-			
+
 		};
 		getCompanyListCallback = new AsyncCallback<List<Company>>() {
-			
+
 			@Override
 			public void onSuccess(List<Company> companies) {
-				//System.out.println(name);
+				// System.out.println(name);
 				companyList = companies;
 				createCompanyListPanel();
 				Debug.log("Paneel loodud");
-				
+
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
-				Debug.log("Loetelu probleem: "+caught);
+				Debug.log("Loetelu probleem: " + caught);
 			}
-			
+
 		};
 		getAccountDataCallback = new AsyncCallback<String>() {
-			
+
 			@Override
 			public void onSuccess(String accountData) {
 				accountKey = accountData;
-				if(accountKey != "failed") {
+				if (accountKey != "failed") {
 					sessionStore.setItem("Account", accountKey);
 					Window.Location.assign("/Index.html");
 				}
-				
+
 			}
 
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		};
 		storeCompanyCallback = new AsyncCallback<String>() {
-			
+
 			@Override
 			public void onSuccess(String name) {
-				//Window.alert("Loodi "+name);
+				// Window.alert("Loodi "+name);
 				fetchCompanies();
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert("Probleem loomisel "+caught);
+				Window.alert("Probleem loomisel " + caught);
 			}
-			
+
 		};
 		createAdminAccountCallback = new AsyncCallback<String>() {
 
 			@Override
 			public void onFailure(Throwable arg0) {
 				// TODO Auto-generated method stub
-			   Debug.log(arg0+"");	
+				Debug.log(arg0 + "");
 			}
 
 			@Override
@@ -176,33 +178,34 @@ public class Admin implements EntryPoint{
 				// TODO Auto-generated method stub
 				Debug.log(arg0);
 			}
-			
+
 		};
 		userInfoService.createAdminAccount("admin", "test", createAdminAccountCallback);
-		
+
 		RootPanel root = RootPanel.get();
 		root.setStyleName("mainBackground2");
-		
+
 		mainPanel = new VerticalPanel();
 		if (isMobileView) {
 			mainPanel.setStyleName("panelBackground mobile");
 		} else {
 			mainPanel.setStyleName("panelBackground");
 		}
-		
-		
+
 		Image headerImage = new Image("res/hes-symbol.jpg");
 		headerImage.setStyleName("aho-headerImage");
 		headerImage.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
-				if(isDevMode) Window.Location.assign(Window.Location.getHref().replace("index", "index"));
-				else Window.Location.assign("/Index.html");
+				if (isDevMode)
+					Window.Location.assign(Window.Location.getHref().replace("index", "index"));
+				else
+					Window.Location.assign("/Index.html");
 			}
-			
+
 		});
-		
+
 		HorizontalPanel navigationPanel = new HorizontalPanel();
 		navigationPanel.setStyleName("aho-navigationPanel");
 		navigationPanel.add(headerImage);
@@ -211,26 +214,28 @@ public class Admin implements EntryPoint{
 		headerPanel.setStyleName("headerBackground");
 		headerPanel.add(navigationPanel);
 		mainPanel.add(headerPanel);
-		
+
 		contentPanel = new DeckPanel();
 		mainPanel.add(contentPanel);
 		mainPanel.setCellHeight(contentPanel, "100%");
-		
+
 		RootPanel rootPanel = RootPanel.get();
 		rootPanel.setStyleName("mainBackground2");
 		rootPanel.add(mainPanel);
-		
+
 		sessionStore = Storage.getSessionStorageIfSupported();
-		if(sessionStore.getItem("hasAdminLogon") == "yes") {
+		if (sessionStore.getItem("hasAdminLogon") == "yes") {
 			init();
 		} else {
 			initAdminLogon();
 		}
 		updateWidgetSizes();
 	}
+
 	private void fetchCompanies() {
 		deviceTreeService.getCompanies(getCompanyListCallback);
 	}
+
 	private void updateWidgetSizes() {
 		String contentWidth = "90%";
 		MAIN_WIDTH = 700;
@@ -242,73 +247,100 @@ public class Admin implements EntryPoint{
 		mainPanel.setHeight(Window.getClientHeight() + "px");
 		contentPanel.setWidth(CONTENT_WIDTH + "px");
 	}
+
 	private void init() {
-		//generateDemoData();
+		// generateDemoData();
 		fetchCompanies();
 		contentPanel.add(companyListPanel);
-		
-		//devTree = new DeviceTree();
-		//generateDemoTreeData();
-		//device = new Device("Tartu Graanul", "Graanuli tootmine", "Tehas1", "Haamerveski Champion", "110/1500", "1LE1503", "SIEMENS",
-		//		"6319/C3", "", "", "", "6319/C3", "", "", "", "Haamerveski", "", "", "22322", "", "", "", "22322", "", "", "");
-		//createDeviceTreePanel();
-		
-		//contentPanel.add(deviceTreePanel);
-		//contentPanel.showWidget(contentPanel.getWidgetIndex(deviceTreePanel));
+
+		// devTree = new DeviceTree();
+		// generateDemoTreeData();
+		// device = new Device("Tartu Graanul", "Graanuli tootmine", "Tehas1",
+		// "Haamerveski Champion", "110/1500", "1LE1503", "SIEMENS",
+		// "6319/C3", "", "", "", "6319/C3", "", "", "", "Haamerveski", "", "", "22322",
+		// "", "", "", "22322", "", "", "");
+		// createDeviceTreePanel();
+
+		// contentPanel.add(deviceTreePanel);
+		// contentPanel.showWidget(contentPanel.getWidgetIndex(deviceTreePanel));
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
 	}
+
 	private void initAdminLogon() {
 		createAdminLogonPanel();
 	}
+
 	public VerticalPanel createCompanyListPanel() {
 		contentPanel.clear();
 		companyListPanel.clear();
 		companyListPanel.setWidth("100%");
-		
-		//Buttons panel
+
+		// Buttons panel
 		Label lLabel1 = new Label("");
 		lLabel1.setStyleName("backSaveLabel noPointer");
-		
+
 		HorizontalPanel buttonsPanel = new HorizontalPanel();
 		buttonsPanel.setStyleName("backSavePanel");
 		buttonsPanel.add(lLabel1);
 		buttonsPanel.setCellWidth(lLabel1, "50%");
 		companyListPanel.add(buttonsPanel);
-		
-		//Header Panel
+
+		// Header Panel
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("Ettev\u00F5tted");
 		companyListPanel.add(headerPanel);
-		
-		//Companies list
+
+		// Companies list
 		for (final Company company : companyList) {
-			Label lCompany = new Label(company.getCompanyName());
-			lCompany.setStyleName("aho-listItem");
-			lCompany.addClickHandler(new ClickHandler() {
-				
-				@Override
-				public void onClick(ClickEvent event) {
-					sessionStore.setItem("adminPanelSelectedCompany", company.getCompanyName());
-					createEditPanel(company);
-				}
-				
-			});
-			companyListPanel.add(lCompany);
+			if (!company.getHidden()) {
+				Label lCompany = new Label(company.getCompanyName());
+				lCompany.setStyleName("aho-listItem");
+				lCompany.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						sessionStore.setItem("adminPanelSelectedCompany", company.getCompanyName());
+						createEditPanel(company);
+					}
+
+				});
+				companyListPanel.add(lCompany);
+			}
 		}
-		
-		Label companyAddLabel=new Label("* Lisa ettev\u00F5te");
+
+		Label companyAddLabel = new Label("* Lisa ettev\u00F5te");
 		companyAddLabel.setStyleName("aho-listItem");
 		companyListPanel.add(companyAddLabel);
 		companyAddLabel.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-//			  contentPanel.showWidget(contentPanel.getWidgetIndex(companyPanel));	
+				// contentPanel.showWidget(contentPanel.getWidgetIndex(companyPanel));
 				createNewCompanyPanel();
 			}
 		});
+		
+		for (final Company company : companyList) {
+			if (company.getHidden()) {
+				Label lCompany = new Label(company.getCompanyName());
+				lCompany.setStyleName("aho-listItem");
+				lCompany.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						sessionStore.setItem("adminPanelSelectedCompany", company.getCompanyName());
+						createEditPanel(company);
+					}
+
+				});
+				companyListPanel.add(lCompany);
+			}
+		}
+
+		
 		contentPanel.add(companyListPanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(companyListPanel));
-		
+
 		return companyListPanel;
 	}
+
 	private void createLoginPanel() {
 		contentPanel.clear();
 		VerticalPanel loginPanel = new VerticalPanel();
@@ -328,9 +360,10 @@ public class Admin implements EntryPoint{
 
 			@Override
 			public void onClick(ClickEvent event) {
-				userInfoService.getAccountData(loginUser.getValue(), loginPass.getValue(), companyName, getAccountDataCallback);
+				userInfoService.getAccountData(loginUser.getValue(), loginPass.getValue(), companyName,
+						getAccountDataCallback);
 			}
-			
+
 		});
 		loginButton.setStyleName("loginBtn");
 		loginPanel.add(userLabel);
@@ -341,6 +374,7 @@ public class Admin implements EntryPoint{
 		contentPanel.add(loginPanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(loginPanel));
 	}
+
 	private void createAdminLogonPanel() {
 		contentPanel.clear();
 		VerticalPanel loginPanel = new VerticalPanel();
@@ -359,9 +393,10 @@ public class Admin implements EntryPoint{
 
 			@Override
 			public void onClick(ClickEvent event) {
-				userInfoService.getAdminAccountData(loginUser.getValue(), loginPass.getValue(), getAdminAccountDataCallback);
+				userInfoService.getAdminAccountData(loginUser.getValue(), loginPass.getValue(),
+						getAdminAccountDataCallback);
 			}
-			
+
 		});
 		loginButton.setStyleName("loginBtn");
 		loginPanel.add(userLabel);
@@ -378,16 +413,20 @@ public class Admin implements EntryPoint{
 		VerticalPanel editCompany = new VerticalPanel();
 		Label editCompanyNameLabel = new Label("Nimi");
 		TextBox editCompanyName = new TextBox();
-	/*	Window.alert("kompanii "+c.getCompanyName()+" "+
-				sessionStore.getItem("adminPanelSelectedCompany")
-		);*/
+		/*
+		 * Window.alert("kompanii "+c.getCompanyName()+" "+
+		 * sessionStore.getItem("adminPanelSelectedCompany") );
+		 */
 		editCompanyName.setValue(c.getCompanyName());
-//		Label editCompanyUsernameLabel = new Label("Kasutajanimi");
-//		TextBox editCompanyUsername = new TextBox();
-//		editCompanyUsername.setValue(c.getCompanyUsername());
+		// Label editCompanyUsernameLabel = new Label("Kasutajanimi");
+		// TextBox editCompanyUsername = new TextBox();
+		// editCompanyUsername.setValue(c.getCompanyUsername());
 		Label editCompanyPasswordLabel = new Label("Salas\u00F5na");
 		PasswordTextBox editCompanyPassword = new PasswordTextBox();
-		//editCompanyName.setValue(c.getCompanyPassword());
+		// editCompanyName.setValue(c.getCompanyPassword());
+		Label editCompanyHiddenLabel=new Label("Peidetud");
+		CheckBox editCompanyHidden=new CheckBox();
+		editCompanyHidden.setValue(c.getHidden());
 		Button editCompanySave = new Button("Salvesta", new ClickHandler() {
 
 			@Override
@@ -396,55 +435,55 @@ public class Admin implements EntryPoint{
 				c.setCompanyName(editCompanyName.getValue().toString());
 				c.setCompanyUsername(editCompanyName.getValue().toString());
 				c.setCompanyPassword(editCompanyPassword.getValue().toString());
+				c.setHidden(editCompanyHidden.getValue());
 				deviceTreeService.updateCompany(c, updateCompanyCallback);
 			}
-			
+
 		});
 		editCompany.add(editCompanyNameLabel);
 		editCompany.add(editCompanyName);
-//		editCompany.add(editCompanyUsernameLabel);
-//		editCompany.add(editCompanyUsername);
+		// editCompany.add(editCompanyUsernameLabel);
+		// editCompany.add(editCompanyUsername);
+		editCompany.add(editCompanyPasswordLabel);
+		editCompany.add(editCompanyPassword);
+		editCompany.add(editCompanyHiddenLabel);
+		editCompany.add(editCompanyHidden);
+		editCompany.add(editCompanySave);
+		contentPanel.add(editCompany);
+		contentPanel.showWidget(contentPanel.getWidgetIndex(editCompany));
+
+	}
+
+	private void createNewCompanyPanel() {
+		contentPanel.clear();
+		VerticalPanel editCompany = new VerticalPanel();
+		Label editCompanyNameLabel = new Label("Nimi");
+		TextBox editCompanyName = new TextBox();
+		// Label editCompanyUsernameLabel = new Label("Kasutajanimi");
+		// TextBox editCompanyUsername = new TextBox();
+		Label editCompanyPasswordLabel = new Label("Salas\u00F5na");
+		PasswordTextBox editCompanyPassword = new PasswordTextBox();
+		Button editCompanySave = new Button("Loo ettev\u00F5te", new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent arg0) {
+				// TODO Auto-generated method stub
+				Company c = new Company();
+				c.setCompanyName(editCompanyName.getValue().toString());
+				c.setCompanyUsername(editCompanyName.getValue().toString());
+				c.setCompanyPassword(editCompanyPassword.getValue().toString());
+				deviceTreeService.storeCompany(c, c.getCompanyUsername(), c.getCompanyPassword(), storeCompanyCallback);
+			}
+
+		});
+		editCompany.add(editCompanyNameLabel);
+		editCompany.add(editCompanyName);
+		// editCompany.add(editCompanyUsernameLabel);
+		// editCompany.add(editCompanyUsername);
 		editCompany.add(editCompanyPasswordLabel);
 		editCompany.add(editCompanyPassword);
 		editCompany.add(editCompanySave);
 		contentPanel.add(editCompany);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(editCompany));
-	
+	}
 }
-
-private void createNewCompanyPanel() {
-	contentPanel.clear();
-	VerticalPanel editCompany = new VerticalPanel();
-	Label editCompanyNameLabel = new Label("Nimi");
-	TextBox editCompanyName = new TextBox();
-//	Label editCompanyUsernameLabel = new Label("Kasutajanimi");
-//	TextBox editCompanyUsername = new TextBox();
-	Label editCompanyPasswordLabel = new Label("Salas\u00F5na");
-	PasswordTextBox editCompanyPassword = new PasswordTextBox();
-	Button editCompanySave = new Button("Loo ettev\u00F5te", new ClickHandler() {
-
-		@Override
-		public void onClick(ClickEvent arg0) {
-			// TODO Auto-generated method stub
-			Company c=new Company();
-			c.setCompanyName(editCompanyName.getValue().toString());
-			c.setCompanyUsername(editCompanyName.getValue().toString());
-			c.setCompanyPassword(editCompanyPassword.getValue().toString());
-			deviceTreeService.storeCompany(c,c.getCompanyUsername(), c.getCompanyPassword(),  storeCompanyCallback);
-		}
-		
-	});
-	editCompany.add(editCompanyNameLabel);
-	editCompany.add(editCompanyName);
-//	editCompany.add(editCompanyUsernameLabel);
-//	editCompany.add(editCompanyUsername);
-	editCompany.add(editCompanyPasswordLabel);
-	editCompany.add(editCompanyPassword);
-	editCompany.add(editCompanySave);
-	contentPanel.add(editCompany);
-	contentPanel.showWidget(contentPanel.getWidgetIndex(editCompany));
-}
-}
-
-
-

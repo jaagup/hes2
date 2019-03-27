@@ -294,13 +294,22 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 	@Override
 	public Company getCompany(String companyKey) {
 		Key userCompanyKey = KeyFactory.stringToKey(companyKey);
-		System.out.println(userCompanyKey);
+		//System.out.println("Voti: "+userCompanyKey);
 		Entity e;
 		Company c = new Company();
+		//System.out.println("Tyhi: "+c);
 		try {
 			e = ds.get(userCompanyKey);
+			System.out.println(e);
 			c.setCompanyKey(KeyFactory.keyToString(userCompanyKey));
+			System.out.println(c);
 			c.setCompanyName(e.getProperty("Name").toString());
+			try{c.setHidden(Boolean.valueOf(e.getProperty("Hidden").toString()));}
+			catch(Exception ex) {
+			//	System.out.println("hidden puudub");
+				//ex.printStackTrace();
+				}
+			System.out.println("olemas "+c.getCompanyName());
 			return c;
 		} catch (EntityNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -370,6 +379,9 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			if (e.getKey() != null && e.getProperty("Name").toString() != null) {
 				c.setCompanyKey(KeyFactory.keyToString(e.getKey()));
 				c.setCompanyName(e.getProperty("Name").toString());
+				try {
+					c.setHidden(Boolean.valueOf(e.getProperty("Hidden").toString()));
+				}catch(Exception ex) {}
 				companyList.add(c);
 			}
 		}
@@ -401,9 +413,12 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			e.setProperty("Name", updatedCompany.getCompanyName());
 			e.setProperty("Username", updatedCompany.getCompanyUsername());
 			String passwordToProc = updatedCompany.getCompanyPassword().toString();
-			System.out.println(hashPassword(passwordToProc, salt));
-			String proccedPassword = hashPassword(passwordToProc, salt);
-			e.setProperty("Password", proccedPassword);
+			if(passwordToProc.trim().length()>0) {
+			 System.out.println(hashPassword(passwordToProc, salt));
+			 String proccedPassword = hashPassword(passwordToProc, salt);
+			 e.setProperty("Password", proccedPassword);
+			}
+			e.setProperty("Hidden", String.valueOf(updatedCompany.getHidden()));
 			ds.put(e);
 		} catch (EntityNotFoundException | NoSuchAlgorithmException | InvalidKeySpecException e1) {
 			// TODO Auto-generated catch block
@@ -1272,4 +1287,22 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		return measurementList;
 	}
 	
+	@Override
+	public List<String> getImageNames(String deviceKey){
+		System.out.println("pyyab pilte");
+		Query q = new Query("PictureName").setAncestor(KeyFactory.stringToKey(deviceKey));
+		List<String> vastus=new ArrayList<String>();
+		for(Entity e: ds.prepare(q).asIterable()) {
+			vastus.add(e.getProperty("filename").toString());
+		}
+		System.out.println(vastus);
+/*		Query q=new Query("_ah_FakeCloudStorage__ICAgIC0CAw");
+		for(Entity e: ds.prepare(q).asIterable()) {
+			System.out.println(e.getProperties());
+			vastus.add(e.getProperty("ID/Name").toString());
+		}*/
+		return vastus;
+	}
+	
 }
+ 

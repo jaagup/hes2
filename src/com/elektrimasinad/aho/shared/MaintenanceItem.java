@@ -97,7 +97,7 @@ public class MaintenanceItem implements Serializable{
 		return this.desc;
 	}
 	
-	static String[] shortDescriptions= {"KH", "DH", "D", "Ü", "R", "M", "R/H"};
+	static String[] shortDescriptions= {"KH", "EH", "D", "Ü", "R", "M", "R/H"};
 	public String getMaintenanceShortDescription() {
 		try {
 			return shortDescriptions[Integer.parseInt(getMaintenanceDescription())];

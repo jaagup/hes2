@@ -53,9 +53,12 @@ public class Login implements EntryPoint{
 	private String accountKey;
 	private Storage sessionStore;
 	private Label userLabel;
+	DebugClientSide Debug = new DebugClientSide();
+
 	
 	@Override
 	public void onModuleLoad() {
+		Debug.enable();
 /*
   		String[] testNames = {"elektrimasinad", "mitte_elektrimasinad", "auruseadmed"};
  
@@ -236,7 +239,7 @@ public class Login implements EntryPoint{
 		//Header Panel
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("Ettev\u00F5tted");
 		companyListPanel.add(headerPanel);
-		
+		Debug.log(companyList.toString());
 		//Companies list
 		for (final Company company : companyList) {
 			Label lCompany = new Label(company.getCompanyName());

@@ -74,9 +74,13 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Widget cTihend2;
 	private Widget cNotes2;
 	private VerticalPanel photosPanel;
+	private Image bigImage=new Image();
 	private FileUpload fileUpload;
-	
-	/*// Load the image in the document and in the case of success attach it to the viewer
+	private AsyncCallback<List<String>> getCompanyImageNamesListCallback;
+	static DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
+	DebugClientSide Debug = new DebugClientSide();
+	/*
+	// Load the image in the document and in the case of success attach it to the viewer
 	  private IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
 	    public void onFinish(IUploader uploader) {
 	      if (uploader.getStatus() == Status.SUCCESS) {
@@ -93,25 +97,46 @@ public class DeviceCardPanel extends VerticalPanel {
 	      image.setWidth("75px");
 	      photosPanel.add(image);
 	    }
-	  };*/
+	  };
 	
 	public DeviceCardPanel() {
 		super();
 		
 	}
-	
+	*/
 	public void createDeviceView(Company company, Department department, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
 		this.device = device;
 		this.company = company;
 		this.department=department;
 		this.location = location;
-		createDeviceCard(false);
+		getCompanyImageNamesListCallback=new AsyncCallback<List<String>>() {
+			@Override
+			public void onSuccess(List<String> items) {
+//				imageNames=items;
+				Debug.log("Pildinimed: "+items.toString());
+				for(String pnimi: items) {
+						images.add(new Image("/fileUpload/"+company.getCompanyKey().substring(company.getCompanyKey().length()-10)+"/"+pnimi));
+
+				}
+				createDeviceCard(false);
+//				createMaintenanceListPanel();
+
+			}
+			@Override
+			public void onFailure(Throwable caught) {
+				//System.err.println(caught);
+				Debug.log("Maintenance Items error "+caught);
+			}
+			
+		};
+		
+		deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 	}
 	
 	public void createEditDeviceView(Company company, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
-		this.device = device;
+		this.device = device; 
 		this.company = company;
 		this.location = location;
 		createDeviceCard(true);
@@ -187,7 +212,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		deviceNamePanel.setCellHorizontalAlignment(deviceName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(deviceNamePanel);
 		
-		photosPanel = createPhotosPanel();
+		photosPanel = createPhotosPanel(isEditable);
 		add(photosPanel);
 		createDeviceDataPanel(false, isEditable);
 		
@@ -214,6 +239,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		AbsolutePanel emptyPanel = new AbsolutePanel();
 		emptyPanel.setStyleName("aho-markingBlankPanel");
 		add(emptyPanel);
+		
 	}
 	
 	/**
@@ -358,54 +384,63 @@ public class DeviceCardPanel extends VerticalPanel {
 	 * Create photos panel and populate it with photos.
 	 * @return VerticalPanel photos panel.
 	 */
-	private VerticalPanel createPhotosPanel() {
+	private VerticalPanel createPhotosPanel(boolean isEditable) {
 		VerticalPanel photosPanel = new VerticalPanel();
 		photosPanel.setStyleName("aho-panel1");
 		photosPanel.setWidth("100%");
+	//	images.add(new Image("/fileUpload/asutus1/pilt1.jpg"));
 		if (!images.isEmpty()) {
-			Grid photosGrid = new Grid(IMAGES_PER_ROW, 1);
+			Grid photosGrid = new Grid(images.size() / IMAGES_PER_ROW+1, IMAGES_PER_ROW);
 			for (int i = 0; i <= images.size() / IMAGES_PER_ROW; i++) {
 				for (int j = 0; j < IMAGES_PER_ROW; j++) {
 					int imageNr = i * IMAGES_PER_ROW + j;
 					if (imageNr < images.size()) {
-						Image image = images.get(imageNr);
+						final Image image = images.get(imageNr);
+						image.setHeight("50px");
 						image.addClickHandler(new ClickHandler() {
 
 							@Override
 							public void onClick(ClickEvent event) {
-								// TODO method for image zooming.
-								
+                                bigImage.setUrl(image.getUrl());	
+                               
 							}
 							
 						});
+						Debug.log(i+" "+j+" "+image.getUrl());
 						photosGrid.setWidget(i, j, image);
+						Debug.log("pilt paigas");
 					}
 				}
 			}
+			photosPanel.add(photosGrid);
 		} else {
 			Label placeholder = new Label("Pildid puuduvad!");
 			placeholder.setStyleName("aho-label1");
 			photosPanel.add(placeholder);
 			
-			/*
+		}			
+		if(isEditable) {
 			final FormPanel uploadForm = new FormPanel();
 		  	uploadForm.setAction("fileUpload");
 		  	uploadForm.setEncoding(FormPanel.ENCODING_MULTIPART);
 		  	uploadForm.setMethod(FormPanel.METHOD_POST);
 		  	VerticalPanel panel = new VerticalPanel();
 		  	uploadForm.setWidget(panel);
-		  	final TextBox tb = new TextBox();
-		  	tb.setName("textBoxFormElement");
-		  	panel.add(tb);
+		 // 	final TextBox tb = new TextBox();
+		  	//tb.setName("textBoxFormElement");
+		  	//panel.add(tb);
 		  	final FileUpload upload = new FileUpload();
 		  	upload.setName("uploadFormElement");
+		  	upload.getElement().setAttribute("capture", "camera");
+		  	upload.getElement().setAttribute("accept", "image/*;capture=camera");
 		  	panel.add(upload);
 		  	Button uploadSubmitButton = new Button("Upload");
 		  	panel.add(uploadSubmitButton);
 		  	uploadSubmitButton.addClickHandler(new ClickHandler(){
 				@Override
 				public void onClick(ClickEvent event) {
-					uploadForm.setAction("fileUpload/elektrimasinad/" + upload.getFilename());
+					uploadForm.setAction("fileUpload/" + company.getCompanyKey().substring(company.getCompanyKey().length()-10)+
+							"/"+ device.getDeviceKey());
 					uploadForm.submit();
 				}
 		  	});
@@ -426,12 +461,16 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	});
 		  	panel.add(fileUrl);
 		    photosPanel.add(uploadForm);
-		    MultiUploader customDragDropUploader = new MultiUploader(
-		            FileInputType.CUSTOM.with(new Label("Click me or drag and drop files on me")));
-		    customDragDropUploader.addOnFinishUploadHandler(onFinishUploaderHandler);
-		    customDragDropUploader.setServletPath("/Upload");
-		    photosPanel.add(customDragDropUploader);*/
 		}
+//		    MultiUploader customDragDropUploader = new MultiUploader(
+//		            FileInputType.CUSTOM.with(new Label("Click me or drag and drop files on me")));
+//		    customDragDropUploader.addOnFinishUploadHandler(onFinishUploaderHandler);
+//		    customDragDropUploader.setServletPath("/Upload");
+//		    photosPanel.add(customDragDropUploader);
+		
+		Grid g2=new Grid(1, 1);
+		g2.setWidget(0, 0, bigImage);
+	  	photosPanel.add(g2);
 		
 		return photosPanel;
 	}

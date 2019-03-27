@@ -73,4 +73,5 @@ public interface DeviceTreeService extends RemoteService {
     List<MaintenanceItem> getCompanyMaintenanceItems(String companyKey) throws IllegalArgumentException;
     List<Measurement> getCompanyMeasurements(String companyKey)  throws IllegalArgumentException;
 
+    List<String> getImageNames(String companyKey)   throws IllegalArgumentException;
 }

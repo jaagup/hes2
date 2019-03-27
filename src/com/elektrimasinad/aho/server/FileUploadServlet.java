@@ -3,6 +3,11 @@ package com.elektrimasinad.aho.server;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 //[START gcs_imports]
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
@@ -16,10 +21,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
 
 /**
@@ -28,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class FileUploadServlet extends HttpServlet {
 
-  public static final boolean SERVE_USING_BLOBSTORE_API = false;
+  public static final boolean SERVE_USING_BLOBSTORE_API = true;
 
   /**
    * This is where backoff parameters are configured. Here it is aggressively retrying with
@@ -41,7 +52,7 @@ public class FileUploadServlet extends HttpServlet {
       .build());
 
   /**Used below to determine the size of chucks to read in. Should be > 1kb and < 10MB */
-  private static final int BUFFER_SIZE = 2 * 1024 * 1024;
+  private static final int BUFFER_SIZE = 6 * 1024 * 1024;
 
   /**
    * Retrieves a file from GCS and returns it in the http response.
@@ -51,6 +62,10 @@ public class FileUploadServlet extends HttpServlet {
 //[START doGet]
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	Enumeration<String> nimed=req.getSession().getAttributeNames();
+	while(nimed.hasMoreElements()) {
+		System.out.println(nimed.nextElement());
+	}
     GcsFilename fileName = getFileName(req);
     if (SERVE_USING_BLOBSTORE_API) {
       BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
@@ -73,14 +88,38 @@ public class FileUploadServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     GcsFileOptions instance = GcsFileOptions.getDefaultInstance();
-    GcsFilename fileName = getFileName(req);
+    System.out.println(req.getRequestURI());
+    String[] m=req.getRequestURI().split("/");
+    System.out.println("a: "+m[2]+", seade: "+m[3]);
+   // GcsFilename fileName = getFileName(req);
     GcsOutputChannel outputChannel;
-    outputChannel = gcsService.createOrReplace(fileName, instance);
-    copy(req.getInputStream(), Channels.newOutputStream(outputChannel));
+    ServletFileUpload sfu=new ServletFileUpload(new DiskFileItemFactory());
+//    outputChannel = gcsService.createOrReplace(fileName, instance);
+    String fname=m[3].substring(m[3].length()-10)+"_"+((int)(1000000*Math.random()))+".jpg";
+    outputChannel = gcsService.createOrReplace(new GcsFilename(m[2], fname), instance);
+    try {
+    List<FileItem> items = sfu.parseRequest(req);
+    System.out.println("faile: "+items.size());
+	copy(items.get(0).getInputStream(),Channels.newOutputStream(outputChannel));
+	//copy(items.get(1).getInputStream(),Channels.newOutputStream(outputChannel));
+	  	DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+  	System.out.println(m[3]);
+  	Key deviceKey = KeyFactory.stringToKey(m[3]);
+	Entity e = new Entity("PictureName", deviceKey);
+	e.setProperty("filename", fname);
+	ds.put(e);
+   // items.get(0).getInputStream()
+    //  byte[] sisu=items.get(0).get();
+     // System.out.println("Pikkus: "+sisu.length);
+    } catch(Exception ex) {
+    	ex.printStackTrace();
+    }
+//    copy(req.getInputStream(), Channels.newOutputStream(outputChannel));
   }
 //[END doPost]
 
   private GcsFilename getFileName(HttpServletRequest req) {
+	System.out.println(req.getRequestURI());
     String[] splits = req.getRequestURI().split("/", 4);
     if (!splits[0].equals("") || !splits[1].equals("fileUpload")) {
       throw new IllegalArgumentException("The URL is not formed as expected. " +
@@ -95,11 +134,14 @@ public class FileUploadServlet extends HttpServlet {
   private void copy(InputStream input, OutputStream output) throws IOException {
     try {
       byte[] buffer = new byte[BUFFER_SIZE];
+      int kokku=0;
       int bytesRead = input.read(buffer);
       while (bytesRead != -1) {
+    	kokku+=bytesRead;
         output.write(buffer, 0, bytesRead);
         bytesRead = input.read(buffer);
       }
+      System.out.println("Kokku: "+kokku);
     } finally {
       input.close();
       output.close();

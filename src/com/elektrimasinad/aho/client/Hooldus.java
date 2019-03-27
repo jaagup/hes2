@@ -271,6 +271,7 @@ public class Hooldus implements EntryPoint {
 	private void firstInit() {
 		devTree = new DeviceTree(deviceTreeService);
 		devTree.getElement().addClassName("gwt-Tree");
+		Debug.log("uurib ja kysib");
 		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
 
 		//deviceTreeService.getListRaports(getRaportsCallback);
@@ -321,6 +322,15 @@ public class Hooldus implements EntryPoint {
         	}
         });
         upperPanel.add(bEkspordi);
+        Button bEkspordi2=new Button("CSV Excel EST");
+        //upperPanel.add(bEkspordi);
+        bEkspordi2.setStyleName("loginBtn");
+        bEkspordi2.addClickHandler(new ClickHandler() {
+        	public void onClick(ClickEvent e) {        		
+          	  Window.Location.assign("/getRaport/hooldusCSV?companyKey="+sessionStore.getItem("Account")+"&separator=semicolon");	
+        	}
+        });
+        upperPanel.add(bEkspordi2);
         maintenanceListPanel.add(upperPanel);
 //        table2Panel.add(upperPanel);
 /*
@@ -811,7 +821,7 @@ public class Hooldus implements EntryPoint {
 				String dstr=DeviceMaintenancePanel2.dateString(d);
 				String taust="gray";
 //				plan.setStyle("background-color: red");
-				if(d.compareTo(now)<0 && (d.getDate()<now.getDate() || d.getMonth()<now.getMonth())) {taust="pink";}
+				if(d.compareTo(now)<0 && (d.getDate()<now.getDate() || d.getMonth()<now.getMonth() || d.getYear()<now.getYear())) {taust="pink";}
 				else {
 					if(d.getTime()<now.getTime()+60*60*24*1000) {
 						taust="white";

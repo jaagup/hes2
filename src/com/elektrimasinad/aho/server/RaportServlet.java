@@ -44,14 +44,26 @@ public class RaportServlet extends DeviceTreeServiceImpl {
     	return s;
     }
 	
-	private String getMaintenanceItemsCSV(String companyKey){
+	private String getMaintenanceItemsCSV(String companyKey, String sep){
 		List<MaintenanceItem> items=getCompanyMaintenanceItems(companyKey);
         items=items.stream().filter((m) -> m.getMaintenanceState().contentEquals("done")).collect(toList());
 
 		StringBuffer sb=new StringBuffer();
+		
+		sb.append("Aeg"+sep+"Osakond"+sep+"Üksus"+sep+"Seade"+sep+"Hooldus"+sep+"Kirjeldus"+sep+"Seisaku aeg"+sep+"Hooldusaeg"+sep+"Maksumus\n");
 		for(MaintenanceItem mi:items) { 
-			sb.append(dateString(mi.getMaintenanceCompleteDate())+","+mi.getDepartmentName()+","+mi.getUnitName()+","+
-		       mi.getDeviceName()+",\""+mi.getMaintenanceName()+"\","+mi.getMaintenanceShortDescription()+","+mi.getMaintenanceDowntime()+","+mi.getMaintenanceTimeSpent()+","+mi.getMaintenanceCost()+"\n");
+			String downtime=mi.getMaintenanceDowntime().toString();
+			String timeSpent=mi.getMaintenanceTimeSpent().toString();
+			String cost=mi.getMaintenanceCost().toString();
+			if(sep.contentEquals(";")) {
+				downtime='"'+downtime.replace('.', ',')+'"';
+				timeSpent='"'+timeSpent.replace('.', ',')+'"';
+				cost='"'+cost.replace('.', ',')+'"';
+			}
+			
+					sb.append(dateString(mi.getMaintenanceCompleteDate())+sep+mi.getDepartmentName()+sep+mi.getUnitName()+sep+
+		       mi.getDeviceName()+sep+"\""+mi.getMaintenanceName()+"\""+sep+mi.getMaintenanceShortDescription()+sep+
+		       downtime+sep+timeSpent+sep+cost+"\n");
 		}
 		return sb.toString();
 	}
@@ -62,7 +74,11 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 	//	System.out.println(req.getParameter("companyKey"));
 		   resp.setContentType("text/csv");
            resp.setHeader("Content-Disposition", "attachment; filename=hooldused.csv");
-		resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey")));
+        if(req.getParameter("separator")!=null && req.getParameter("separator").contentEquals("semicolon")) {
+  		  resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey"), ";"));        	
+        } else {
+		  resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey"), ","));
+        }
        // String fileName = req.getParameter( "fileInfo1" );
        // resp.getWriter().println(fileName);
 //         resp.getWriter().println(req.getSession().getAttribute("Account"));
