@@ -309,7 +309,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			//	System.out.println("hidden puudub");
 				//ex.printStackTrace();
 				}
-			System.out.println("olemas "+c.getCompanyName());
+			//System.out.println("olemas "+c.getCompanyName());
 			return c;
 		} catch (EntityNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -1290,10 +1290,17 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 	@Override
 	public List<String> getImageNames(String deviceKey){
 		System.out.println("pyyab pilte");
-		Query q = new Query("PictureName").setAncestor(KeyFactory.stringToKey(deviceKey));
+		Query q = new Query("PictureName", KeyFactory.stringToKey(deviceKey));
 		List<String> vastus=new ArrayList<String>();
+		System.out.println(deviceKey);
 		for(Entity e: ds.prepare(q).asIterable()) {
-			vastus.add(e.getProperty("filename").toString());
+			String fname=e.getProperty("filename").toString();
+			System.out.println(fname);
+			if(e.hasProperty("hidden") && e.getProperty("hidden").toString().contentEquals("true")) {
+				
+			} else {
+			  vastus.add(e.getProperty("filename").toString());
+			}
 		}
 		System.out.println(vastus);
 /*		Query q=new Query("_ah_FakeCloudStorage__ICAgIC0CAw");
@@ -1304,5 +1311,28 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		return vastus;
 	}
 	
+	public String hideImageName(String imageURL) {
+		System.out.println("Peidetakse "+imageURL);
+		Filter filter = new FilterPredicate("filename", FilterOperator.EQUAL, imageURL);
+		Query q=new Query("PictureName").setFilter(filter);
+		Entity e=ds.prepare(q).asSingleEntity();
+		if(e!=null) {
+			e.setProperty("hidden", "true");
+			ds.put(e);
+			return "hidded";
+		}
+		return "missing";
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
  

@@ -70,8 +70,9 @@ public class FileUploadServlet extends HttpServlet {
     if (SERVE_USING_BLOBSTORE_API) {
       BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
       BlobKey blobKey = blobstoreService.createGsBlobKey(
-          "/gs/" + fileName.getBucketName() + "/" + fileName.getObjectName());
-      blobstoreService.serve(blobKey, resp);
+    	//         "/gs/" + fileName.getBucketName() + "/" + fileName.getObjectName());
+      "/gs/" + "hes-209307.appspot.com" + "/" + fileName.getObjectName());
+           blobstoreService.serve(blobKey, resp);
     } else {
       GcsInputChannel readChannel = gcsService.openPrefetchingReadChannel(fileName, 0, BUFFER_SIZE);
       copy(Channels.newInputStream(readChannel), resp.getOutputStream());
@@ -96,7 +97,8 @@ public class FileUploadServlet extends HttpServlet {
     ServletFileUpload sfu=new ServletFileUpload(new DiskFileItemFactory());
 //    outputChannel = gcsService.createOrReplace(fileName, instance);
     String fname=m[3].substring(m[3].length()-10)+"_"+((int)(1000000*Math.random()))+".jpg";
-    outputChannel = gcsService.createOrReplace(new GcsFilename(m[2], fname), instance);
+//    outputChannel = gcsService.createOrReplace(new GcsFilename(m[2], fname), instance);
+    outputChannel = gcsService.createOrReplace(new GcsFilename("hes-209307.appspot.com", fname), instance);
     try {
     List<FileItem> items = sfu.parseRequest(req);
     System.out.println("faile: "+items.size());

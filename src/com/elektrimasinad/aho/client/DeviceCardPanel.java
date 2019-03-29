@@ -44,7 +44,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	Widget deviceId;
 	Widget locationName;
 	
-	private Label fileUrl = new Label("Puudub!");
+	private Label fileUrl = new Label("");
 	
 	private int IMAGES_PER_ROW = 5;
 	private List<Image> images = new ArrayList<Image>();
@@ -73,37 +73,14 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Widget cSimmer2;
 	private Widget cTihend2;
 	private Widget cNotes2;
-	private VerticalPanel photosPanel;
+	private VerticalPanel photosPanel=new VerticalPanel();
 	private Image bigImage=new Image();
 	private FileUpload fileUpload;
 	private AsyncCallback<List<String>> getCompanyImageNamesListCallback;
+	private AsyncCallback<String> hideImageCallback;
 	static DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
 	DebugClientSide Debug = new DebugClientSide();
-	/*
-	// Load the image in the document and in the case of success attach it to the viewer
-	  private IUploader.OnFinishUploaderHandler onFinishUploaderHandler = new IUploader.OnFinishUploaderHandler() {
-	    public void onFinish(IUploader uploader) {
-	      if (uploader.getStatus() == Status.SUCCESS) {
-	        for (String url : uploader.getServerMessage().getUploadedFileUrls()) {
-	          new PreloadedImage(url, showImage);
-	        }
-	      }
-	    }
-	  };
-	  
-	// Attach an image to the pictures viewer
-	  private OnLoadPreloadedImageHandler showImage = new OnLoadPreloadedImageHandler() {
-	    public void onLoad(PreloadedImage image) {
-	      image.setWidth("75px");
-	      photosPanel.add(image);
-	    }
-	  };
-	
-	public DeviceCardPanel() {
-		super();
-		
-	}
-	*/
+	boolean editable=false;
 	public void createDeviceView(Company company, Department department, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
 		this.device = device;
@@ -113,14 +90,16 @@ public class DeviceCardPanel extends VerticalPanel {
 		getCompanyImageNamesListCallback=new AsyncCallback<List<String>>() {
 			@Override
 			public void onSuccess(List<String> items) {
-//				imageNames=items;
-				Debug.log("Pildinimed: "+items.toString());
+				images.clear();
+				//Debug.log("Pildinimed: "+items.toString());
 				for(String pnimi: items) {
 						images.add(new Image("/fileUpload/"+company.getCompanyKey().substring(company.getCompanyKey().length()-10)+"/"+pnimi));
 
 				}
-				createDeviceCard(false);
-//				createMaintenanceListPanel();
+				if(images.size()>0) {
+					images.add(new Image("/res/tyhi.png"));
+				}
+				createPhotosPanel();
 
 			}
 			@Override
@@ -131,6 +110,24 @@ public class DeviceCardPanel extends VerticalPanel {
 			
 		};
 		
+		hideImageCallback=new AsyncCallback<String>() {
+			@Override
+			public void onSuccess(String vastus) {
+				for(Image im: images) {
+					if(im.getUrl().contentEquals(bigImage.getUrl())) {
+						im.setUrl("/res/tyhi.png");
+					}
+				}
+  				bigImage.setUrl("");
+  				deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
+			}
+			@Override
+			public void onFailure(Throwable caught) {
+				Debug.log("Image hide error "+caught);
+			}
+		};
+		
+		createDeviceCard(false);
 		deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 	}
 	
@@ -165,11 +162,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	}
 	
 	private void createDeviceCard(boolean isEditable) {
-		//Header panel
-		//HorizontalPanel deviceHeaderPanel = AhoWidgets.createContentHeader("Seadme \u00FCldandmed");
-		//add(deviceHeaderPanel);
-		
-		//Content panels
+		editable=isEditable;
 		if (isEditable) {
 			deviceId = AhoWidgets.createTextbox("aho-textbox1", device.getId());
 			deviceName = AhoWidgets.createTextbox("aho-textbox1", device.getDeviceName());
@@ -212,7 +205,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		deviceNamePanel.setCellHorizontalAlignment(deviceName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(deviceNamePanel);
 		
-		photosPanel = createPhotosPanel(isEditable);
+//		photosPanel = createPhotosPanel(isEditable);
 		add(photosPanel);
 		createDeviceDataPanel(false, isEditable);
 		
@@ -239,6 +232,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		AbsolutePanel emptyPanel = new AbsolutePanel();
 		emptyPanel.setStyleName("aho-markingBlankPanel");
 		add(emptyPanel);
+		deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 		
 	}
 	
@@ -384,11 +378,10 @@ public class DeviceCardPanel extends VerticalPanel {
 	 * Create photos panel and populate it with photos.
 	 * @return VerticalPanel photos panel.
 	 */
-	private VerticalPanel createPhotosPanel(boolean isEditable) {
-		VerticalPanel photosPanel = new VerticalPanel();
+	private VerticalPanel createPhotosPanel() {
+		photosPanel.clear();
 		photosPanel.setStyleName("aho-panel1");
 		photosPanel.setWidth("100%");
-	//	images.add(new Image("/fileUpload/asutus1/pilt1.jpg"));
 		if (!images.isEmpty()) {
 			Grid photosGrid = new Grid(images.size() / IMAGES_PER_ROW+1, IMAGES_PER_ROW);
 			for (int i = 0; i <= images.size() / IMAGES_PER_ROW; i++) {
@@ -419,16 +412,13 @@ public class DeviceCardPanel extends VerticalPanel {
 			photosPanel.add(placeholder);
 			
 		}			
-		if(isEditable) {
+		if(editable) {
 			final FormPanel uploadForm = new FormPanel();
 		  	uploadForm.setAction("fileUpload");
 		  	uploadForm.setEncoding(FormPanel.ENCODING_MULTIPART);
 		  	uploadForm.setMethod(FormPanel.METHOD_POST);
 		  	VerticalPanel panel = new VerticalPanel();
 		  	uploadForm.setWidget(panel);
-		 // 	final TextBox tb = new TextBox();
-		  	//tb.setName("textBoxFormElement");
-		  	//panel.add(tb);
 		  	final FileUpload upload = new FileUpload();
 		  	upload.setName("uploadFormElement");
 		  	upload.getElement().setAttribute("capture", "camera");
@@ -447,30 +437,35 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	uploadForm.addSubmitHandler(new SubmitHandler(){
 				@Override
 				public void onSubmit(SubmitEvent event) {
-					// TODO Auto-generated method stub
-					
 				}
 		  	});
 		  	uploadForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 
 				@Override
 				public void onSubmitComplete(SubmitCompleteEvent event) {
+					Debug.log("kohal: "+event.getResults());
 					fileUrl.setText(event.getResults());
+					deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 				}
 		  		
 		  	});
 		  	panel.add(fileUrl);
 		    photosPanel.add(uploadForm);
 		}
-//		    MultiUploader customDragDropUploader = new MultiUploader(
-//		            FileInputType.CUSTOM.with(new Label("Click me or drag and drop files on me")));
-//		    customDragDropUploader.addOnFinishUploadHandler(onFinishUploaderHandler);
-//		    customDragDropUploader.setServletPath("/Upload");
-//		    photosPanel.add(customDragDropUploader);
 		
 		Grid g2=new Grid(1, 1);
-		g2.setWidget(0, 0, bigImage);
+		g2.setWidget(0, 0, bigImage); 
 	  	photosPanel.add(g2);
+	  	if(editable) {
+	  		Button hideButton=new Button("Peida pilt");
+	  		hideButton.addClickHandler(new ClickHandler() {
+	  			@Override
+	  			public void onClick(ClickEvent e) {
+	  				deviceTreeService.hideImageName(bigImage.getUrl().substring(bigImage.getUrl().lastIndexOf("/")+1), hideImageCallback);
+	  			}
+	  		});
+	  		photosPanel.add(hideButton);
+	  	}
 		
 		return photosPanel;
 	}

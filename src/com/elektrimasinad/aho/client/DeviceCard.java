@@ -153,7 +153,6 @@ public class DeviceCard implements EntryPoint {
 			@Override
 			public void onSuccess(Company arg0) {
 				// TODO Auto-generated method stub
-				Debug.log("kompanii olemas "+arg0);
 				selectedCompany = arg0;
 				init();
 				updateWidgetSizes();
@@ -172,10 +171,7 @@ public class DeviceCard implements EntryPoint {
 			public void onSuccess(Device arg0) {
 				// TODO Auto-generated method stub
 				selectedDevice = arg0;
-				Debug.log(selectedDevice.getDeviceName()+" yksinda "+selectedDevice.getUnitKey());
 				deviceTreeService.getUnit(selectedDevice.getUnitKey(), getUnitCallback);
-				Debug.log("Asub pyydma "+selectedDevice.getDeviceKey());
-				//deviceTreeService.getImageNames(selectedDevice.getDeviceKey(), getCompanyImageNamesListCallback);
 
 			}
 			
@@ -193,7 +189,6 @@ public class DeviceCard implements EntryPoint {
 			public void onSuccess(Unit arg0) {
 				// TODO Auto-generated method stub
 				selectedUnit = arg0;
-				Debug.log(selectedUnit.getUnit()+" yksus "+selectedUnit.getDepartmentKey());
 				deviceTreeService.getDepartment(selectedUnit.getDepartmentKey(), getDepartmentCallback);
 			}
 			
@@ -243,7 +238,7 @@ public class DeviceCard implements EntryPoint {
 			}
 		};
 		
-
+/*
 		getCompanyImageNamesListCallback=new AsyncCallback<List<String>>() {
 			@Override
 			public void onSuccess(List<String> items) {
@@ -260,18 +255,15 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		};
-		
+	*/	
 		getCompanyMaintenanceItemsCallback=new AsyncCallback<List<MaintenanceItem>>() {
 			@Override
 			public void onSuccess(List<MaintenanceItem> items) {
 			
 				maintenance2=items;
-//				createMaintenanceListPanel();
-
 			}
 			@Override
 			public void onFailure(Throwable caught) {
-				//System.err.println(caught);
 				Debug.log("Maintenance Items error "+caught);
 			}
 		};
@@ -523,7 +515,6 @@ public class DeviceCard implements EntryPoint {
 		RootPanel rootPanel = RootPanel.get();
 		rootPanel.setStyleName("mainBackground2");
 		rootPanel.add(mainPanel);
-		Debug.log("Kysib kompanii");
 		deviceTreeService.getCompany(sessionStore.getItem("Account"), getCompanyCallback);
 	}
 	
@@ -901,7 +892,7 @@ public class DeviceCard implements EntryPoint {
 				try{
 					return  Integer.parseInt(arg0.getId())-Integer.parseInt(arg1.getId());
 				}catch(Exception ex) {
-					Debug.log(arg0.getId()+" - "+arg1.getId()+" "+ex.getMessage());
+//					Debug.log(arg0.getId()+" - "+arg1.getId()+" "+ex.getMessage());
 					return arg1.getId().compareTo(arg1.getId());
 				}
 //				return 0;
@@ -1259,10 +1250,8 @@ public class DeviceCard implements EntryPoint {
 		if(Window.Location.getParameter("DiagnosticKey")!=null) {
 			  DeviceCard.this.selectedMaintenanceItem=null;
 			createMaintenancePanel2();
-		   Debug.log("loi paneeli");
 		} else {
 		    contentPanel.showWidget(contentPanel.getWidgetIndex(deviceEditPanel));
-		    Debug.log("tavaline paneel");
 		}
 	}
 	
@@ -1319,7 +1308,6 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
-		Debug.log("d1");
 		Label lEditDevice = new Label("Muuda");
 		lEditDevice.setStyleName("backSaveLabel");
 		lEditDevice.addClickHandler(new ClickHandler() {

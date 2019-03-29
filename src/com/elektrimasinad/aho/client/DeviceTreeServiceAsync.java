@@ -71,4 +71,5 @@ public interface DeviceTreeServiceAsync {
     void getCompanyMeasurements(String companyKey, AsyncCallback<List<Measurement>> callback);
     
     void getImageNames(String companyKey, AsyncCallback<List<String>> callback);
+    void hideImageName(String imageURL, AsyncCallback<String> callback);
 }
