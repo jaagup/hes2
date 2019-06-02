@@ -16,6 +16,10 @@ import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
+
+import net.coobird.thumbnailator.Thumbnails;
+
+import java.awt.image.BufferedImage;
 //[END gcs_imports]
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +28,7 @@ import java.nio.channels.Channels;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -135,6 +140,9 @@ public class FileUploadServlet extends HttpServlet {
    */
   private void copy(InputStream input, OutputStream output) throws IOException {
     try {
+      //Thumbnails.of(input).height(100).toOutputStream(output);
+     //BufferedImage bi=Thumbnails.of(input).height(100).asBufferedImage();
+     // ImageIO.write(bi, "png", output);
       byte[] buffer = new byte[BUFFER_SIZE];
       int kokku=0;
       int bytesRead = input.read(buffer);
@@ -144,6 +152,7 @@ public class FileUploadServlet extends HttpServlet {
         bytesRead = input.read(buffer);
       }
       System.out.println("Kokku: "+kokku);
+//      System.out.println("kirjutatud");
     } finally {
       input.close();
       output.close();

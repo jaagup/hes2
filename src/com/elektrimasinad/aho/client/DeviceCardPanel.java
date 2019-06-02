@@ -75,12 +75,35 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Widget cNotes2;
 	private VerticalPanel photosPanel=new VerticalPanel();
 	private Image bigImage=new Image();
-	private FileUpload fileUpload;
+	Button hideButton=new Button("Peida pilt");
+
+	//private FileUpload fileUpload;
 	private AsyncCallback<List<String>> getCompanyImageNamesListCallback;
 	private AsyncCallback<String> hideImageCallback;
 	static DeviceTreeServiceAsync deviceTreeService = GWT.create(DeviceTreeService.class);
 	DebugClientSide Debug = new DebugClientSide();
 	boolean editable=false;
+	public DeviceCardPanel() {
+		bigImage.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent e) {
+		//		Debug.log(bigImage.getStyleName());
+				if(bigImage.getStyleName().contains("bigRotatedImage")) {
+				  bigImage.setStyleName("bigImage");
+				} else {
+				  bigImage.setStyleName("bigRotatedImage", true);
+				}
+			}
+		});
+  		hideButton.addClickHandler(new ClickHandler() {
+  			@Override
+  			public void onClick(ClickEvent e) {
+  				deviceTreeService.hideImageName(bigImage.getUrl().substring(bigImage.getUrl().lastIndexOf("/")+1), hideImageCallback);
+  			}
+  		});
+  		hideButton.setStyleName("loginBtn");
+
+	}
 	public void createDeviceView(Company company, Department department, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
 		this.device = device;
@@ -116,6 +139,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				for(Image im: images) {
 					if(im.getUrl().contentEquals(bigImage.getUrl())) {
 						im.setUrl("/res/tyhi.png");
+						hideButton.setVisible(false);
 					}
 				}
   				bigImage.setUrl("");
@@ -394,8 +418,11 @@ public class DeviceCardPanel extends VerticalPanel {
 
 							@Override
 							public void onClick(ClickEvent event) {
+								if(!image.getUrl().endsWith("tyhi.png")) {
+									hideButton.setVisible(true);
+								}
                                 bigImage.setUrl(image.getUrl());	
-                               
+                                bigImage.setStyleName("bigImage");
 							}
 							
 						});
@@ -424,7 +451,8 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	upload.getElement().setAttribute("capture", "camera");
 		  	upload.getElement().setAttribute("accept", "image/*;capture=camera");
 		  	panel.add(upload);
-		  	Button uploadSubmitButton = new Button("Upload");
+		  	Button uploadSubmitButton = new Button("Lae serverisse");
+		  	uploadSubmitButton.setStyleName("loginBtn");
 		  	panel.add(uploadSubmitButton);
 		  	uploadSubmitButton.addClickHandler(new ClickHandler(){
 				@Override
@@ -443,7 +471,6 @@ public class DeviceCardPanel extends VerticalPanel {
 
 				@Override
 				public void onSubmitComplete(SubmitCompleteEvent event) {
-					Debug.log("kohal: "+event.getResults());
 					fileUrl.setText(event.getResults());
 					deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 				}
@@ -455,16 +482,11 @@ public class DeviceCardPanel extends VerticalPanel {
 		
 		Grid g2=new Grid(1, 1);
 		g2.setWidget(0, 0, bigImage); 
+	    bigImage.setStyleName("bigImage");
 	  	photosPanel.add(g2);
 	  	if(editable) {
-	  		Button hideButton=new Button("Peida pilt");
-	  		hideButton.addClickHandler(new ClickHandler() {
-	  			@Override
-	  			public void onClick(ClickEvent e) {
-	  				deviceTreeService.hideImageName(bigImage.getUrl().substring(bigImage.getUrl().lastIndexOf("/")+1), hideImageCallback);
-	  			}
-	  		});
 	  		photosPanel.add(hideButton);
+	  		hideButton.setVisible(false);
 	  	}
 		
 		return photosPanel;

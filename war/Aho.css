@@ -253,19 +253,10 @@ h1 {
 	background-color: #0082d9;
 }
 
-/*.aho-piktoImage {
-  	padding: 7px;
-  	margin: 30px auto;
-  	width: 85px;
-  	height: 95px;
-  	cursor: pointer;
-	
-}*/
 .aho-piktoImage {
   	padding: 3px;
   	margin: 10px auto;
   	width: 150px;
-  	//height: 180px;
   	cursor: pointer;	
 }
 
@@ -969,6 +960,15 @@ h1 {
 .maintenanceHeaderText{
 	color: white;
 	font-weight: 200;
+}
+
+.bigImage{
+	max-width: 700px;
+	image-orientation: from-image;
+}
+
+.bigRotatedImage{
+	transform: rotate(90deg);
 }
 
 @media screen and (max-width: 10000px) {

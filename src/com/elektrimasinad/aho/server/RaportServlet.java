@@ -62,7 +62,7 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 			}
 			
 					sb.append(dateString(mi.getMaintenanceCompleteDate())+sep+mi.getDepartmentName()+sep+mi.getUnitName()+sep+
-		       mi.getDeviceName()+sep+"\""+mi.getMaintenanceName()+"\""+sep+mi.getMaintenanceShortDescription()+sep+
+		       "\""+mi.getDeviceName()+"\""+sep+"\""+mi.getMaintenanceName()+"\""+sep+"\""+mi.getMaintenanceShortDescription()+"\""+sep+
 		       downtime+sep+timeSpent+sep+cost+"\n");
 		}
 		return sb.toString();
