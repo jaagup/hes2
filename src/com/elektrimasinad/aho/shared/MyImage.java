@@ -1,6 +1,6 @@
 package com.elektrimasinad.aho.shared;
 
-import com.gargoylesoftware.htmlunit.javascript.host.file.Blob;
+//import com.gargoylesoftware.htmlunit.javascript.host.file.Blob;
 
 //image uploading
 
