@@ -167,7 +167,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		ReadyBy.add(Time);
 		ReadyBy.add(dateText);
 		ReadyBy.add(dateBox);
-		dateBox.setYearAndMonthDropdownVisible(true);
+		//dateBox.setYearAndMonthDropdownVisible(true);
 		   dateBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
 			      public void onValueChange(ValueChangeEvent<Date> event) {
 			        Date date = (Date)event.getValue();
@@ -355,7 +355,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 //		ReadyBy.add(Time);
 		dublicatePanel.add(dublicateDateText);
 		dublicatePanel.add(dublicateDateBox);
-		dublicateDateBox.setYearAndMonthDropdownVisible(true);
+		//dublicateDateBox.setYearAndMonthDropdownVisible(true);
 		   dublicateDateBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
 			      public void onValueChange(ValueChangeEvent<Date> event) {
 			        Date date = (Date)event.getValue();

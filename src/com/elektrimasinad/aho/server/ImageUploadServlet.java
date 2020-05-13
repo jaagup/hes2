@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 
 //import com.elektrimasinad.aho.shared.MyImage;
-import com.gargoylesoftware.htmlunit.javascript.host.file.Blob;
+//import com.gargoylesoftware.htmlunit.javascript.host.file.Blob;
 
 import java.io.InputStream;
 

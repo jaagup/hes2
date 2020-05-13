@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -1038,6 +1040,34 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			try{m.setStatus(e.getProperty("Status").toString());}catch(Exception ex) {}
 			measurementList.add(m);
 		}
+		Collections.sort(measurementList, new Comparator<Measurement>() {
+
+			@Override
+			public int compare(Measurement o1, Measurement o2) {
+				String[] m1=o1.getDate().split("\\.");
+				String[] m2=o2.getDate().split("\\.");
+				//System.out.println(Arrays.deepToString(m1));
+				if(m1.length!=3) {return -1;}
+				if(m2.length!=3) {return 1;}
+				try {
+					int a1=Integer.parseInt(m1[2]);
+					int a2=Integer.parseInt(m2[2]);
+					if(a1<a2) {return -1;}
+					if(a1>a2) {return 1;}
+					int k1=Integer.parseInt(m1[1]);
+					int k2=Integer.parseInt(m2[1]);
+					if(k1<k2) {return -1;}
+					if(k1>k2) {return 1;}
+					int p1=Integer.parseInt(m1[0]);
+					int p2=Integer.parseInt(m2[0]);
+					return p1 - p2;
+				} catch(Exception ex){
+					return 0;
+				}
+			
+			}
+			
+		});
 		
 		return measurementList;
 	}
@@ -1299,7 +1329,9 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			if(e.hasProperty("hidden") && e.getProperty("hidden").toString().contentEquals("true")) {
 				
 			} else {
-			  vastus.add(e.getProperty("filename").toString());
+			  String title="*";
+			  if(e.hasProperty("title")) {title=e.getProperty("title").toString();}
+			  vastus.add(e.getProperty("filename").toString()+"/"+title);
 			}
 		}
 		System.out.println(vastus);

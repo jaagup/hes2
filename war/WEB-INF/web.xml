@@ -87,6 +87,17 @@
   </servlet-mapping>
  
   <servlet>
+    <servlet-name>measurementServlet</servlet-name>
+    <servlet-class>com.elektrimasinad.aho.server.MeasurementServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>measurementServlet</servlet-name>
+    <url-pattern>/measurement/*</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet>
     <servlet-name>raportServlet</servlet-name>
     <servlet-class>com.elektrimasinad.aho.server.RaportServlet</servlet-class>
   </servlet>

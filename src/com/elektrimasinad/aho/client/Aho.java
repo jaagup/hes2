@@ -498,18 +498,85 @@ public class Aho implements EntryPoint {
 		geNDE = new TextBox();
 		commentNDE = new TextBox();
 		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", mmsNDE, geNDE, commentNDE);
+		final Image ndeImg=new Image();
+		ndeImg.setUrl("/res/tyhi_t.png");
+		ndePanel.add(ndeImg);
+		ndeImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(ndeImg.getUrl().endsWith("tyhi_t.png")) {
+                	ndeImg.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=NDE");
+                }  else {
+                	ndeImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
 		mmsDE = new TextBox();
 		geDE = new TextBox();
 		commentDE = new TextBox();
 		VerticalPanel dePanel = createMeasurementPanelUnit("DE", mmsDE, geDE, commentDE);
+		final Image deImg=new Image();
+		deImg.setUrl("/res/tyhi_t.png");
+		dePanel.add(deImg);
+		deImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(deImg.getUrl().endsWith("tyhi_t.png")) {
+                	deImg.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=DE");
+                }  else {
+                	deImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
+		
 		mmsMP = new TextBox();
 		geMP = new TextBox();
 		commentMP = new TextBox();
 		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", mmsMP, geMP, commentMP);
+		final Image mpImg=new Image();
+		mpImg.setUrl("/res/tyhi_t.png");
+		mpPanel.add(mpImg);
+		mpImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(mpImg.getUrl().endsWith("tyhi_t.png")) {
+                	mpImg.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=MP");
+                }  else {
+                	mpImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
+		
 		mmsTP = new TextBox();
 		geTP = new TextBox();
 		commentTP = new TextBox();
 		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", mmsTP, geTP, commentTP);
+		final Image tpImg=new Image();
+		tpImg.setUrl("/res/tyhi_t.png");
+		tpPanel.add(tpImg);
+		tpImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(tpImg.getUrl().endsWith("tyhi_t.png")) {
+                	tpImg.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=TP");
+                }  else {
+                	tpImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
+		
 		AbsolutePanel emptyPanel = new AbsolutePanel();
 		emptyPanel.setStyleName("aho-markingBlankPanel");
 		
@@ -525,6 +592,20 @@ public class Aho implements EntryPoint {
 		measurementPanel.add(markingScrollPanel);
 		measurementPanel.setCellHeight(markingScrollPanel, "100%");
 		measurementPanel.add(emptyPanel);
+		/*
+		Image img=new Image();
+	    img.setUrl("/measurement?device="+selectedDevice.getDeviceKey());
+	    measurementPanel.add(img);
+		Image img2=new Image();
+	    img2.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=DE");
+	    measurementPanel.add(img2);
+		Image img3=new Image();
+	    img3.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=MP");
+	    measurementPanel.add(img3);
+		Image img4=new Image();
+	    img4.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=TP");
+	    measurementPanel.add(img4);
+*/
 	}
 	
 	private void fillMeasurementData() {

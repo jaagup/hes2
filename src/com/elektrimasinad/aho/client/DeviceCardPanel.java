@@ -1,6 +1,7 @@
 package com.elektrimasinad.aho.client;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import com.elektrimasinad.aho.shared.Company;
@@ -115,8 +116,11 @@ public class DeviceCardPanel extends VerticalPanel {
 			public void onSuccess(List<String> items) {
 				images.clear();
 				//Debug.log("Pildinimed: "+items.toString());
-				for(String pnimi: items) {
-						images.add(new Image("/fileUpload/"+company.getCompanyKey().substring(company.getCompanyKey().length()-10)+"/"+pnimi));
+				for(String rida: items) {
+					    String[] m=rida.split("/");
+					    Image im=new Image("/fileUpload/"+company.getCompanyKey().substring(company.getCompanyKey().length()-10)+"/"+m[0]);
+					    //im.setTitle(new String(Base64.getDecoder().decode(m[1])));
+						images.add(im);
 
 				}
 				if(images.size()>0) {
@@ -143,6 +147,7 @@ public class DeviceCardPanel extends VerticalPanel {
 					}
 				}
   				bigImage.setUrl("");
+  				bigImage.setTitle("");
   				deviceTreeService.getImageNames(device.getDeviceKey(), getCompanyImageNamesListCallback);
 			}
 			@Override
@@ -188,43 +193,43 @@ public class DeviceCardPanel extends VerticalPanel {
 	private void createDeviceCard(boolean isEditable) {
 		editable=isEditable;
 		if (isEditable) {
-			deviceId = AhoWidgets.createTextbox("aho-textbox1", device.getId());
-			deviceName = AhoWidgets.createTextbox("aho-textbox1", device.getDeviceName());
-			locationName = AhoWidgets.createTextbox("aho-textbox1", device.getLocationName());
+			deviceId = AhoWidgets.createTextbox("aho-textbox3", device.getId());
+			deviceName = AhoWidgets.createTextbox("aho-textbox3", device.getDeviceName());
+			locationName = AhoWidgets.createTextbox("aho-textbox3", device.getLocationName());
 		} else {
-			deviceId = AhoWidgets.createLabel(device.getId(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-			locationName = AhoWidgets.createLabel(device.getLocationName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			deviceId = AhoWidgets.createLabel(device.getId(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			locationName = AhoWidgets.createLabel(device.getLocationName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		}
-		Label lDepartmentName = AhoWidgets.createLabel(department.getDepartmentName(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-		Label lUnit = AhoWidgets.createLabel(location.getUnit(), "aho-label1 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		Label lDepartmentName = AhoWidgets.createLabel(department.getDepartmentName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		Label lUnit = AhoWidgets.createLabel(location.getUnit(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		HorizontalPanel departmentNamePanel = new HorizontalPanel();
-		departmentNamePanel.setStyleName("aho-panel1");
-		departmentNamePanel.add(AhoWidgets.createLabel("Osakond", "aho-label1", null));
+		departmentNamePanel.setStyleName("aho-panel3");
+		departmentNamePanel.add(AhoWidgets.createLabel("Osakond", "aho-label3", null));
 		departmentNamePanel.add(lDepartmentName);
 		departmentNamePanel.setCellHorizontalAlignment(lDepartmentName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(departmentNamePanel);
 		HorizontalPanel unitPanel = new HorizontalPanel();
-		unitPanel.setStyleName("aho-panel1");
-		unitPanel.add(AhoWidgets.createLabel("\u00FCksus", "aho-label1", null));
+		unitPanel.setStyleName("aho-panel3");
+		unitPanel.add(AhoWidgets.createLabel("\u00FCksus", "aho-label3", null));
 		unitPanel.add(lUnit);
 		unitPanel.setCellHorizontalAlignment(lUnit, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(unitPanel);
 		HorizontalPanel locationPanel = new HorizontalPanel();
-		locationPanel.setStyleName("aho-panel1");
-		locationPanel.add(AhoWidgets.createLabel("Asukoht", "aho-label1", null));
+		locationPanel.setStyleName("aho-panel3");
+		locationPanel.add(AhoWidgets.createLabel("Asukoht", "aho-label3", null));
 		locationPanel.add(locationName);
 		locationPanel.setCellHorizontalAlignment(locationName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(locationPanel);
 		HorizontalPanel deviceIdPanel = new HorizontalPanel();
-		deviceIdPanel.setStyleName("aho-panel1");
-		deviceIdPanel.add(AhoWidgets.createLabel("ID nr.", "aho-label1", null));
+		deviceIdPanel.setStyleName("aho-panel3");
+		deviceIdPanel.add(AhoWidgets.createLabel("ID nr.", "aho-label3", null));
 		deviceIdPanel.add(deviceId);
 		deviceIdPanel.setCellHorizontalAlignment(deviceId, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(deviceIdPanel);
 		HorizontalPanel deviceNamePanel = new HorizontalPanel();
-		deviceNamePanel.setStyleName("aho-panel1");
-		deviceNamePanel.add(AhoWidgets.createLabel("Seadme nimi", "aho-label1", null));
+		deviceNamePanel.setStyleName("aho-panel3");
+		deviceNamePanel.add(AhoWidgets.createLabel("Seadme nimi", "aho-label3", null));
 		deviceNamePanel.add(deviceName);
 		deviceNamePanel.setCellHorizontalAlignment(deviceName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(deviceNamePanel);
@@ -423,6 +428,7 @@ public class DeviceCardPanel extends VerticalPanel {
 								}
                                 bigImage.setUrl(image.getUrl());	
                                 bigImage.setStyleName("bigImage");
+                                bigImage.setTitle(image.getTitle());
 							}
 							
 						});
@@ -451,6 +457,8 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	upload.getElement().setAttribute("capture", "camera");
 		  	upload.getElement().setAttribute("accept", "image/*;capture=camera");
 		  	panel.add(upload);
+		  	final TextBox tb=new TextBox();
+		  	panel.add(tb);
 		  	Button uploadSubmitButton = new Button("Lae serverisse");
 		  	uploadSubmitButton.setStyleName("loginBtn");
 		  	panel.add(uploadSubmitButton);
@@ -458,8 +466,9 @@ public class DeviceCardPanel extends VerticalPanel {
 				@Override
 				public void onClick(ClickEvent event) {
 					uploadForm.setAction("fileUpload/" + company.getCompanyKey().substring(company.getCompanyKey().length()-10)+
-							"/"+ device.getDeviceKey());
-					uploadForm.submit();
+					//		"/"+ device.getDeviceKey()+"/"+java.net.URLEncoder.encode(tb.getText()));
+					"/"+ device.getDeviceKey()+"/"+tb.getText().replace(" ", "%20"));
+									uploadForm.submit();
 				}
 		  	});
 		  	uploadForm.addSubmitHandler(new SubmitHandler(){

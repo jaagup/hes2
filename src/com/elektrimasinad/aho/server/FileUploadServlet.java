@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -104,6 +105,9 @@ public class FileUploadServlet extends HttpServlet {
     String fname=m[3].substring(m[3].length()-10)+"_"+((int)(1000000*Math.random()))+".jpg";
 //    outputChannel = gcsService.createOrReplace(new GcsFilename(m[2], fname), instance);
     outputChannel = gcsService.createOrReplace(new GcsFilename("hes-209307.appspot.com", fname), instance);
+    String title="-";
+    if(m.length>4) {title=m[4];}
+    System.out.println(title);
     try {
     List<FileItem> items = sfu.parseRequest(req);
     System.out.println("faile: "+items.size());
@@ -114,6 +118,7 @@ public class FileUploadServlet extends HttpServlet {
   	Key deviceKey = KeyFactory.stringToKey(m[3]);
 	Entity e = new Entity("PictureName", deviceKey);
 	e.setProperty("filename", fname);
+	e.setProperty("title", title);
 	ds.put(e);
    // items.get(0).getInputStream()
     //  byte[] sisu=items.get(0).get();

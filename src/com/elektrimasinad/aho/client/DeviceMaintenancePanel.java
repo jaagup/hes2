@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.james.mime4j.field.datetime.DateTime;
+//import org.apache.james.mime4j.field.datetime.DateTime;
 
 import com.elektrimasinad.aho.shared.Device;
 
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DatePicker;
-import com.ibm.icu.text.MessagePattern.Part;
+//import com.ibm.icu.text.MessagePattern.Part;
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.datastore.Query;
 import com.google.gwt.core.client.GWT;

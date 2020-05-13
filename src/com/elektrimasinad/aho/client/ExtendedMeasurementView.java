@@ -222,16 +222,78 @@ public class ExtendedMeasurementView extends VerticalPanel {
 		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", mmsNDE, geNDE, commentNDE);
 		mmsDE = new TextBox();
 		geDE = new TextBox();
+		final Image ndeImg=new Image();
+		ndeImg.setUrl("/res/tyhi_t.png");
+		ndePanel.add(ndeImg);
+		ndeImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(ndeImg.getUrl().endsWith("tyhi_t.png")) {
+                	ndeImg.setUrl("/measurement?device="+device.getDeviceKey()+"&ptype=NDE");
+                }  else {
+                	ndeImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
 		commentDE = new TextBox();
 		VerticalPanel dePanel = createMeasurementPanelUnit("DE", mmsDE, geDE, commentDE);
 		mmsMP = new TextBox();
 		geMP = new TextBox();
+		final Image deImg=new Image();
+		deImg.setUrl("/res/tyhi_t.png");
+		dePanel.add(deImg);
+		deImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(deImg.getUrl().endsWith("tyhi_t.png")) {
+                	deImg.setUrl("/measurement?device="+device.getDeviceKey()+"&ptype=DE");
+                }  else {
+                	deImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
 		commentMP = new TextBox();
 		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", mmsMP, geMP, commentMP);
+		final Image mpImg=new Image();
+		mpImg.setUrl("/res/tyhi_t.png");
+		mpPanel.add(mpImg);
+		mpImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(mpImg.getUrl().endsWith("tyhi_t.png")) {
+                	mpImg.setUrl("/measurement?device="+device.getDeviceKey()+"&ptype=MP");
+                }  else {
+                	mpImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
 		mmsTP = new TextBox();
 		geTP = new TextBox();
 		commentTP = new TextBox();
 		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", mmsTP, geTP, commentTP);
+		final Image tpImg=new Image();
+		tpImg.setUrl("/res/tyhi_t.png");
+		tpPanel.add(tpImg);
+		tpImg.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+                if(tpImg.getUrl().endsWith("tyhi_t.png")) {
+                	tpImg.setUrl("/measurement?device="+device.getDeviceKey()+"&ptype=TP");
+                }  else {
+                	tpImg.setUrl("/res/tyhi_t.png");
+                }			
+			}
+			
+		});
+
 		VerticalPanel photosPanel = createPhotosPanel();
 		
 		add(idPanel);

@@ -452,6 +452,7 @@ public class DeviceCard implements EntryPoint {
 			public void onSuccess(List<Measurement> measurementList) {
 				if (measurementList != null) {
 					measurements = measurementList;
+			        Collections.reverse(measurements);
 				}
 				createMeasurementListPanel();
 				contentPanel.showWidget(contentPanel.getWidgetIndex(measurementListPanel));
@@ -957,7 +958,11 @@ public class DeviceCard implements EntryPoint {
 		//Header Panel
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader(selectedDevice.getId() + " " + selectedDevice.getDeviceName());
 		measurementListPanel.add(headerPanel);
-		
+		VerticalPanel measurementPanel=new VerticalPanel();
+		VerticalPanel picturePanel=new VerticalPanel();
+		VerticalPanel spacePanel=new VerticalPanel();
+		HorizontalPanel hpanel=new HorizontalPanel();
+		hpanel.setCellWidth(measurementPanel,  "50%");
 		//Measurements list
 		for (final Measurement measurement : measurements) {
 			Label lMeasurement = new Label(measurement.getDate());
@@ -970,9 +975,32 @@ public class DeviceCard implements EntryPoint {
 				}
 				
 			});
-			measurementListPanel.add(lMeasurement);
+//			measurementListPanel.add(lMeasurement);
+			measurementPanel.add(lMeasurement);
 		}
-		
+		Image img=new Image();
+	    img.setUrl("/measurement?device="+selectedDevice.getDeviceKey());
+//	    measurementListPanel.add(img);
+	    picturePanel.add(img);
+		Image img2=new Image();
+	    img2.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=DE");
+//	    measurementListPanel.add(img2);
+	    picturePanel.add(img);
+		Image img3=new Image();
+	    img3.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=MP");
+//	    measurementListPanel.add(img3);
+	    picturePanel.add(img);
+		Image img4=new Image();
+	    img4.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=TP");
+//	    measurementListPanel.add(img4);
+	    picturePanel.add(img);
+	    Label label1=new Label(" ");
+	    spacePanel.setWidth("20px");
+	    spacePanel.add(label1);
+	    hpanel.add(measurementPanel);
+	    hpanel.add(spacePanel);
+	    hpanel.add(picturePanel);
+	    measurementListPanel.add(hpanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(measurementListPanel));
 	}
 	
