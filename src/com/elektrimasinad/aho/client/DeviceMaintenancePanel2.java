@@ -92,6 +92,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    lb1.addItem("Rikke k\u00F5rvaldamine (R)");
 	    lb1.addItem("M\u00E4\u00E4rde lisamine (M)");
 	    lb1.addItem("Reguleerimine/h\u00E4\u00E4lestus (R/H)");
+	    lb1.addItem("Allt\u00F6\u00F6v\u00F5tja (AV)");
 	    try {lb1.setSelectedIndex(Integer.parseInt(deviceCard.selectedMaintenanceItem.getMaintenanceDescription()));}catch(Exception ex) {}
 	   // GridEditor
 //		TextArea tb1 = new TextArea();

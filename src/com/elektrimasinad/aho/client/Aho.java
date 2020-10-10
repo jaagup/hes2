@@ -8,6 +8,7 @@ import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
 import com.elektrimasinad.aho.shared.Measurement;
+import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Unit;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -288,6 +289,22 @@ public class Aho implements EntryPoint {
 		contentPanel.showWidget(contentPanel.getWidgetIndex(deviceTreePanel));
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.setCellHeight(contentPanel, "100%");
+		String unitKey=Window.Location.getParameter("unitKey");
+		if(unitKey!=null) {
+		deviceTreeService.getUnit(unitKey, new AsyncCallback<Unit>() {
+			public void onSuccess(Unit u){
+				DebugClientSide.log(u+"");
+				
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		}
+
 	}
 	
 	
@@ -301,6 +318,7 @@ public class Aho implements EntryPoint {
 		lLabel1.setStyleName("backSaveLabel noPointer");
 		
 		devTree = new DeviceTree(deviceTreeService);
+		devTree.setType("monitooring");
 		devTree.getElement().addClassName("gwt-Tree");
 		devTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
 
@@ -326,6 +344,8 @@ public class Aho implements EntryPoint {
 					} else if (selectedTreeItem.getUserObject() instanceof Unit && selectedTreeItem.getChildCount() == 0) {
 					//Window.alert(selectedTreeItem.getText() + " selected..");
 					devTree.fetchDevices((Unit)selectedTreeItem.getUserObject(), selectedTreeItem);
+				} else if(selectedTreeItem.getUserObject() instanceof String) {
+					Window.Location.assign(selectedTreeItem.getUserObject().toString());
 				}
 					TreeItem selItem = event.getSelectedItem();
 					boolean state = selItem.getState();

@@ -8,6 +8,7 @@ import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
 import com.elektrimasinad.aho.shared.Unit;
+import com.gargoylesoftware.htmlunit.javascript.host.Console;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -126,6 +127,8 @@ public class DeviceCardPanel extends VerticalPanel {
 				if(images.size()>0) {
 					images.add(new Image("/res/tyhi.png"));
 				}
+				bigImage.setUrl("");
+  				bigImage.setTitle("");
 				createPhotosPanel();
 
 			}
@@ -180,29 +183,35 @@ public class DeviceCardPanel extends VerticalPanel {
 		this.company = company;
 		this.location = location;
 		this.department=department;
+		images.clear();
 		createDeviceCard(true);
+		bigImage.setUrl("");
+		//remove(photosPanel);
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 		    @Override
 		    public void execute() {
 		    	((TextBox)deviceId).setFocus(true);
+		    	photosPanel.clear();
 		    }
 		});
 	}
 	
 	private void createDeviceCard(boolean isEditable) {
+		Grid pGrid=new Grid(2, 5);
 		editable=isEditable;
 		if (isEditable) {
 			deviceId = AhoWidgets.createTextbox("aho-textbox3", device.getId());
 			deviceName = AhoWidgets.createTextbox("aho-textbox3", device.getDeviceName());
 			locationName = AhoWidgets.createTextbox("aho-textbox3", device.getLocationName());
 		} else {
-			deviceId = AhoWidgets.createLabel(device.getId(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-			locationName = AhoWidgets.createLabel(device.getLocationName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			deviceId = AhoWidgets.createLabel(device.getId(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			locationName = AhoWidgets.createLabel(device.getLocationName(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		}
-		Label lDepartmentName = AhoWidgets.createLabel(department.getDepartmentName(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
-		Label lUnit = AhoWidgets.createLabel(location.getUnit(), "aho-label3 alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		Label lDepartmentName = AhoWidgets.createLabel(department.getDepartmentName(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		Label lUnit = AhoWidgets.createLabel(location.getUnit(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+		/*
 		HorizontalPanel departmentNamePanel = new HorizontalPanel();
 		departmentNamePanel.setStyleName("aho-panel3");
 		departmentNamePanel.add(AhoWidgets.createLabel("Osakond", "aho-label3", null));
@@ -233,8 +242,22 @@ public class DeviceCardPanel extends VerticalPanel {
 		deviceNamePanel.add(deviceName);
 		deviceNamePanel.setCellHorizontalAlignment(deviceName, HasHorizontalAlignment.ALIGN_RIGHT);
 		add(deviceNamePanel);
-		
-//		photosPanel = createPhotosPanel(isEditable);
+*/
+		pGrid.setWidget(0,  0, AhoWidgets.createLabel("Osakond", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  0, lDepartmentName);
+		pGrid.setWidget(0,  1, AhoWidgets.createLabel("\u00DCksus", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  1, lUnit);
+		pGrid.setWidget(0,  2, AhoWidgets.createLabel("Asukoht", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  2, locationName);
+		pGrid.setWidget(0,  3, AhoWidgets.createLabel("ID nr", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  3, deviceId);
+		pGrid.setWidget(0,  4, AhoWidgets.createLabel("Seadme nimi", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  4, deviceName);
+		pGrid.setWidth("100%");
+		pGrid.setStyleName("deviceNameTable", true);
+
+		add(pGrid);
+		photosPanel = createPhotosPanel();
 		add(photosPanel);
 		createDeviceDataPanel(false, isEditable);
 		
@@ -250,6 +273,7 @@ public class DeviceCardPanel extends VerticalPanel {
 					public void onClick(ClickEvent event) {
 						createDeviceDataPanel(true, true);
 						remove(coupledDeviceLabel);
+						photosPanel.clear();
 					}
 					
 				});
@@ -397,7 +421,8 @@ public class DeviceCardPanel extends VerticalPanel {
 		grid.setWidget(2, 4, lNotes);
 		grid.setWidget(3, 0, lDE);
 		grid.setWidget(4, 0, lNDE);
-		
+		createPhotosPanel();
+
 		insert(grid, getWidgetIndex(photosPanel));
 		
 		return grid;
@@ -438,6 +463,7 @@ public class DeviceCardPanel extends VerticalPanel {
 					}
 				}
 			}
+			bigImage.setUrl("");
 			photosPanel.add(photosGrid);
 		} else {
 			Label placeholder = new Label("Pildid puuduvad!");

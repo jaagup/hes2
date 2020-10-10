@@ -49,6 +49,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -109,7 +110,7 @@ public class Hooldus implements EntryPoint {
 	
 	private List<DiagnostikaItem> DIAGNOSTIKA = new ArrayList<DiagnostikaItem>();
 	private List<PlannerItem> PLANNER = new ArrayList<PlannerItem>();
-
+    private String otsiStr="";
 
 	@Override
 	public void onModuleLoad() {
@@ -297,6 +298,20 @@ public class Hooldus implements EntryPoint {
 	   	Label lLabel = new Label("Tegevuste ajalugu");
 		lLabel.setStyleName("backSaveLabel noPointer");
         maintenanceListPanel.add(lLabel);
+		TextBox tbOtsi = AhoWidgets.createTextbox("aho-textbox1 medium", otsiStr);
+
+//        TextBox tbOtsi=new TextBox();
+//        tbOtsi.setText(otsiStr);
+        Button bOtsi=new Button("Otsi");
+        bOtsi.setStyleName("loginBtn");
+        bOtsi.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				otsiStr=tbOtsi.getText();
+				createMaintenanceListPanel();
+			}
+        });
         HorizontalPanel labelPanel=new HorizontalPanel();
     	labelPanel.setStyleName("aho-navigationPanel");
 
@@ -304,6 +319,8 @@ public class Hooldus implements EntryPoint {
 	//	lLabel.setStyleName("backSaveLabel noPointer");
         //table2Panel.add(lLabel);
         upperPanel.add(lLabel);
+        upperPanel.add(tbOtsi);
+        upperPanel.add(bOtsi);
         Button bAjalugu=new Button("Tagasi");
        // upperPanel.add(bAjalugu);
         bAjalugu.setStyleName("loginBtn");
@@ -351,6 +368,8 @@ public class Hooldus implements EntryPoint {
 */
         Label lTyhi=new Label("");
         labelPanel.add(lTyhi);
+        Label lTeost=new Label("Teostaja");
+        labelPanel.add(lTeost);
         Label lSeisak=new Label("Seisaku aeg");
         labelPanel.add(lSeisak);
         Label lAjakulu=new Label("Ajakulu");
@@ -389,6 +408,7 @@ public class Hooldus implements EntryPoint {
 		    		return m1.getMaintenanceCompleteDate().compareTo(m2.getMaintenanceCompleteDate());
 		    	}
 		    });
+		   
 			Column<MaintenanceItem, SafeHtml> markingColumn = new Column<MaintenanceItem, SafeHtml>(new SafeHtmlCell()) {
 				public SafeHtml getValue(MaintenanceItem m) {
 					Date now=new Date();
@@ -431,7 +451,7 @@ public class Hooldus implements EntryPoint {
 			};
 			addressColumn.setSortable(true);
 			table.addColumn(addressColumn, "\u00DCksus");
-			
+
 			TextColumn<MaintenanceItem> idColumn = new TextColumn<MaintenanceItem>() {
 				@Override
 				public String getValue(MaintenanceItem object) {
@@ -468,6 +488,16 @@ public class Hooldus implements EntryPoint {
 			katColumn.setSortable(true);
 			table.addColumn(katColumn, "Kat");
 
+
+			TextColumn<MaintenanceItem> teostColumn = new TextColumn<MaintenanceItem>() {
+				@Override
+				public String getValue(MaintenanceItem object) {
+					return object.getMaintenanceAssignedTo();
+				}
+			};
+			katColumn.setSortable(true);
+			table.addColumn(teostColumn, "Teostaja");
+
 			
 			TextColumn<MaintenanceItem> downtimeColumn = new TextColumn<MaintenanceItem>() {
 				@Override
@@ -496,7 +526,9 @@ public class Hooldus implements EntryPoint {
 			costColumn.setSortable(true);
 			table.addColumn(costColumn, "Maksumus");
 
-	        List<MaintenanceItem> maintenance2a=maintenance2.stream().filter((m) -> m.getMaintenanceState().contentEquals("done")).collect(toList());
+	        List<MaintenanceItem> maintenance2a=maintenance2.stream().filter((m) -> m.getMaintenanceState().contentEquals("done")).
+	        		filter((m)->m.getTableString().indexOf(otsiStr)>=0).
+	        		collect(toList());
 
 			ListDataProvider<MaintenanceItem> dataProvider=new ListDataProvider<MaintenanceItem>();
 			dataProvider.addDataDisplay(table);
@@ -656,7 +688,15 @@ public class Hooldus implements EntryPoint {
 		table.setWidth("100%");
 	    table.addColumn(markingColumn);
 	    	
-	    TextColumn<Measurement> nameColumn = new TextColumn<Measurement>() {
+	    TextColumn<Measurement> dateColumn = new TextColumn<Measurement>() {
+		      @Override
+		      public String getValue(Measurement object) {
+		        return object.getDate().toString();
+		      }
+		    };
+		    table.addColumn(dateColumn, "Kuup");
+
+		  TextColumn<Measurement> nameColumn = new TextColumn<Measurement>() {
 	      @Override
 	      public String getValue(Measurement object) {
 	        return object.getDepartmentName();
@@ -698,7 +738,9 @@ public class Hooldus implements EntryPoint {
 	      public String getValue(Measurement object) {
 	        return object.getComment();
 	      }
+	     
 	    };
+	    kommentaarColumn.setCellStyleNames("kommentaar");
 	    table.addColumn(kommentaarColumn, "Kommentaar");
 	    
 	    
@@ -720,7 +762,8 @@ public class Hooldus implements EntryPoint {
 		List<Measurement> measurements3=
   	      measurements2.stream().filter((m) -> m.getRaportKey().length()>0).
 	      filter((m) -> (m.getMarking().contentEquals("alarm") || 
-	    		    m.getMarking().contentEquals("hoiatus")) && !m.getStatus().contentEquals("archived")).collect(toList()); 
+	    		    m.getMarking().contentEquals("hoiatus")) && !m.getStatus().contentEquals("archived")).
+	      collect(toList()); 
 	    // Set the total row count. This isn't strictly necessary, but it affects
 	    // paging calculations, so its good habit to keep the row count up to date.
 	    table.setRowCount(measurements3.size(), true);
@@ -763,10 +806,23 @@ public class Hooldus implements EntryPoint {
 		table2Panel.clear();
 		Label lLabel = new Label("Planeeritavad tegevused");
 		lLabel.setStyleName("backSaveLabel noPointer");
+		TextBox otsiTb = AhoWidgets.createTextbox("aho-textbox1 medium", otsiStr);
+
+		otsiTb.setText(otsiStr);
+		Button otsiB=new Button("Otsi");
+		otsiB.setStyleName("loginBtn");
+		otsiB.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				otsiStr=otsiTb.getText();
+				createNewPlannerTable2();
+			}
+		});
         //table2Panel.add(lLabel);
         HorizontalPanel upperPanel=new HorizontalPanel();
     	upperPanel.setStyleName("aho-navigationPanel");
         upperPanel.add(lLabel);
+        upperPanel.add(otsiTb);
+        upperPanel.add(otsiB);
         Button bAjalugu=new Button("Vaata ajalugu");
         upperPanel.add(bAjalugu);
         bAjalugu.setStyleName("loginBtn");
@@ -789,6 +845,10 @@ public class Hooldus implements EntryPoint {
         labelPanel.add(lSeade);
         Label lTegevus=new Label("Tegevus");
         labelPanel.add(lTegevus);
+        Label lKat=new Label("Kategooria");
+        labelPanel.add(lTegevus);
+        Label lTeost=new Label("Teostaja");
+        labelPanel.add(lTeost);
 /*        Label lAjalugu=new Label("Vaata ajalugu");
         labelPanel.add(lAjalugu);
         lAjalugu.addClickHandler(new ClickHandler() {
@@ -801,7 +861,9 @@ public class Hooldus implements EntryPoint {
         labelPanel.setCellWidth(lUksus,"10%");
         labelPanel.setCellWidth(lIdnr,"10%");
         labelPanel.setCellWidth(lSeade,"10%");
-        labelPanel.setCellWidth(lTegevus,"50%");
+        labelPanel.setCellWidth(lTegevus,"30%");
+        labelPanel.setCellWidth(lKat,"10%");
+        labelPanel.setCellWidth(lTeost,"10%");
         //labelPanel.setCellWidth(lAjalugu,"10%");
 		table2Panel.setStyleName("aho-panel1 table center");
 		table2Panel.setWidth("100%");
@@ -885,6 +947,23 @@ public class Hooldus implements EntryPoint {
 		});*/
 		table.addColumn(actionColumn, "Tegevus");
 
+		TextColumn<MaintenanceItem> katColumn = new TextColumn<MaintenanceItem>() {
+			@Override
+			public String getValue(MaintenanceItem object) {
+//				return new String[] {"KH","EH","D","\u00FC","R","M","R/H"}[Integer.parseInt(object.getMaintenanceDescription())];
+				return object.getMaintenanceShortDescription();
+			}
+		};
+		table.addColumn(katColumn, "Kategooria");
+
+		TextColumn<MaintenanceItem> teostColumn = new TextColumn<MaintenanceItem>() {
+			@Override
+			public String getValue(MaintenanceItem object) {
+				return object.getMaintenanceAssignedTo();
+			}
+		};
+		table.addColumn(teostColumn, "Teostaja");
+		
 		
 		SingleSelectionModel<MaintenanceItem> tableSelModel = new SingleSelectionModel<MaintenanceItem>();
 		tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -905,8 +984,8 @@ public class Hooldus implements EntryPoint {
 		Debug.log(loppaeg.toString());
         List<MaintenanceItem> maintenance2a=maintenance2.stream().filter((m) -> !m.getMaintenanceState().contentEquals("done")).
         		filter((m)-> m.getMaintenanceCompleteDate().getTime()<loppaeg.getTime()).
+        		filter((m)->m.getTableString().indexOf(otsiStr)>=0).
         		collect(toList());
-		
 		table.setRowCount(maintenance2a.size(), true);
 		//table.setRowCount(500, true);
 		

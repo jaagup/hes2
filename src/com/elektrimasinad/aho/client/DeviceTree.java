@@ -26,6 +26,7 @@ public class DeviceTree extends Tree {
 	private AsyncCallback<List<Department>> getDepartmentListCallback;
 	private AsyncCallback<List<Unit>> getUnitListCallback;
 	private AsyncCallback<List<Device>> getDeviceListCallback;
+	private String type="normal"; //monitooring
 	TreeItem selectedTreeItem=null;
 	
 	//private List<Company> companyList = new ArrayList<Company>();
@@ -124,6 +125,8 @@ public class DeviceTree extends Tree {
 		//Window.alert("selected : "+this.selectedTreeItem);
 		deviceTreeService.getDevices(unit.getUnitKey(), getDeviceListCallback);
 	}
+	
+	
 	
 	private void addCompaniesToTree(List<Company> companies) {
 		for (Company company : companies) {
@@ -241,6 +244,12 @@ public class DeviceTree extends Tree {
 					Window.alert("Voti ei sobi");
 				}
 			}
+			if(type.contentEquals("monitooring")) {
+			  TreeItem linkItem=new TreeItem();
+			  linkItem.setText("Ava raport");
+			  linkItem.setUserObject("Raports.html?unitKey="+((Unit)selectedTreeItem.getUserObject()).getUnitKey());
+			  selectedTreeItem.addItem(linkItem);
+			}
 		} else {
 			Window.alert(selectedTreeItem.getUserObject().getClass().toString());
 		}
@@ -296,6 +305,14 @@ public class DeviceTree extends Tree {
 		        parent.setSelected(false);  // not compulsory
 		    selItem.setState(!state, false);
 		}
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String newtype) {
+		type=newtype;
 	}
 	
 	/*public TreeItem addDeviceItem(String company, String location, String device) {

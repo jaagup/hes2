@@ -7,8 +7,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,12 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.elektrimasinad.aho.shared.Device;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+//import com.google.appengine.api.mail.MailService.Message;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
@@ -61,7 +70,19 @@ public class MeasurementServlet extends HttpServlet {
 		if(ptype.equals("TP")) {commentField="TPcomment";}
 		Key deviceKey = KeyFactory.stringToKey(deviceKeyString);
 	  	DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-		Query query = new Query("Measurement", deviceKey).setAncestor(deviceKey).addSort("Date",  Query.SortDirection.DESCENDING);
+	  	//Query dQuery=new Query("Device", deviceKey);
+	  	String dName="??";
+	  	String dName2="???";
+	  	String dName3="????";
+	  	try {
+	  	  Entity e0=ds.get(deviceKey);
+	  	  dName=e0.getProperty("DeviceName").toString();
+	  	  dName2=e0.getProperty("CoupledDeviceName").toString();
+	  	  dName3=e0.getProperty("DeviceNickname").toString();
+	  	//System.out.println(dName);
+	  	} catch(Exception ex) {ex.printStackTrace();}
+	  	System.out.println(dName);
+	  	Query query = new Query("Measurement", deviceKey).setAncestor(deviceKey).addSort("Date",  Query.SortDirection.DESCENDING);
 		List<String> dates=new ArrayList<String>();
 		List<Double> valuesmms=new ArrayList<Double>();
 		List<Double> valuesge=new ArrayList<Double>();
@@ -144,6 +165,9 @@ public class MeasurementServlet extends HttpServlet {
         g.drawString(Math.round(max*100/2.0)/100.0+"", 10, 150);		
         g.drawString(Math.round(max*300/4.0)/100.0+"", 10, 100);		
         g.drawString(max+"", 10, 50);
+        g.drawString(dName,20 , 10);
+        g.drawString(dName2,20 , 25);
+        g.drawString(dName3,20 , 40);
         g.drawString(ptype,150 , 20);
         g.setColor(Color.green);
         g.drawString("mms",200 , 20);
@@ -186,6 +210,21 @@ public class MeasurementServlet extends HttpServlet {
         
         response.setContentType("image/png");
         ImageIO.write(bi, "png", response.getOutputStream());
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        try {
+			/*
+			 * Message msg = new MimeMessage(session); msg.setFrom(new
+			 * InternetAddress("saatja@hes-209307.appspotmail.com", "Gmail.com Admin"));
+			 * msg.addRecipient(Message.RecipientType.TO, new
+			 * InternetAddress("jaagup@tlu.ee", "Mr. User")); msg.setSubject("Proovikiri");
+			 * msg.setText("Kirja sisu"); msg.setReplyTo(new InternetAddress[]{new
+			 * InternetAddress("jaagup@tlu.ee")}); Transport.send(msg);
+			 */
+        } catch (Exception e) {
+            e.printStackTrace();                
+        }   
 	}
 
 	/**

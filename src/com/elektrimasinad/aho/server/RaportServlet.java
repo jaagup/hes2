@@ -50,7 +50,7 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 
 		StringBuffer sb=new StringBuffer();
 		
-		sb.append("Aeg"+sep+"Osakond"+sep+"Üksus"+sep+"Seade"+sep+"Hooldus"+sep+"Kirjeldus"+sep+"Seisaku aeg"+sep+"Hooldusaeg"+sep+"Maksumus\n");
+		sb.append("Aeg"+sep+"Osakond"+sep+"Üksus"+sep+"Seade"+sep+"Hooldus"+sep+"Kirjeldus"+sep+"Teostaja"+sep+"Seisaku aeg"+sep+"Hooldusaeg"+sep+"Maksumus\n");
 		for(MaintenanceItem mi:items) { 
 			String downtime=mi.getMaintenanceDowntime().toString();
 			String timeSpent=mi.getMaintenanceTimeSpent().toString();
@@ -63,7 +63,7 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 			
 					sb.append(dateString(mi.getMaintenanceCompleteDate())+sep+mi.getDepartmentName()+sep+mi.getUnitName()+sep+
 		       "\""+mi.getDeviceName()+"\""+sep+"\""+mi.getMaintenanceName()+"\""+sep+"\""+mi.getMaintenanceShortDescription()+"\""+sep+
-		       downtime+sep+timeSpent+sep+cost+"\n");
+		       mi.getMaintenanceAssignedTo()+ downtime+sep+timeSpent+sep+cost+"\n");
 		}
 		return sb.toString();
 	}

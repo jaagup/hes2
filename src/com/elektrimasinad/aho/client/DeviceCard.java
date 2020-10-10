@@ -985,15 +985,15 @@ public class DeviceCard implements EntryPoint {
 		Image img2=new Image();
 	    img2.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=DE");
 //	    measurementListPanel.add(img2);
-	    picturePanel.add(img);
+	    picturePanel.add(img2);
 		Image img3=new Image();
 	    img3.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=MP");
 //	    measurementListPanel.add(img3);
-	    picturePanel.add(img);
+	    picturePanel.add(img3);
 		Image img4=new Image();
 	    img4.setUrl("/measurement?device="+selectedDevice.getDeviceKey()+"&ptype=TP");
 //	    measurementListPanel.add(img4);
-	    picturePanel.add(img);
+	    picturePanel.add(img4);
 	    Label label1=new Label(" ");
 	    spacePanel.setWidth("20px");
 	    spacePanel.add(label1);

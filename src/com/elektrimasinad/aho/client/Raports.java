@@ -75,11 +75,13 @@ public class Raports implements EntryPoint {
 	private Storage sessionStore;
 	private String accountKey = null;
 	private AsyncCallback<Company> getCompanyCallback;
+	DebugClientSide Debug = new DebugClientSide();
 
 	
 
 	@Override
 	public void onModuleLoad() {
+		Debug.enable();
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
 		if (Window.getClientWidth() < 1000) {
@@ -254,6 +256,37 @@ public class Raports implements EntryPoint {
 		contentPanel.add(unitPanel);
 		contentPanel.add(raportPanel);
 		contentPanel.showWidget(contentPanel.getWidgetIndex(treePanel));
+		String unitKey=Window.Location.getParameter("unitKey");
+		if(unitKey!=null) {
+		deviceTreeService.getUnit(unitKey, new AsyncCallback<Unit>() {
+			public void onSuccess(Unit u){
+				DebugClientSide.log(u+"");
+				selectedUnit=u;
+				Date date = new Date();
+				DateTimeFormat dtf = DateTimeFormat.getFormat("dd.MM.yyyy");
+				selectedRaport = new Raport();
+				selectedRaport.setCompanyName(selectedCompany.getCompanyName());
+				selectedRaport.setUnitName(u.getUnit());
+				selectedRaport.setUnitKey(u.getUnitKey());
+				selectedRaport.setDate(dtf.format(date, TimeZone.createTimeZone(0)));
+				deviceTreeService.getRaportData(selectedRaport, getRaportDataCallback);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		}
+		//devTree.fetchDepartments(selectedCompany);
+		DebugClientSide.log("algus");
+		DebugClientSide.log(devTree.getItem(0).getUserObject().toString());
+		/*
+		DebugClientSide.log(devTree.getItem(0).asTreeItem().getChildCount()+"");
+		DebugClientSide.log(devTree.getItem(0).getChild(0)+"");
+		DebugClientSide.log(((Unit)devTree.getItem(0).getChild(0).getChild(0).getUserObject()).getUnit()+"");
+		DebugClientSide.log(((Unit)devTree.getItem(0).getChild(0).getChild(0).getUserObject()).getUnitKey()+"");*/
 	}
 	
 	private void createTreePanel() {
@@ -318,6 +351,7 @@ public class Raports implements EntryPoint {
 				selectedRaport.setCompanyName(selectedCompany.getCompanyName());
 				selectedRaport.setUnitName(selectedUnit.getUnit());
 				selectedRaport.setUnitKey(selectedUnit.getUnitKey());
+				DebugClientSide.log(selectedUnit.getUnitKey());
 				selectedRaport.setDate(dtf.format(date, TimeZone.createTimeZone(0)));
 				deviceTreeService.getRaportData(selectedRaport, getRaportDataCallback);
 			}
@@ -407,6 +441,23 @@ public class Raports implements EntryPoint {
 			}
 			
 		});
+		
+		Label lAho=new Label("Mootmised");
+		lAho.setStyleName("backSaveLabel");
+		final Button lAhoButton=new Button();
+		lAhoButton.setStyleName("backButton");
+		lAhoButton.addClickHandler(new ClickHandler() {
+			  public void onClick(ClickEvent e) {
+				  Window.Location.assign("/Aho.html");
+			  }
+		});
+		lAho.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				lAhoButton.fireEvent(e);;
+			}
+		});
+		
+		
 		Label lSave = new Label("Salvesta");
 		lSave.setStyleName("backSaveLabel");
 		lSave.addClickHandler(new ClickHandler() {
@@ -438,6 +489,7 @@ public class Raports implements EntryPoint {
 		buttonsPanel.setStyleName("backSavePanel");
 		buttonsPanel.add(lBackButton);
 		buttonsPanel.add(lBack);
+		buttonsPanel.add(lAho);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
 		buttonsPanel.setCellWidth(lBack, "43%");
 		if (isEditable) {

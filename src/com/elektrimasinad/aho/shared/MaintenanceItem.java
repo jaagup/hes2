@@ -97,7 +97,7 @@ public class MaintenanceItem implements Serializable{
 		return this.desc;
 	}
 	
-	static String[] shortDescriptions= {"KH", "EH", "D", "Ü", "R", "M", "R/H"};
+	static String[] shortDescriptions= {"KH", "EH", "D", "\u00FC", "R", "M", "R/H", "AV"};
 	public String getMaintenanceShortDescription() {
 		try {
 			return shortDescriptions[Integer.parseInt(getMaintenanceDescription())];
@@ -179,5 +179,9 @@ public class MaintenanceItem implements Serializable{
 	}
 	public String getDepartmentName() {
 		return this.departmentName;
+	}
+	public String getTableString() {
+		return getMaintenanceCompleteDate().toString()+ getDepartmentName()+getUnitName()+getDeviceID()+getDeviceName()+getMaintenanceName()+
+				 getMaintenanceShortDescription()+getMaintenanceAssignedTo();
 	}
 }

@@ -26,6 +26,17 @@ h1 {
   text-decoration: none;
 }
 
+.deviceNameTable td{
+	border-left: 2px solid black;
+	padding-left: 5px;
+	padding-right: 3px;
+}
+
+.deviceValue{
+	color: green;
+	font-weight: bold;
+}
+
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
   width: 400px;
@@ -591,7 +602,7 @@ h1 {
 .aho-datebox{
 	background-color: yellow;
 }
-.deletePrompt {
+.deletePrompt { 
 	background-color: #006CB5;
 }
 .dateBoxPopup {
@@ -611,6 +622,9 @@ h1 {
 	align-items: center;
 	text-align: center;
 	padding-left: 5%;
+}
+.kommentaar{ 
+	font-size: 80%;
 }
 .fb-label {
 	color: #006BA7;
@@ -1114,7 +1128,7 @@ h1 {
 }
 
 .aho-listItem {
-	font-size: 40px;
+	font-size: 60px;
 }
 .gwt-Tree {
 	zoom: 2.3 !important;

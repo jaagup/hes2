@@ -1229,6 +1229,35 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			}
 		}
 		
+		Collections.sort(raportList, new Comparator<Raport>() {
+
+			@Override
+			public int compare(Raport o1, Raport o2) {
+				String[] m1=o1.getDate().split("\\.");
+				String[] m2=o2.getDate().split("\\.");
+				//System.out.println(Arrays.deepToString(m1));
+				if(m1.length!=3) {return -1;}
+				if(m2.length!=3) {return 1;}
+				try {
+					int a1=Integer.parseInt(m1[2]);
+					int a2=Integer.parseInt(m2[2]);
+					if(a1<a2) {return -1;}
+					if(a1>a2) {return 1;}
+					int k1=Integer.parseInt(m1[1]);
+					int k2=Integer.parseInt(m2[1]);
+					if(k1<k2) {return -1;}
+					if(k1>k2) {return 1;}
+					int p1=Integer.parseInt(m1[0]);
+					int p2=Integer.parseInt(m2[0]);
+					return p1 - p2;
+				} catch(Exception ex){
+					return 0;
+				}
+			
+			}
+			
+		});
+		Collections.reverse(raportList);
 		return raportList;
 	}
 	@Override

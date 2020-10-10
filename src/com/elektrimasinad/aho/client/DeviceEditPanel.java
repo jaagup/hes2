@@ -138,6 +138,15 @@ public class DeviceEditPanel extends VerticalPanel {
 			}
 		};
 
+		TextColumn<MaintenanceItem> katCol = new TextColumn<MaintenanceItem>() {
+
+			@Override
+			public String getValue(MaintenanceItem m) {
+				String item = m.getMaintenanceShortDescription();
+				return item;
+			}
+		};
+
 		TextColumn<MaintenanceItem> dateCol = new TextColumn<MaintenanceItem>() {
 
 			@Override
@@ -152,6 +161,7 @@ public class DeviceEditPanel extends VerticalPanel {
 				return item;
 			}
 		};
+		maintenanceTable.addColumn(katCol, "Kategooria");
 		maintenanceTable.addColumn(nameCol, "Nimetus");
 		maintenanceTable.addColumn(dateCol, "Kuupaev");
 		maintenanceTable.addColumn(assignedEmployee, "Teostaja");
