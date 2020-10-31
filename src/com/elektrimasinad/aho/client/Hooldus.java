@@ -959,7 +959,7 @@ public class Hooldus implements EntryPoint {
 		TextColumn<MaintenanceItem> teostColumn = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem object) {
-				return object.getMaintenanceAssignedTo();
+				return object.getMaintenanceAssignedToName();
 			}
 		};
 		table.addColumn(teostColumn, "Teostaja");

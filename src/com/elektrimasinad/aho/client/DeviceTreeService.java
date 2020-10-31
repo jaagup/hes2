@@ -9,7 +9,9 @@ import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
+import com.elektrimasinad.aho.shared.Role;
 import com.elektrimasinad.aho.shared.Unit;
+import com.elektrimasinad.aho.shared.Worker;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -38,7 +40,7 @@ public interface DeviceTreeService extends RemoteService {
 	String storeDevice(Device device) throws IllegalArgumentException;
 	List<Device> getDevices(String unitKeyString) throws IllegalArgumentException;
 	String updateDevice(Device updatedDevice) throws IllegalArgumentException;
-	List<Device> getListDevices() throws IllegalArgumentException;
+	//List<Device> getListDevices() throws IllegalArgumentException;
 	String deleteDevice(String deviceKeyString) throws IllegalArgumentException;
 	
 	String storeMeasurement(Measurement measurement) throws IllegalArgumentException;
@@ -54,6 +56,11 @@ public interface DeviceTreeService extends RemoteService {
 	List<Raport> getListRaports() throws IllegalArgumentException;
 	Raport getRaport(String raportKeyString) throws IllegalArgumentException;
 	List<Measurement> getRaportData(Raport raport) throws IllegalArgumentException;
+	
+	String storeWorker(Worker w) throws IllegalArgumentException;
+	List<Worker> getCompanyWorkers(String companyKeyString) throws IllegalArgumentException;
+	List<Role>  getWorkerRoles(String email) throws IllegalArgumentException;
+	Worker getWorker(String email) throws IllegalArgumentException;
 	
 	String storeLogEntry(String action, String user);
 	

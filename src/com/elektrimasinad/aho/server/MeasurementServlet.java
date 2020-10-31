@@ -166,8 +166,11 @@ public class MeasurementServlet extends HttpServlet {
         g.drawString(Math.round(max*300/4.0)/100.0+"", 10, 100);		
         g.drawString(max+"", 10, 50);
         g.drawString(dName,20 , 10);
+        if(ptype.contentEquals("MP") || ptype.contentEquals("TP")) {
         g.drawString(dName2,20 , 25);
+        } else {
         g.drawString(dName3,20 , 40);
+        }
         g.drawString(ptype,150 , 20);
         g.setColor(Color.green);
         g.drawString("mms",200 , 20);

@@ -45,6 +45,10 @@ public class Device implements Serializable {
 	private String TPVtihend;
 	private String TPnotes;
 	
+	private String freeComment1="";
+	private String freeComment2="";
+	private String freeComment3="";
+	
 	//Other data
 	public boolean hasCoupledDevice = false;
 	
@@ -75,6 +79,10 @@ public class Device implements Serializable {
 		this.TPsimmer = "";
 		this.TPVtihend = "";
 		this.TPnotes = "";
+		
+		this.freeComment1="";
+		this.freeComment2="";
+		this.freeComment3="";
 		hasCoupledDevice = false;
 	}
 	
@@ -105,6 +113,10 @@ public class Device implements Serializable {
 		this.TPsimmer = "";
 		this.TPVtihend = "";
 		this.TPnotes = "";
+		this.freeComment1="";
+		this.freeComment2="";
+		this.freeComment3="";
+
 		hasCoupledDevice = false;
 	}
 
@@ -491,6 +503,16 @@ public class Device implements Serializable {
 		TPnotes = tPnotes;
 	}
 
+	
+	public String getFreeComment1() {return this.freeComment1;}
+	public void setFreeComment1(String c) {this.freeComment1=c;}
+	
+	public String getFreeComment2() {return this.freeComment2;}
+	public void setFreeComment2(String c) {this.freeComment2=c;}
+	
+	public String getFreeComment3() {return this.freeComment3;}
+	public void setFreeComment3(String c) {this.freeComment3=c;}
+	
 	public boolean hasCoupledDevice() {
 		return hasCoupledDevice;
 	}

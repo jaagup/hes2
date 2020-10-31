@@ -14,7 +14,9 @@ import com.elektrimasinad.aho.shared.Device;
 import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
+import com.elektrimasinad.aho.shared.Role;
 import com.elektrimasinad.aho.shared.Unit;
+import com.elektrimasinad.aho.shared.Worker;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -41,6 +43,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -48,6 +51,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentC
 import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.sun.java.swing.plaf.windows.resources.windows;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -97,6 +101,7 @@ public class DeviceCard implements EntryPoint {
 	private DeviceEditPanel deviceEditPanel = new DeviceEditPanel();
 	private VerticalPanel lastMeasurementPanel = new VerticalPanel();
 	private VerticalPanel maintenanceListPanel=new VerticalPanel();
+	private VerticalPanel workersPanel=new VerticalPanel();
 	private AbsolutePanel headerPanel;
 	private DeckPanel contentPanel;
 	//private Device device;
@@ -109,6 +114,19 @@ public class DeviceCard implements EntryPoint {
 	private Measurement measurement;
 	MaintenanceItem selectedMaintenanceItem;
 	private List<MaintenanceItem> maintenance2 = new ArrayList<MaintenanceItem>();
+	CellTable<Worker> wtable=new CellTable<Worker>();
+	Label lName=new Label("Nimi");
+	TextBox tbName=new TextBox();
+	Label lPhone=new Label("Telefon");
+	TextBox tbPhone=new TextBox();
+	Label lEmail=new Label("Email");
+	TextBox tbEmail=new TextBox();
+	Label lWorker=new Label("Tegija");
+	CheckBox cbWorker=new CheckBox();
+	Label lSupervisor=new Label("Nagija");
+	CheckBox cbSupervisor=new CheckBox();
+	Label lActive=new Label("Aktiivne");
+	CheckBox cbActive=new CheckBox();
 
 	
 	private VerticalPanel companyListPanel = new VerticalPanel();
@@ -550,6 +568,7 @@ public class DeviceCard implements EntryPoint {
 		contentPanel.add(deviceMaintenancePanel2);
 		contentPanel.add(deviceEditPanel);
 		contentPanel.add(maintenanceListPanel);
+		contentPanel.add(workersPanel);
 		companyNameLabel.setText(selectedCompany.getCompanyName());
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
 		String deviceKey=Window.Location.getParameter("deviceKey");
@@ -667,6 +686,16 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
+		Label lWorkers = new Label("T\u00F6\u00F6tajad");
+		lWorkers.setStyleName("backSaveLabel wide");
+		lWorkers.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				createWorkersPanel();
+			}
+			
+		});
 		
 		HorizontalPanel buttonsPanel = new HorizontalPanel();
 		buttonsPanel.setStyleName("backSavePanel");
@@ -674,9 +703,11 @@ public class DeviceCard implements EntryPoint {
 		buttonsPanel.add(lBack);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
 		buttonsPanel.setCellWidth(lBack, "43%");
+		buttonsPanel.add(lWorkers);
 		buttonsPanel.add(lNewLocation);
-		buttonsPanel.setCellHorizontalAlignment(lNewLocation, HasHorizontalAlignment.ALIGN_RIGHT);
-		buttonsPanel.setCellWidth(lNewLocation, "50%");
+//		buttonsPanel.setCellHorizontalAlignment(lNewLocation, HasHorizontalAlignment.ALIGN_RIGHT);
+		buttonsPanel.setCellWidth(lWorkers, "25%");
+		buttonsPanel.setCellWidth(lNewLocation, "25%");
 		departmentListPanel.add(buttonsPanel);
 		
 		HorizontalPanel headerPanel = AhoWidgets.createThinContentHeader("OSAKONNAD");
@@ -920,6 +951,219 @@ public class DeviceCard implements EntryPoint {
 		
 		return deviceListPanel;
 	}
+	
+	private void createWorkersPanel() {
+		
+		workersPanel.clear();
+		final Label lBack = new Label("Tagasi");
+		lBack.setStyleName("backSaveLabel");
+		lBack.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				contentPanel.showWidget(contentPanel.getWidgetIndex(departmentListPanel));
+			}
+			
+		});
+		final Button lBackButton = new Button();
+		lBackButton.setStyleName("backButton");
+		lBackButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				lBack.fireEvent(event);
+			}
+			
+		});
+
+		Label lSave = new Label("Salvesta");
+		lSave.setStyleName("backSaveLabel wide");
+		lSave.addClickHandler(new ClickHandler() {	
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				try {					
+					saveWorker(tbName.getText(), tbPhone.getText(), tbEmail.getText(), cbWorker.getValue(), cbSupervisor.getValue(), cbActive.getValue());
+				//	newCompanyPanel.saveCompany(companyList, storeCompanyCallback);
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			
+			
+		});
+
+
+		TextColumn<Worker> nameColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getName();
+			}
+			
+		};
+		wtable.addColumn(nameColumn, "Nimi");
+		TextColumn<Worker> emailColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getEmail();
+			}
+			
+		};
+		wtable.addColumn(emailColumn, "Email");
+		TextColumn<Worker> phoneColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getPhone();
+			}
+			
+		};
+		wtable.addColumn(phoneColumn, "Telefon");
+		TextColumn<Worker> workerColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getRoles().get(0).isWorker()+"";
+			}
+			
+		};
+		wtable.addColumn(workerColumn, "Tegija");
+		
+		TextColumn<Worker> supervisorColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getRoles().get(0).isSupervisor()+"";
+			}
+			
+		};
+		wtable.addColumn(supervisorColumn, "Nagija");
+		TextColumn<Worker> activeColumn=new TextColumn<Worker>() {
+
+			@Override
+			public String getValue(Worker object) {
+				// TODO Auto-generated method stub
+				return object.getRoles().get(0).isActive()+"";
+			}
+			
+		};
+		wtable.addColumn(activeColumn, "Aktiivne");
+		
+		SingleSelectionModel<Worker> tableSelModel = new SingleSelectionModel<Worker>();
+		tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+			@Override
+			public void onSelectionChange(SelectionChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				Worker selectedItem = (Worker) tableSelModel.getSelectedObject();
+				tbName.setText(selectedItem.getName());
+				tbEmail.setText(selectedItem.getEmail());
+				tbEmail.setEnabled(false);
+				tbPhone.setText(selectedItem.getPhone());
+				cbWorker.setValue(selectedItem.getRoles().get(0).isWorker());
+				cbSupervisor.setValue(selectedItem.getRoles().get(0).isSupervisor());
+				cbActive.setValue(selectedItem.getRoles().get(0).isActive());
+			}
+			
+		});
+		wtable.setSelectionModel(tableSelModel);
+		
+        updateWorkersTable();		
+		
+		HorizontalPanel buttonsPanel = new HorizontalPanel();
+		buttonsPanel.setStyleName("backSavePanel");
+		buttonsPanel.add(lBackButton);
+		buttonsPanel.add(lBack);
+		buttonsPanel.setCellWidth(lBackButton, "7%");
+		buttonsPanel.setCellWidth(lBack, "43%");
+		buttonsPanel.add(lSave);
+		buttonsPanel.setCellHorizontalAlignment(lSave, HasHorizontalAlignment.ALIGN_RIGHT);
+		buttonsPanel.setCellWidth(lSave, "50%");
+		workersPanel.insert(buttonsPanel, 0);
+        workersPanel.add(wtable);
+		
+		workersPanel.add(lName);
+		workersPanel.add(tbName);
+		workersPanel.add(lPhone);
+		workersPanel.add(tbPhone);
+		workersPanel.add(lEmail);
+		workersPanel.add(tbEmail);
+		workersPanel.add(lWorker);
+		workersPanel.add(cbWorker);
+		workersPanel.add(lSupervisor);
+		workersPanel.add(cbSupervisor);
+		workersPanel.add(lActive);
+		workersPanel.add(cbActive);
+
+		contentPanel.showWidget(contentPanel.getWidgetIndex(workersPanel));
+
+	}
+
+	
+	private void updateWorkersTable() {
+	    deviceTreeService.getCompanyWorkers(selectedCompany.getCompanyKey(), new AsyncCallback<List<Worker>>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+                Window.alert(caught.toString());				
+			}
+
+
+			@Override
+			public void onSuccess(List<Worker> result) {
+				// TODO Auto-generated method stub
+                wtable.setRowData(result);
+                tbName.setText("");
+                tbPhone.setText("");
+                tbEmail.setEnabled(true);
+                tbEmail.setText("");
+                cbWorker.setValue(false);
+                cbSupervisor.setValue(false);
+                cbActive.setValue(false);
+			}
+	    	
+	    });
+
+	}
+	
+	private void saveWorker(String name, String phone, String email, boolean worker, boolean supervisor, boolean active) {
+		Worker w=new Worker();
+		w.setName(name);
+		w.setPhone(phone);
+		w.setEmail(email);
+		Role r=new Role();
+		r.setEmail(email);
+		r.setCompanyKeyString(selectedCompany.getCompanyKey());
+		r.setRole(worker, supervisor, active);
+		w.addRole(r);
+		deviceTreeService.storeWorker(w,new AsyncCallback<String>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert(caught.toString());
+				
+			}
+
+			@Override
+			public void onSuccess(String result) {
+				//Window.alert("stored "+result);
+				updateWorkersTable();
+			}
+			
+		});
+		
+	}
+	
+	
 	
 	private void createMeasurementListPanel() {
 		measurementListPanel.clear();
@@ -1314,7 +1558,7 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
-		
+		/*
 		Label lMeasurements = new Label("M\u00F5\u00F5tmiste tulemused");
 		lMeasurements.setStyleName("backSaveLabel");
 		lMeasurements.addClickHandler(new ClickHandler() {
@@ -1324,7 +1568,7 @@ public class DeviceCard implements EntryPoint {
 				deviceTreeService.getMeasurements(selectedDevice.getDeviceKey(), getMeasurementsCallback);
 			}
 			
-		});
+		})*/;
 		Label lDeleteDevice = new Label("Kustuta");
 		lDeleteDevice.setStyleName("backSaveLabel");
 		lDeleteDevice.addClickHandler(new ClickHandler() {
@@ -1352,10 +1596,11 @@ public class DeviceCard implements EntryPoint {
 		backSavePanel.add(lBackButton);
 		backSavePanel.add(lBack);
 		backSavePanel.setCellWidth(lBackButton, "7%");
-		backSavePanel.setCellWidth(lBack, "43%");
-		backSavePanel.add(lMeasurements);
-		backSavePanel.setCellHorizontalAlignment(lMeasurements, HasHorizontalAlignment.ALIGN_RIGHT);
-		backSavePanel.setCellWidth(lMeasurements, "18%");
+//		backSavePanel.setCellWidth(lBack, "43%");
+		backSavePanel.setCellWidth(lBack, "61%");
+	//	backSavePanel.add(lMeasurements);
+	//	backSavePanel.setCellHorizontalAlignment(lMeasurements, HasHorizontalAlignment.ALIGN_RIGHT);
+	//	backSavePanel.setCellWidth(lMeasurements, "18%");
 		backSavePanel.add(lEditDevice);
 		backSavePanel.setCellHorizontalAlignment(lEditDevice, HasHorizontalAlignment.ALIGN_RIGHT);
 		backSavePanel.setCellWidth(lEditDevice, "16%");
@@ -1371,17 +1616,37 @@ public class DeviceCard implements EntryPoint {
 
 		if (labelText.equals("Seadme \u00FCldandmed")) {
 			//Button maintainanceLink = new Button();
-			Label lMaintainanceLink = new Label("Hooldus");
-			lMaintainanceLink.setStyleName("aho-label2-maintLink");
+			
+            Image imMeasurements=new Image("/res/pik-mootmine.png");
+            imMeasurements.setSize("50px", "65px");
+			//Label lMeasurements = new Label("M\u00F5\u00F5tmiste tulemused");
+			//lMeasurements.setStyleName("backSaveLabel");
+			imMeasurements.addClickHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					deviceTreeService.getMeasurements(selectedDevice.getDeviceKey(), getMeasurementsCallback);
+				}
+				
+			});
+			headerPanel.add(imMeasurements);
+			
+			
+			Image imMaintainanceLink=new Image("/res/pik-hooldus.png");
+			imMaintainanceLink.setSize("50px", "65px");
+			//Label lMaintainanceLink = new Label("Hooldus");
+			//lMaintainanceLink.setStyleName("aho-label2-maintLink");
 			//maintainanceLink.setStyleName("maintainanceLink link");
 			//maintainanceLink.setText("+");
-			lMaintainanceLink.addClickHandler(new ClickHandler() {
+//			lMaintainanceLink.addClickHandler(new ClickHandler() {
+			imMaintainanceLink.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
 					createDeviceEditPanelView();
 				}
 			});
-			headerPanel.add(lMaintainanceLink);
+			//headerPanel.add(lMaintainanceLink);
+			headerPanel.add(imMaintainanceLink);
 			//headerPanel.add(maintainanceLink);
 		}
 

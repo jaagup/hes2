@@ -10,7 +10,9 @@ import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
+import com.elektrimasinad.aho.shared.Role;
 import com.elektrimasinad.aho.shared.Unit;
+import com.elektrimasinad.aho.shared.Worker;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -35,7 +37,7 @@ public interface DeviceTreeServiceAsync {
 	
 	void storeDevice(Device device, AsyncCallback<String> callback) throws IllegalArgumentException;
 	void getDevices(String unitKeyString, AsyncCallback<List<Device>> callback) throws IllegalArgumentException;
-	void getListDevices(AsyncCallback<List<Device>> callback) throws IllegalArgumentException;
+	//void getListDevices(AsyncCallback<List<Device>> callback) throws IllegalArgumentException;
 	void updateDevice(Device updatedDevice, AsyncCallback<String> updateDeviceCallback) throws IllegalArgumentException;
 	void deleteDevice(String deviceKeyString, AsyncCallback<String> removeDeviceCallback) throws IllegalArgumentException;
 	
@@ -52,6 +54,11 @@ public interface DeviceTreeServiceAsync {
 	void getRaport(String raportKeyString, AsyncCallback<Raport> callback) throws IllegalArgumentException;
 	void getListRaports(AsyncCallback<List<Raport>> callback) throws IllegalArgumentException;
 	void getRaportData(Raport raport, AsyncCallback<List<Measurement>> callback) throws IllegalArgumentException;
+	
+	void storeWorker(Worker w, AsyncCallback<String> callback) throws IllegalArgumentException;
+	void getCompanyWorkers(String companyKeyString, AsyncCallback<List<Worker>> callback) throws IllegalArgumentException;
+	void getWorkerRoles(String email, AsyncCallback<List<Role>> callback) throws IllegalArgumentException;
+	void getWorker(String email, AsyncCallback<Worker> asyncCallback) throws IllegalArgumentException;
 	
 	void storeLogEntry(String action, String user, AsyncCallback<String> callback);
 	

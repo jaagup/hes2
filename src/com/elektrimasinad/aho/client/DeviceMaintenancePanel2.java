@@ -1,8 +1,15 @@
 package com.elektrimasinad.aho.client;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 import com.elektrimasinad.aho.shared.MaintenanceItem;
+import com.elektrimasinad.aho.shared.Worker;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
@@ -285,13 +292,100 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    personPanel.setStyleName("aho-panel1");
 	    Label personLabel=new Label("Teostaja");
 	    TextBox personTb=new TextBox();
+	    ListBox personLb=new ListBox();
 	    personTb.setText(deviceCard.selectedMaintenanceItem.getMaintenanceAssignedTo());
 	    personPanel.add(personLabel);
 	    personPanel.add(personTb);
+	    personPanel.add(personLb);
+	    deviceCard.deviceTreeService.getCompanyWorkers(deviceCard.selectedCompany.getCompanyKey(), new AsyncCallback<List<Worker>>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<Worker> result) {
+				int nr=0;
+				int index=-1;
+				for(Worker w: result) {
+					if(w.getRoles().get(0).isWorker() && w.getRoles().get(0).isActive()) {
+						personLb.addItem(w.getName(), w.getEmail());
+						if(w.getEmail().contentEquals(personTb.getText())) {
+							index=nr;
+						}
+						nr++;
+					}
+				}
+				if(index!=-1) {
+					personLb.setSelectedIndex(index);
+				}
+			}
+		});
+	    personLb.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				personTb.setText(personLb.getSelectedValue());
+			}
+	    });
+	    
+	    personLb.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				personTb.setText(personLb.getSelectedValue());
+				
+			}});
 	    personLabel.setStyleName("aho-label1");
 	    personTb.setStyleName("aho-textbox1");
+	    personLb.setStyleName("aho-textbox1");
 	    add(personPanel);
 	    
+
+	    
+	    HorizontalPanel supervisorPanel=new HorizontalPanel();
+	    supervisorPanel.setStyleName("aho-panel1");
+	    Label supervisorLabel=new Label("Nagija");
+	    supervisorLabel.setStyleName("aho-label1");
+	    ListBox supervisorLb=new ListBox();
+	    supervisorLb.setStyleName("aho-textbox1");
+	    supervisorLb.setMultipleSelect(true);
+	    deviceCard.deviceTreeService.getCompanyWorkers(deviceCard.selectedCompany.getCompanyKey(), new AsyncCallback<List<Worker>>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<Worker> result) {
+				String[] supervisors=deviceCard.selectedMaintenanceItem.getMaintenanceAssignedSupervisor().split(",");
+			//    Window.alert(deviceCard.selectedMaintenanceItem.getMaintenanceAssignedSupervisor());
+				int nr=0;
+				int index=-1;
+				for(Worker w: result) {
+					if(w.getRoles().get(0).isSupervisor() && w.getRoles().get(0).isActive()) {
+						supervisorLb.addItem(w.getName(), w.getEmail());
+						for(int i=0; i<supervisors.length; i++) {
+							if(supervisors[i].contentEquals(w.getEmail())) {
+								supervisorLb.setItemSelected(nr, true);
+				//				deviceCard.Debug.log("valitud "+w.getEmail());
+								
+							}
+						}
+						nr++;
+					}
+				}
+//				for(int i=0; i<supervisorLb.getItemCount(); i++) {
+//					supervisorLb.setItemSelected(i, true);
+//				}
+			}
+		});
+	    supervisorPanel.add(supervisorLabel);
+	    supervisorPanel.add(supervisorLb);
+        add(supervisorPanel);
 	    
 	    Button saveButton=new Button("Salvesta", new ClickHandler() {
 	    	@Override
@@ -307,7 +401,16 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
+	    		  
 	    		  m.setMaintenanceAssignedTo(personTb.getValue());
+	    		  List<String> supervisorMails=new ArrayList<String>();
+	    		  for(int i=0; i<supervisorLb.getItemCount(); i++) {
+	    			  if(supervisorLb.isItemSelected(i)) {
+	    				  supervisorMails.add(supervisorLb.getValue(i));
+	    			  }
+	    		  }
+	    		  m.setMaintenanceAssignedSupervisor(String.join(",", supervisorMails));
+
 	    		  m.setMaintenanceCompleteDate(dateBox.getValue());
 	    		  m.setMaintenanceMaterials(materialTb.getText());
 	    		  m.setMaintenanceNotes(notesTb.getValue());
@@ -342,6 +445,14 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  m.setMaintenanceAssignedTo(personTb.getValue());
+	    		  List<String> supervisorMails=new ArrayList<String>();
+	    		  for(int i=0; i<supervisorLb.getItemCount(); i++) {
+	    			  if(supervisorLb.isItemSelected(i)) {
+	    				  supervisorMails.add(supervisorLb.getValue(i));
+	    			  }
+	    		  }
+	    		  m.setMaintenanceAssignedSupervisor(String.join(",", supervisorMails));
+//	    		  m.setMaintenanceAssignedSupervisor(supervisorLb.isIt);
 	    		  m.setMaintenanceCompleteDate(dublicateDateBox.getValue());
 	    		  m.setMaintenanceMaterials(materialTb.getText());
 	    		  m.setMaintenanceNotes(notesTb.getValue());
@@ -440,6 +551,14 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		    		  mi.setMaintenanceProblemDescription(tb2.getValue());
 		    		  //m.setMaintenanceState(state);
 		    		  mi.setMaintenanceAssignedTo(personTb.getValue());
+		    		  List<String> supervisorMails=new ArrayList<String>();
+		    		  for(int i=0; i<supervisorLb.getItemCount(); i++) {
+		    			  if(supervisorLb.isItemSelected(i)) {
+		    				  supervisorMails.add(supervisorLb.getValue(i));
+		    			  }
+		    		  }
+		    		  mi.setMaintenanceAssignedSupervisor(String.join(",", supervisorMails));
+
 		    		  mi.setMaintenanceCompleteDate(dateBox.getValue());
 		    		  mi.setMaintenanceMaterials(materialTb.getText());
 		    		  mi.setMaintenanceNotes(notesTb.getValue());

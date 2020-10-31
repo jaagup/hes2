@@ -157,7 +157,7 @@ public class DeviceEditPanel extends VerticalPanel {
 		TextColumn<MaintenanceItem> assignedEmployee = new TextColumn<MaintenanceItem>() {
 			@Override
 			public String getValue(MaintenanceItem m) {
-				String item = m.getMaintenanceAssignedTo();
+				String item = m.getMaintenanceAssignedToName();
 				return item;
 			}
 		};
@@ -175,7 +175,6 @@ public class DeviceEditPanel extends VerticalPanel {
 		maintenanceTable.flush();
 		maintenanceTable.setRowCount(list3.size());
 		maintenanceHistoryButton.setText("Kuva tegemata hooldused");
-		Debug.log("kuvatakse ajalugu");
 	}
 
 }

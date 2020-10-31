@@ -9,10 +9,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.mail.internet.MimeMessage;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
 
 import com.elektrimasinad.aho.client.DeviceTreeService;
 import com.elektrimasinad.aho.shared.Company;
@@ -20,9 +26,11 @@ import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
 import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.Measurement;
-import com.elektrimasinad.aho.shared.DiagnostikaItem;
+//import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Raport;
+import com.elektrimasinad.aho.shared.Role;
 import com.elektrimasinad.aho.shared.Unit;
+import com.elektrimasinad.aho.shared.Worker;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -31,6 +39,8 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -94,6 +104,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			e.setProperty("ProblemDescription", m.getMaintenanceProblemDescription());
 			e.setProperty("State", m.getMaintenanceState());
 			e.setProperty("Person", m.getMaintenanceAssignedTo());
+			e.setProperty("Supervisor", m.getMaintenanceAssignedSupervisor());
 			e.setProperty("CompleteDate", m.getMaintenanceCompleteDate());
 			e.setProperty("Materials", m.getMaintenanceMaterials());
 			e.setProperty("Notes", m.getMaintenanceNotes());
@@ -156,7 +167,9 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Query query = new Query("MaintenanceEntry");
 		query.setFilter(FilterOperator.EQUAL.of("Device", maintenanceString));
 		for(Entity e : ds.prepare(query).asIterable()) {
-			MaintenanceItem m = new MaintenanceItem();
+			System.out.println(e.getAppId());
+			MaintenanceItem m=getMaintenanceItemFromEntity(e);
+		/*	MaintenanceItem m = new MaintenanceItem();
 			//m.setMaintenanceKey(e.getProperty("KeyString").toString());
 			m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
 			m.setMaintenanceDevice(e.getProperty("Device").toString());
@@ -171,8 +184,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 				m.setMaintenanceState("active");
 			}
 			if(e.getProperty("Person")!=null) {
-  			  m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
-			}
+	  			  m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
+				}
+			if(e.getProperty("Supervisor")!=null) {
+	  			  m.setMaintenanceAssignedSupervisor(e.getProperty("Supervisor").toString());
+				}
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
@@ -180,12 +196,53 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			  System.out.println("ajakulu "+ m.getMaintenanceTimeSpent()+" "+e.getProperty("TimeSpent").toString());
 			}catch(Exception ex) {}
 			try{m.setMaintenanceDowntime(Double.parseDouble(e.getProperty("Downtime").toString()));}catch(Exception ex) {}
-			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}
+			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}*/
 			maintenanceItems.add(m);
 		}
 		
 		return maintenanceItems;
 	}
+	
+	private MaintenanceItem getMaintenanceItemFromEntity(Entity e) {
+		MaintenanceItem m = new MaintenanceItem();
+//		e = ds.get(maintenanceKey);
+		m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
+		//m.setMaintenanceKey(e.getProperty("KeyString").toString());
+		m.setMaintenanceDevice(e.getProperty("Device").toString());
+		m.setMaintenanceName(e.getProperty("Name").toString());
+		m.setMaintenanceDescription(e.getProperty("Description").toString());
+		m.setMaintenanceProblemDescription(e.getProperty("ProblemDescription").toString());
+		if(e.getProperty("State")!=null) {
+		m.setMaintenanceState(e.getProperty("State").toString());
+		} else {
+			m.setMaintenanceState("active");
+		}
+		if(e.getProperty("Person")!=null) {
+		m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
+		if(m.getMaintenanceAssignedTo().indexOf("@")>0) {
+			Worker w=getWorker(m.getMaintenanceAssignedTo());
+			m.setMaintenanceAssignedToName(w.getName());
+		}
+		}
+		if(e.getProperty("Supervisor")!=null) {
+		m.setMaintenanceAssignedSupervisor(e.getProperty("Supervisor").toString());
+		}
+		m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
+		m.setMaintenanceMaterials(e.getProperty("Materials").toString());
+		m.setMaintenanceNotes(e.getProperty("Notes").toString());
+		try {
+		m.setMaintenanceInterval(Integer.valueOf(e.getProperty("Interval").toString()));
+		} catch(Exception ex) {}
+		try{m.setMaintenanceTimeSpent(Double.parseDouble(e.getProperty("TimeSpent").toString()));
+		  System.out.println("ajakulu "+ m.getMaintenanceTimeSpent()+" "+e.getProperty("TimeSpent").toString());
+		}catch(Exception ex) {ex.printStackTrace();}
+		try{m.setMaintenanceDowntime(Double.parseDouble(e.getProperty("Downtime").toString()));}catch(Exception ex) {}
+		try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}
+	
+	return m;
+	
+	}
+	
 	@Override
 	public MaintenanceItem getMaintenanceEntry(String maintenanceString) throws IllegalArgumentException {
 		Key maintenanceKey = KeyFactory.stringToKey(maintenanceString);
@@ -193,6 +250,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Entity e;
 		try {
 			e = ds.get(maintenanceKey);
+			m=getMaintenanceItemFromEntity(e);/*
 			m.setMaintenanceID(KeyFactory.keyToString(e.getKey()));
 			//m.setMaintenanceKey(e.getProperty("KeyString").toString());
 			m.setMaintenanceDevice(e.getProperty("Device").toString());
@@ -207,6 +265,9 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			if(e.getProperty("Person")!=null) {
 			m.setMaintenanceAssignedTo(e.getProperty("Person").toString());
 			}
+			if(e.getProperty("Supervisor")!=null) {
+			m.setMaintenanceAssignedSupervisor(e.getProperty("Supervisor").toString());
+			}
 			m.setMaintenanceCompleteDate((Date) e.getProperty("CompleteDate"));
 			m.setMaintenanceMaterials(e.getProperty("Materials").toString());
 			m.setMaintenanceNotes(e.getProperty("Notes").toString());
@@ -217,7 +278,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			  System.out.println("ajakulu "+ m.getMaintenanceTimeSpent()+" "+e.getProperty("TimeSpent").toString());
 			}catch(Exception ex) {ex.printStackTrace();}
 			try{m.setMaintenanceDowntime(Double.parseDouble(e.getProperty("Downtime").toString()));}catch(Exception ex) {}
-			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}
+			try{m.setMaintenanceCost(Double.parseDouble(e.getProperty("Cost").toString()));}catch(Exception ex) {}*/
 		} catch (EntityNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -240,6 +301,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		e.setProperty("ProblemDescription", mNew.getMaintenanceProblemDescription());
 		e.setProperty("State", mNew.getMaintenanceState());
 		e.setProperty("Person", mNew.getMaintenanceAssignedTo());
+		e.setProperty("Supervisor", mNew.getMaintenanceAssignedSupervisor());
 		e.setProperty("CompleteDate", mNew.getMaintenanceCompleteDate());
 		e.setProperty("Materials", mNew.getMaintenanceMaterials());
 		e.setProperty("Notes", mNew.getMaintenanceNotes());
@@ -524,6 +586,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 				items.add(m);
 			}
 		}
+		System.out.println(items);
 		return items;
 	}
 
@@ -720,11 +783,15 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			e.setProperty("TPVtihend", device.getTPVtihend());
 			e.setProperty("TPnotes", device.getTPnotes());
 		e.setProperty("HasCoupledDevice", device.hasCoupledDevice());
-		
+		e.setProperty("FreeComment1", device.getFreeComment1());
+		System.out.println("device stored "+device.getFreeComment1());
+		e.setProperty("FreeComment2", device.getFreeComment2());
+		e.setProperty("FreeComment3", device.getFreeComment3());
 		ds.put(e);
 		
 		return "Device stored: " + device.getDeviceName();
 	}
+	/*
 	@Override
 	public List<Device> getListDevices() throws IllegalArgumentException {
 		List<Device> deviceList = new ArrayList<Device>();
@@ -769,7 +836,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		
 		return deviceList;
 	}
-	
+	*/
 	private Device deviceFrom(Entity e) {
 		Device c = new Device();
 		if (e.getKey() != null && e.getProperty("DeviceName").toString() != null) {
@@ -805,6 +872,11 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 				c.setTPVtihend(e.getProperty("TPVtihend").toString());
 				c.setTPnotes(e.getProperty("TPnotes").toString());
 			}
+			try {
+				c.setFreeComment1(e.getProperty("FreeComment1").toString());
+				c.setFreeComment2(e.getProperty("FreeComment2").toString());
+				c.setFreeComment3(e.getProperty("FreeComment3").toString());
+			} catch(Exception ex) {}
 		}
 		return c;
 	}
@@ -816,8 +888,10 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		//Filter filter = new FilterPredicate("LocationKey", FilterOperator.EQUAL, location.getLocationKey());
 		Query query = new Query("Device", locationKey).setAncestor(locationKey).addSort("DeviceId", Query.SortDirection.ASCENDING);
 		for (Entity e : ds.prepare(query).asIterable()) {
-			Device c = new Device();
+		//	Device c = new Device();
 			if (e.getKey() != null && e.getProperty("DeviceName").toString() != null) {
+				Device c=deviceFrom(e);
+				/*
 				c.setDeviceKey(KeyFactory.keyToString(e.getKey()));
 				c.setUnitKey(unitKeyString);
 				c.setId(e.getProperty("DeviceId").toString());
@@ -850,7 +924,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 					c.setTPVtihend(e.getProperty("TPVtihend").toString());
 					c.setTPnotes(e.getProperty("TPnotes").toString());
 				}
-				
+				*/
 				deviceList.add(c);
 			}
 		}
@@ -903,6 +977,10 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 				e.setProperty("TPsimmer", updatedDevice.getTPsimmer());
 				e.setProperty("TPVtihend", updatedDevice.getTPVtihend());
 				e.setProperty("TPnotes", updatedDevice.getTPnotes());
+			    e.setProperty("FreeComment1", updatedDevice.getFreeComment1());
+			    e.setProperty("FreeComment2", updatedDevice.getFreeComment2());
+			    e.setProperty("FreeComment3", updatedDevice.getFreeComment3());
+			    System.out.println(updatedDevice.getFreeComment3());
 			e.setProperty("HasCoupledDevice", updatedDevice.hasCoupledDevice());
 			ds.put(e);
 		} catch (EntityNotFoundException e1) {
@@ -1345,6 +1423,105 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		}
 		return measurementList;
 	}
+
+	/*
+	public String storeWorkerData(Worker w, String companyKeyString, boolean worker, boolean supervisor) {
+		storeWorker(w);
+		Role r=new Role();
+		r.setCompanyKeyString(companyKeyString);
+		r.setEmail(w.getEmail());
+		r.setRole((worker?"worker":"no")+","+(supervisor?"supervisor":"no"));
+		storeRole(r);
+		return "Stored";
+	}*/
+	
+	@Override
+	public String storeWorker(Worker w) {
+//		Key unitKey = KeyFactory.stringToKey(w.getEmail());
+		Query query=new Query("Worker");
+		query.setFilter(FilterOperator.EQUAL.of("Email", w.getEmail()));
+		Entity e=new Entity("Worker");
+		Entity answer=ds.prepare(query).asSingleEntity();
+		if(answer!=null) {e=answer;}
+		e.setProperty("WorkerName", w.getName());
+		e.setProperty("Phone", w.getPhone());
+		e.setProperty("Email", w.getEmail());
+		if(w.getRoles().size()>0) {
+			storeRole(w.getRoles().get(0));
+		}
+		ds.put(e);
+		return "Stored";
+	}
+	
+	
+	
+	public List<Worker> getCompanyWorkers(String companyKeyString){
+		List<Worker> workers=new ArrayList<Worker>();
+		Query query = new Query("Role");
+		query.setFilter(FilterOperator.EQUAL.of("CompanyKeyString", companyKeyString));
+		Iterable<Entity> rolesIter=ds.prepare(query).asIterable();
+		for(Entity e: rolesIter) {
+			System.out.println(e.getProperty("Email"));
+			System.out.println(e.getProperty("WorkerName"));
+			System.out.println(e.getProperties());
+			Worker w=getWorker(e.getProperty("Email").toString());
+			List<Role> roles=getWorkerRoles(w.getEmail(), companyKeyString);
+			System.out.println("leiti "+roles.get(0).isWorker());
+			if(roles.size()>0) {w.addRole(roles.get(0));}
+			workers.add(w);
+		}
+		return workers;
+	}
+	
+	public Worker getWorker(String email) {
+		Query query=new Query("Worker");
+		query.setFilter(FilterOperator.EQUAL.of("Email", email));
+	    Entity e=ds.prepare(query).asSingleEntity();
+		if(e==null) {return null;}
+		Worker w=new Worker();
+		w.setEmail(email);
+		w.setName(e.getProperty("WorkerName").toString());
+		w.setPhone(e.getProperty("Phone").toString());
+		return w;
+	}
+	
+	public List<Role> getWorkerRoles(String email, String companyKeyString){
+		List<Role> roles=new ArrayList<Role>();
+		Query query = new Query("Role");
+		query.setFilter(FilterOperator.EQUAL.of("Email", email));
+		if(companyKeyString!=null) {
+			CompositeFilter cf=CompositeFilterOperator.and(FilterOperator.EQUAL.of("Email", email), FilterOperator.EQUAL.of("CompanyKeyString", companyKeyString));
+			query.setFilter(cf);
+//			query.addFilter("CompanyKeyString", FilterOperator.EQUAL, companyKeyString);
+		}
+		Iterable<Entity> rolesIter = ds.prepare(query).asIterable();
+		for (Entity e: rolesIter) {
+			Role r=new Role();
+			r.setCompanyKeyString(e.getProperty("CompanyKeyString").toString());
+			r.setEmail(e.getProperty("Email").toString());
+			r.setRole(e.getProperty("Role").toString());
+			roles.add(r);
+		}
+		return roles;
+	}
+	
+	public String storeRole(Role r) {
+		Entity e=new Entity("Role");
+		Query query = new Query("Role");
+			CompositeFilter cf=CompositeFilterOperator.and(FilterOperator.EQUAL.of("Email", r.getEmail()), FilterOperator.EQUAL.of("CompanyKeyString", r.getCompanyKeyString()));
+			query.setFilter(cf);
+		query.setFilter(cf);
+        Entity answer=ds.prepare(query).asSingleEntity();
+        if(answer!=null) {
+        	e=answer;
+        }
+		e.setProperty("CompanyKeyString", r.getCompanyKeyString());
+		e.setProperty("Email", r.getEmail());
+		e.setProperty("Role", r.getRole());
+		System.out.println("role on "+r.getRole());
+		ds.put(e);
+		return "Stored role";
+	}
 	
 	@Override
 	public List<String> getImageNames(String deviceKey){
@@ -1383,6 +1560,29 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			return "hidded";
 		}
 		return "missing";
+	}
+
+	@Override
+	public List<Role> getWorkerRoles(String email) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String sendMail(String to, String subject, String message, String replyto) {
+		if(getWorker(to)==null) {return "missing worker";}
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+		 Message msg = new MimeMessage(session); 
+		 try {
+		 msg.setFrom(new
+		 InternetAddress("saatja@hes-209307.appspotmail.com", "HES"));
+		 msg.addRecipient(Message.RecipientType.TO, new
+		  InternetAddress("jaagup@tlu.ee", "HES testija")); 
+		  msg.setSubject(subject);
+		  msg.setText(message); msg.setReplyTo(new InternetAddress[]{new
+		  InternetAddress(replyto)}); Transport.send(msg);
+		 } catch(Exception ex) {return ex.getMessage();}
+		return "sended";
 	}
 }
 

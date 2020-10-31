@@ -43,6 +43,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Unit location;
 	private Company company;
 	Widget deviceName;
+	Widget deviceFreecomment1Widget;
 	Widget deviceId;
 	Widget locationName;
 	
@@ -51,6 +52,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	private int IMAGES_PER_ROW = 5;
 	private List<Image> images = new ArrayList<Image>();
 	private Widget pDeviceInput;
+	private Widget pDeviceFreeCommentInput;
 	private Widget pDeviceCommentInput;
 	private Widget pDevicePowerInput;
 	private Widget pDeviceTypeInput;
@@ -64,6 +66,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	private Widget pTihend2;
 	private Widget pNotes2;
 	private Widget cDeviceInput;
+	private Widget cDeviceFreeCommentInput;
 	private Widget cDeviceCommentInput;
 	private Widget cDeviceTypeInput;
 	private Widget cDeviceManufacturerInput;
@@ -198,14 +201,16 @@ public class DeviceCardPanel extends VerticalPanel {
 	}
 	
 	private void createDeviceCard(boolean isEditable) {
-		Grid pGrid=new Grid(2, 5);
+		Grid pGrid=new Grid(2, 6);
 		editable=isEditable;
 		if (isEditable) {
 			deviceId = AhoWidgets.createTextbox("aho-textbox3", device.getId());
+			deviceFreecomment1Widget = AhoWidgets.createTextbox("aho-textbox3", device.getFreeComment1());
 			deviceName = AhoWidgets.createTextbox("aho-textbox3", device.getDeviceName());
 			locationName = AhoWidgets.createTextbox("aho-textbox3", device.getLocationName());
 		} else {
 			deviceId = AhoWidgets.createLabel(device.getId(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
+			deviceFreecomment1Widget = AhoWidgets.createLabel(device.getFreeComment1(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 			deviceName = AhoWidgets.createLabel(device.getDeviceName(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 			locationName = AhoWidgets.createLabel(device.getLocationName(), "deviceValue alignRight", HasHorizontalAlignment.ALIGN_RIGHT);
 		}
@@ -253,6 +258,8 @@ public class DeviceCardPanel extends VerticalPanel {
 		pGrid.setWidget(1,  3, deviceId);
 		pGrid.setWidget(0,  4, AhoWidgets.createLabel("Seadme nimi", "aho-label1.alignRight", null));
 		pGrid.setWidget(1,  4, deviceName);
+		pGrid.setWidget(0,  5, AhoWidgets.createLabel("Kommentaar", "aho-label1.alignRight", null));
+		pGrid.setWidget(1,  5, deviceFreecomment1Widget);
 		pGrid.setWidth("100%");
 		pGrid.setStyleName("deviceNameTable", true);
 
@@ -312,6 +319,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		grid.setStyleName("aho-panel1 table");
 		
 		Label lDevice = AhoWidgets.createLabel("Seadme abinimi", "aho-label3", null);
+		Label lFreecomment = AhoWidgets.createLabel("Vaba kommentaar", "aho-label3", null);
 		Label lDevicePower = AhoWidgets.createLabel("kW/rpm", "aho-label3", null);
 		Label lType = AhoWidgets.createLabel("T\u00FC\u00FCp", "aho-label3", null);
 		Label lManufacturer = AhoWidgets.createLabel("Tootja", "aho-label3", null);
@@ -329,6 +337,7 @@ public class DeviceCardPanel extends VerticalPanel {
 			lDevicePower.setText("");
 			if (isEditView) {
 				cDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceName());
+				cDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getFreeComment3());
 				cDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceComment());
 				cDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getCoupledDeviceType());
 				cDeviceManufacturerInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceManufacturer());
@@ -342,6 +351,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				cNotes2 = AhoWidgets.createTextbox("aho-textbox1 medium", device.getTPnotes());
 			} else {
 				cDeviceInput = AhoWidgets.createLabel(device.getCoupledDeviceName(), "aho-label3 blue", null);
+				cDeviceFreeCommentInput = AhoWidgets.createLabel( device.getFreeComment3(), "aho-label3 blue", null);
 				cDeviceCommentInput = AhoWidgets.createLabel(device.getCoupledDeviceComment(), "aho-label3 blue", null);
 				cDeviceTypeInput = AhoWidgets.createLabel(device.getCoupledDeviceType(), "aho-label3 blue", null);
 				cDeviceManufacturerInput = AhoWidgets.createLabel(device.getCoupledDeviceManufacturer(), "aho-label3 blue", null);
@@ -355,6 +365,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				cNotes2 = AhoWidgets.createLabel(device.getTPnotes(), "aho-label3 blue", null);
 			}
 			grid.setWidget(1, 0, cDeviceInput);
+			grid.setWidget(1, 1, cDeviceFreeCommentInput);
 			grid.setWidget(1, 3, cDeviceTypeInput);
 			grid.setWidget(1, 4, cDeviceManufacturerInput);
 			grid.setWidget(2, 0, cDeviceCommentInput);
@@ -369,6 +380,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		} else {
 			if (isEditView) {
 				pDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceNickname());
+				pDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getFreeComment2());
 				pDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceComment());
 				pDevicePowerInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDevicekWrpm());
 				pDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDeviceType());
@@ -383,6 +395,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				pNotes2 = AhoWidgets.createTextbox("aho-textbox1 medium", device.getNDEnotes());
 			} else {
 				pDeviceInput = AhoWidgets.createLabel(device.getDeviceNickname(), "aho-label3 blue", null);
+				pDeviceFreeCommentInput = AhoWidgets.createLabel(device.getFreeComment2(), "aho-label3 blue", null);
 				pDeviceCommentInput = AhoWidgets.createLabel(device.getDeviceComment(), "aho-label3 blue", null);
 				pDevicePowerInput = AhoWidgets.createLabel(device.getDevicekWrpm(), "aho-label3 blue", null);
 				pDeviceTypeInput = AhoWidgets.createLabel(device.getDeviceType(), "aho-label3  blue", null);
@@ -397,6 +410,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				pNotes2 = AhoWidgets.createLabel(device.getNDEnotes(), "aho-label3  blue", null);
 			}
 			grid.setWidget(1, 0, pDeviceInput);
+			grid.setWidget(1, 1, pDeviceFreeCommentInput);
 			grid.setWidget(1, 2, pDevicePowerInput);
 			grid.setWidget(1, 3, pDeviceTypeInput);
 			grid.setWidget(1, 4, pDeviceManufacturerInput);
@@ -412,6 +426,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		}
 		
 		grid.setWidget(0, 0, lDevice);
+		grid.setWidget(0, 1, lFreecomment);
 		grid.setWidget(0, 2, lDevicePower);
 		grid.setWidget(0, 3, lType);
 		grid.setWidget(0, 4, lManufacturer);
@@ -527,10 +542,13 @@ public class DeviceCardPanel extends VerticalPanel {
 		return photosPanel;
 	}
 	
-	public void updateDeviceData(Device device, AsyncCallback<String> storeDeviceCallback) {
+	
+	void dataFromForm() {
 		device.setId(((TextBox)deviceId).getText());
 		device.setDeviceName(((TextBox)deviceName).getText());
 		device.setDeviceComment(((TextBox)pDeviceCommentInput).getText());
+		device.setFreeComment1(((TextBox)deviceFreecomment1Widget).getText());
+		device.setFreeComment2(((TextBox)pDeviceFreeCommentInput).getText());
 		device.setLocationName(((TextBox)locationName).getText());
 		device.setDeviceNickname(((TextBox)pDeviceInput).getText());
 		device.setDevicekWrpm(((TextBox)pDevicePowerInput).getText());
@@ -547,6 +565,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		if (device.hasCoupledDevice()) {
 			device.setCoupledDeviceName(((TextBox)cDeviceInput).getText());
 			device.setCoupledDeviceComment(((TextBox)cDeviceCommentInput).getText());
+			device.setFreeComment3(((TextBox)cDeviceFreeCommentInput).getText());
 			device.setCoupledDeviceType(((TextBox)cDeviceTypeInput).getText());
 			device.setCoupledDeviceManufacturer(((TextBox)cDeviceManufacturerInput).getText());
 			device.setMPlaager(((TextBox)cLaager1).getText());
@@ -559,11 +578,19 @@ public class DeviceCardPanel extends VerticalPanel {
 			device.setTPnotes(((TextBox)cNotes2).getText());
 		}
 		
+	}
+	
+	
+	public void updateDeviceData(Device device, AsyncCallback<String> storeDeviceCallback) {
+		dataFromForm();
 		DeviceCard.getDevicetreeservice().updateDevice(device, storeDeviceCallback);
 	}
 	
 	public void createDevice(List<Device> deviceList, AsyncCallback<String> storeDeviceCallback) {
-		device.setId(((TextBox)deviceId).getText());
+		dataFromForm();
+/*
+ * 		device.setId(((TextBox)deviceId).getText());
+ 
 		device.setDeviceName(((TextBox)deviceName).getText());
 		device.setDeviceComment(((TextBox)pDeviceCommentInput).getText());
 		device.setLocationName(((TextBox)locationName).getText());
@@ -593,7 +620,7 @@ public class DeviceCardPanel extends VerticalPanel {
 			device.setTPVtihend(((TextBox)cTihend2).getText());
 			device.setTPnotes(((TextBox)cNotes2).getText());
 		}
-		
+*/		
 		DeviceCard.getDevicetreeservice().storeDevice(device, storeDeviceCallback);
 	}
 	

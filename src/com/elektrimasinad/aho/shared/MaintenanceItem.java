@@ -17,6 +17,8 @@ public class MaintenanceItem implements Serializable{
 	private String desc;
 	private String problemDesc="";
 	private String assignedTo="";
+	private String assignedToName="";
+	private String assignedSupervisor="";
 	private String materials;
 	private String notes;
 	private Date completionDate;
@@ -56,8 +58,14 @@ public class MaintenanceItem implements Serializable{
 	public void setMaintenanceState(String maintenanceState) {
 		this.type = maintenanceState;
 	}
-	public void setMaintenanceAssignedTo(String personName) {
-		this.assignedTo = personName;
+	public void setMaintenanceAssignedTo(String personEmail) {
+		this.assignedTo = personEmail;
+	}
+	public void setMaintenanceAssignedToName(String personName) {
+		this.assignedToName = personName;
+	}
+	public void setMaintenanceAssignedSupervisor(String personList) {
+		this.assignedSupervisor = personList;
 	}
 	public void setMaintenanceNotes(String notes) {
 		this.notes = notes;
@@ -115,6 +123,12 @@ public class MaintenanceItem implements Serializable{
 	}
 	public String getMaintenanceAssignedTo() {
 		return this.assignedTo;
+	}
+	public String getMaintenanceAssignedToName() {
+		return (this.assignedToName.length()>0?this.assignedToName:this.assignedTo);
+	}
+	public String getMaintenanceAssignedSupervisor() {
+		return this.assignedSupervisor;
 	}
 	public String getMaintenanceNotes() {
 		return this.notes;
