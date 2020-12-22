@@ -53,7 +53,7 @@ public interface DeviceTreeService extends RemoteService {
 	
 	String storeRaport(Raport raport) throws IllegalArgumentException;
 	List<Raport> getRaports(String unitKey) throws IllegalArgumentException;
-	List<Raport> getListRaports() throws IllegalArgumentException;
+	//List<Raport> getListRaports() throws IllegalArgumentException;
 	Raport getRaport(String raportKeyString) throws IllegalArgumentException;
 	List<Measurement> getRaportData(Raport raport) throws IllegalArgumentException;
 	
@@ -82,4 +82,6 @@ public interface DeviceTreeService extends RemoteService {
 
     List<String> getImageNames(String companyKey)   throws IllegalArgumentException;
 	String hideImageName(String imageURL) throws IllegalArgumentException;
+	
+	String sendMail(String to, String subject, String message, String replyto);
 }

@@ -3,7 +3,7 @@ var __gwtModuleFunction = $wnd.hooldus;
 var $sendStats = __gwtModuleFunction.__sendStats;
 $sendStats('moduleStartup', 'moduleEvalStart');
 var $gwt_version = "2.8.1";
-var $strongName = 'B9F71152719D25F7EA8FEE289C985A8E';
+var $strongName = 'B34729DFD62EC2B1FDAC57F4F70E0C14';
 var $gwt = {};
 var $doc = $wnd.document;
 var $moduleName, $moduleBase;
@@ -1462,7 +1462,7 @@ function RemoteServiceProxy(moduleBaseURL, serializer){
   this.moduleBaseURL = moduleBaseURL;
   this.remoteServiceURL = moduleBaseURL + 'deviceTree';
   this.serializer = serializer;
-  this.serializationPolicyName = 'B3CAE85821AD3E83BC694BC06B2C0989';
+  this.serializationPolicyName = '9DB23C7548DD2AAF1EE116160F04A454';
 }
 
 function getEncodedInstance(encodedResponse){
@@ -1617,8 +1617,8 @@ function loadMethodsNative(){
   result['[Lcom.elektrimasinad.aho.shared.Device;/172521516'] = [instantiate_3, deserialize_3, serialize_1];
   result['com.elektrimasinad.aho.shared.MaintenanceItem/20270332'] = [instantiate_6, deserialize_6, serialize_3];
   result['[Lcom.elektrimasinad.aho.shared.MaintenanceItem;/1144032209'] = [instantiate_5, deserialize_5];
-  result['com.elektrimasinad.aho.shared.Measurement/2852281694'] = [instantiate_8, deserialize_8, serialize_5];
-  result['[Lcom.elektrimasinad.aho.shared.Measurement;/2205245786'] = [instantiate_7, deserialize_7, serialize_4];
+  result['com.elektrimasinad.aho.shared.Measurement/2687338675'] = [instantiate_8, deserialize_8, serialize_5];
+  result['[Lcom.elektrimasinad.aho.shared.Measurement;/394611834'] = [instantiate_7, deserialize_7, serialize_4];
   result['com.elektrimasinad.aho.shared.Raport/1862837682'] = [instantiate_10, deserialize_10, serialize_6];
   result['[Lcom.elektrimasinad.aho.shared.Raport;/2825098591'] = [instantiate_9, deserialize_9];
   result['com.elektrimasinad.aho.shared.Role/680589442'] = [instantiate_12, deserialize_12, serialize_8];
@@ -1661,8 +1661,8 @@ function loadSignaturesNative(){
   result[getObjectIdentityHashCode(getClassLiteralForArray(Lcom_elektrimasinad_aho_shared_Device_2_classLit, 1))] = '[Lcom.elektrimasinad.aho.shared.Device;/172521516';
   result[getObjectIdentityHashCode(Lcom_elektrimasinad_aho_shared_MaintenanceItem_2_classLit)] = 'com.elektrimasinad.aho.shared.MaintenanceItem/20270332';
   result[getObjectIdentityHashCode(getClassLiteralForArray(Lcom_elektrimasinad_aho_shared_MaintenanceItem_2_classLit, 1))] = '[Lcom.elektrimasinad.aho.shared.MaintenanceItem;/1144032209';
-  result[getObjectIdentityHashCode(Lcom_elektrimasinad_aho_shared_Measurement_2_classLit)] = 'com.elektrimasinad.aho.shared.Measurement/2852281694';
-  result[getObjectIdentityHashCode(getClassLiteralForArray(Lcom_elektrimasinad_aho_shared_Measurement_2_classLit, 1))] = '[Lcom.elektrimasinad.aho.shared.Measurement;/2205245786';
+  result[getObjectIdentityHashCode(Lcom_elektrimasinad_aho_shared_Measurement_2_classLit)] = 'com.elektrimasinad.aho.shared.Measurement/2687338675';
+  result[getObjectIdentityHashCode(getClassLiteralForArray(Lcom_elektrimasinad_aho_shared_Measurement_2_classLit, 1))] = '[Lcom.elektrimasinad.aho.shared.Measurement;/394611834';
   result[getObjectIdentityHashCode(Lcom_elektrimasinad_aho_shared_Raport_2_classLit)] = 'com.elektrimasinad.aho.shared.Raport/1862837682';
   result[getObjectIdentityHashCode(getClassLiteralForArray(Lcom_elektrimasinad_aho_shared_Raport_2_classLit, 1))] = '[Lcom.elektrimasinad.aho.shared.Raport;/2825098591';
   result[getObjectIdentityHashCode(Lcom_elektrimasinad_aho_shared_Role_2_classLit)] = 'com.elektrimasinad.aho.shared.Role/680589442';
@@ -3488,15 +3488,19 @@ function Measurement(){
 }
 
 defineClass(44, 1, {44:1, 3:1}, Measurement);
+_.DELocalComment = '';
 _.DEcomment = '';
 _.DEge = '';
 _.DEmms = '';
+_.MPLocalComment = '';
 _.MPcomment = '';
 _.MPge = '';
 _.MPmms = '';
+_.NDELocalComment = '';
 _.NDEcomment = '';
 _.NDEge = '';
 _.NDEmms = '';
+_.TPLocalComment = '';
 _.TPcomment = '';
 _.TPge = '';
 _.TPmms = '';
@@ -3506,6 +3510,7 @@ _.departmentName = '';
 _.deviceID = '';
 _.deviceKey = '';
 _.deviceName = '';
+_.localComment = '';
 _.marking = '';
 _.measurementKey = '';
 _.raportID = '';
@@ -3528,15 +3533,19 @@ function serialize_4(streamWriter, instance){
 }
 
 function deserialize_8(streamReader, instance){
+  setDELocalComment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setDEcomment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setDEge(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setDEmms(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
+  setMPLocalComment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setMPcomment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setMPge(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setMPmms(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
+  setNDELocalComment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setNDEcomment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setNDEge(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setNDEmms(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
+  setTPLocalComment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setTPcomment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setTPge(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setTPmms(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
@@ -3546,6 +3555,7 @@ function deserialize_8(streamReader, instance){
   setDeviceID_0(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setDeviceKey_0(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setDeviceName_1(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
+  setLocalComment(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setMarking(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setMeasurementKey(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
   setRaportID(instance, $getString(streamReader, streamReader.results[--streamReader.index_0]));
@@ -3559,15 +3569,19 @@ function instantiate_8(streamReader){
 }
 
 function serialize_5(streamWriter, instance){
+  $writeString(streamWriter, instance.DELocalComment);
   $writeString(streamWriter, instance.DEcomment);
   $writeString(streamWriter, instance.DEge);
   $writeString(streamWriter, instance.DEmms);
+  $writeString(streamWriter, instance.MPLocalComment);
   $writeString(streamWriter, instance.MPcomment);
   $writeString(streamWriter, instance.MPge);
   $writeString(streamWriter, instance.MPmms);
+  $writeString(streamWriter, instance.NDELocalComment);
   $writeString(streamWriter, instance.NDEcomment);
   $writeString(streamWriter, instance.NDEge);
   $writeString(streamWriter, instance.NDEmms);
+  $writeString(streamWriter, instance.TPLocalComment);
   $writeString(streamWriter, instance.TPcomment);
   $writeString(streamWriter, instance.TPge);
   $writeString(streamWriter, instance.TPmms);
@@ -3577,6 +3591,7 @@ function serialize_5(streamWriter, instance){
   $writeString(streamWriter, instance.deviceID);
   $writeString(streamWriter, instance.deviceKey);
   $writeString(streamWriter, instance.deviceName);
+  $writeString(streamWriter, instance.localComment);
   $writeString(streamWriter, instance.marking);
   $writeString(streamWriter, instance.measurementKey);
   $writeString(streamWriter, instance.raportID);
@@ -3587,6 +3602,10 @@ function serialize_5(streamWriter, instance){
 
 function setComment(instance, value_0){
   instance.comment = value_0;
+}
+
+function setDELocalComment(instance, value_0){
+  instance.DELocalComment = value_0;
 }
 
 function setDEcomment(instance, value_0){
@@ -3621,6 +3640,14 @@ function setDeviceName_1(instance, value_0){
   instance.deviceName = value_0;
 }
 
+function setLocalComment(instance, value_0){
+  instance.localComment = value_0;
+}
+
+function setMPLocalComment(instance, value_0){
+  instance.MPLocalComment = value_0;
+}
+
 function setMPcomment(instance, value_0){
   instance.MPcomment = value_0;
 }
@@ -3639,6 +3666,10 @@ function setMarking(instance, value_0){
 
 function setMeasurementKey(instance, value_0){
   instance.measurementKey = value_0;
+}
+
+function setNDELocalComment(instance, value_0){
+  instance.NDELocalComment = value_0;
 }
 
 function setNDEcomment(instance, value_0){
@@ -3663,6 +3694,10 @@ function setRaportKey(instance, value_0){
 
 function setStatus(instance, value_0){
   instance.status_0 = value_0;
+}
+
+function setTPLocalComment(instance, value_0){
+  instance.TPLocalComment = value_0;
 }
 
 function setTPcomment(instance, value_0){

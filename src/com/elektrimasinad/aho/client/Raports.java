@@ -464,6 +464,29 @@ public class Raports implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
+				boolean leitud=false;
+			    List<Measurement> kahtlased=new ArrayList<Measurement>();
+				for(int i=0; i<raportDataList.size(); i++) {
+					if(raportDataList.get(i).getMarking().contentEquals("alarm") || 
+							raportDataList.get(i).getMarking().contentEquals("hoiatus")) {
+						kahtlased.add(raportDataList.get(i));
+					}
+				}
+				if(kahtlased.size()>0) {
+					// Debug.log("kahtlased: "+kahtlased.toString());
+//					deviceTreeService.sendMail(, subject, message, replyto, callback);
+					 String s="Probleem: ";
+                     for(int i=0; i<kahtlased.size(); i++) {
+                    	 Measurement k=kahtlased.get(i);
+                    	 s+="\nSeadme nimi: "+k.getDeviceName();
+                    	 s+="\nSeadme id: "+k.getDeviceID();
+                    	 s+="\nTeatis: "+k.getMarking();
+                    	 s+="\nKommentaar: "+k.getComment();
+                    	 s+="\n";
+                     }
+                     Debug.log(s);
+                     
+				}
 				selectedRaport.setRaportID(((TextBox)inputRaportNr).getText());
 				selectedRaport.setMeasurerName(((TextBox)inputMeasurerName).getText());
 				selectedRaport.setMeasurerPhone(((TextBox)inputMeasurerPhone).getText());
@@ -608,8 +631,9 @@ public class Raports implements EntryPoint {
 	    TextColumn<Measurement> commentColumn = new TextColumn<Measurement>() {
 	    	@Override
 	    	public String getValue(Measurement measurement) {
-	    		return measurement.getComment() + " " + measurement.getDEcomment() + " " + measurement.getNDEcomment() + " " +
-	    				measurement.getMPcomment() + " " + measurement.getTPcomment();
+	    		return measurement.getComment()
+	    		  + " " + measurement.getDEcomment() + " " + measurement.getNDEcomment() + " " +
+	    		  		measurement.getMPcomment() + " " + measurement.getTPcomment();
 	    	}
 	    };
 	    

@@ -13,8 +13,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.elektrimasinad.aho.shared.*;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.elektrimasinad.aho.client.DeviceMaintenancePanel2;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 /*import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -22,6 +28,7 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;*/
+import java.util.TimeZone;
 
 public class RaportServlet extends DeviceTreeServiceImpl {
     /**
@@ -68,10 +75,102 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 		return sb.toString();
 	}
 	
+	private String sendDailyMessages() {
+		Entity e=new Entity("Konf");
+		Query query = new Query("Konf");
+//		CompositeFilter cf=FilterOperator.EQUAL.of("Type", "normal");
+		query.setFilter(FilterOperator.EQUAL.of("Type", "normal"));
+//	query.setFilter(cf);
+    Entity answer=ds.prepare(query).asSingleEntity();
+    if(answer!=null) {
+    	e=answer;
+    } else {
+    	e.setProperty("Type", "normal");
+    }
+	Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Tallinn"));
+	cal.setTime(new Date());
+	int year=cal.get(Calendar.YEAR);
+  	int month=cal.get(Calendar.MONTH);
+  	int day=cal.get(Calendar.DAY_OF_MONTH);
+
+    if(e.getProperty("LastDailyMail")!=null) {
+    	System.out.println("Tuli "+e.getProperty("LastDailyMail"));
+    	String[] m=e.getProperty("LastDailyMail").toString().split("-");
+    	System.out.println(m[0]+" "+m[1]+" "+m[2]+" "+year+" "+month+" "+day);
+        if(m[0].contentEquals(year+"") && m[1].contentEquals(month+"") && m[2].contentEquals(day+"")) {
+        	return "same day";
+        }  	else {
+        	//System.out.println("erinev");
+        }
+    }
+		for(Company c : getCompanies()) {
+			if(!c.getCompanyName().contentEquals("AURUSEADMED AS")) {continue;}
+			System.out.println(c.getCompanyName());
+			String s="";
+			for(Measurement m: getCompanyMeasurements(c.getCompanyKey())) {
+				if(m.getRaportKey().length()>0) {
+					if(m.getMarking().contentEquals("alarm") || m.getMarking().contentEquals("hoiatus")) {
+						if(!m.getStatus().contentEquals("archived")) {
+							Raport r=getRaport(m.getRaportKey());
+							System.out.println("m: "+m.getComment());
+							//s+=m.getComment();
+							
+					        s+="\nTeatis: "+m.getMarking().toUpperCase();
+					        
+							s+="\nKuupaev: "+r.getDate();
+							s+="\nEttevõte: "+r.getCompanyName();
+							s+="\nOsakond: "+getUnit(r.getUnitKey()).getDepartmentName();
+							s+="\n\u00DCksus: "+getUnit(r.getUnitKey()).getUnit();
+								
+						   	 s+="\nSeadme nimi: "+m.getDeviceName();
+				           	 s+="\nSeadme id: "+m.getDeviceID();
+				           	 s+="\nKommentaar: "+m.getComment();
+				           	 s+="\n";
+						}
+					}
+				}
+			}
+			Date loppaeg=new Date(new Date().getTime()-24*3600*1000);
+			for(MaintenanceItem m: getCompanyMaintenanceItems(c.getCompanyKey())){
+				System.out.println(m.getMaintenanceState()+" "+m.getMaintenanceCompleteDate()+" "+loppaeg+
+						 " "+m.getMaintenanceCompleteDate().compareTo(loppaeg));
+				if(!m.getMaintenanceState().contentEquals("done") && m.getMaintenanceCompleteDate().compareTo(loppaeg)<0) {
+					s+="\nHooldus\n"+
+					
+					   "Nimetus: "+m.getMaintenanceName()+ 
+    				   "\nAeg: "+dateString(m.getMaintenanceCompleteDate())+
+    				   "\nEttev\u00F5te: "+c.getCompanyName()+
+    				   "\nOsakond: "+m.getDepartmentName()+
+    				   "\n\u00DCksus: "+m.getUnitName()+
+    				   "\nSeade: "+m.getDeviceName()+
+    				   "\nSeadme kood: "+m.getDeviceID()+ 
+    			//	   "\nKirjeldus: "+m.getMaintenanceDescription()+
+    				   
+    				   "\nProbleemi kirjeldus: "+m.getMaintenanceProblemDescription()+
+    				   "\nTeostaja: "+m.getMaintenanceAssignedToName()+
+    				   "\nTeadlik: "+m.getMaintenanceAssignedSupervisor()+"\n";
+				}
+			}
+			if(s.length()>0) {
+			for(Worker w:getCompanyWorkers(c.getCompanyKey())){
+				if(w.getRoles().get(0).isSupervisor()) {
+					sendMail(w.getEmail(), "HES info", s, "");
+					//System.out.println("saadab "+w.getEmail()+" "+s);
+				}
+			}}
+			
+		}
+		e.setProperty("LastDailyMail", year+"-"+month+"-"+day);
+		ds.put(e);
+		return "ok";
+	}
+	
 	protected void doGet( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException
     { 
-//		resp.getWriter().println("tere");
-	//	System.out.println(req.getParameter("companyKey"));
+	   if(req.getParameter("dailyMessages")!=null) {
+		   resp.getWriter().println(sendDailyMessages());
+		  return;
+	   }
 		   resp.setContentType("text/csv");
            resp.setHeader("Content-Disposition", "attachment; filename=hooldused.csv");
         if(req.getParameter("separator")!=null && req.getParameter("separator").contentEquals("semicolon")) {
@@ -79,71 +178,6 @@ public class RaportServlet extends DeviceTreeServiceImpl {
         } else {
 		  resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey"), ","));
         }
-       // String fileName = req.getParameter( "fileInfo1" );
-       // resp.getWriter().println(fileName);
-//         resp.getWriter().println(req.getSession().getAttribute("Account"));
-     //  req.getParameter("companyKey");
-        // if(req.)
-        /*int BUFFER = 1024 * 100;
-        resp.setContentType( "application/octet-stream" );
-        resp.setHeader( "Content-Disposition:", "attachment;filename=" + "\"" + fileName + "\"" );
-        ServletOutputStream outputStream = resp.getOutputStream();
-        resp.setContentLength( Long.valueOf( getRaport().length() ).intValue() );
-        resp.setBufferSize( BUFFER );
-        //Your IO code goes here to create a file and set to outputStream//
-        */
-        //File docxFile = new File("RaportTemplate.docx");
-        //File file = new File(docxFile.toString());
-        
-      //Blank Document
-        /*XWPFDocument document = null;
-		try {
-			document = new XWPFDocument(OPCPackage.open("res/RaportTemplate.docx"));
-		} catch (InvalidFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (document == null) {
-			document = new XWPFDocument();
-		}
-        XWPFParagraph paragraph = document.createParagraph();
-        XWPFRun run = paragraph.createRun();
-        run.setText("At tutorialspoint.com, we strive hard to " +
-           "provide quality tutorials for self-learning " +
-           "purpose in the domains of Academics, Information " +
-           "Technology, Management and Computer Programming Languages.");
-  		
-        //Write the Document in file system
-        //FileOutputStream out = new FileOutputStream( new File("createdocument.docx"));
-        //document.write(out);
-        //out.close();
-        //System.out.println("createdocument.docx written successully");
-     
-        //long length = file.length();
-        //FileInputStream fis = new FileInputStream(file);
-        resp.addHeader("Content-Disposition","attachment; filename=\"Raport.docx\"");        
-        resp.setContentType("application/force-download");
-     
-        //if (length > 0 && length <= Integer.MAX_VALUE) {
-        //	resp.setContentLength((int)length);
-        //}
-     
-        resp.setBufferSize(32768);
-        ServletOutputStream out = resp.getOutputStream();
-        
-     
-        /*int bufSize = resp.getBufferSize();
-        byte[] buffer = new byte[bufSize];
-        BufferedInputStream bis = new BufferedInputStream(fis,bufSize);
-     
-        int bytes;
-        while ((bytes = bis.read(buffer, 0, bufSize)) >= 0)
-            out.write(buffer, 0, bytes);
-        bis.close();      
-        fis.close();*/
-        /*document.write(out);
-        out.flush();
-        out.close();*/
 
     }
 }

@@ -20,15 +20,20 @@ public class Measurement implements Serializable {
 	private String date = "";
 	private String marking = "";
 	private String comment = "";
+	private String localComment="";
+	private String NDELocalComment="";
 	private String NDEmms = "";
 	private String NDEge = "";
 	private String NDEcomment = "";
+	private String DELocalComment="";
 	private String DEmms = "";
 	private String DEge = "";
 	private String DEcomment = "";
+	private String MPLocalComment="";
 	private String MPmms = "";
 	private String MPge = "";
 	private String MPcomment = "";
+	private String TPLocalComment="";
 	private String TPmms = "";
 	private String TPge = "";
 	private String TPcomment = "";
@@ -126,6 +131,24 @@ public class Measurement implements Serializable {
 		this.comment = comment;
 	}
 
+	public String getLocalComment() {
+		return localComment;
+	}
+
+	public void setLocalComment(String localComment) {
+		this.localComment = localComment;
+	}
+
+	
+	public String getNDELocalComment() {
+		return NDELocalComment;
+	}
+	
+	
+	public void setNDELocalComment(String c) {
+		this.NDELocalComment=c;
+	}
+	
 	public String getNDEmms() {
 		return NDEmms;
 	}
@@ -150,6 +173,17 @@ public class Measurement implements Serializable {
 		NDEcomment = nDEcomment;
 	}
 
+	public String getDELocalComment() {
+		return DELocalComment;
+	}
+	
+	
+	public void setDELocalComment(String c) {
+		this.DELocalComment=c;
+	}
+	
+
+	
 	public String getDEmms() {
 		return DEmms;
 	}
@@ -174,6 +208,17 @@ public class Measurement implements Serializable {
 		DEcomment = dEcomment;
 	}
 
+	public String getMPLocalComment() {
+		return MPLocalComment;
+	}
+	
+	
+	public void setMPLocalComment(String c) {
+		this.MPLocalComment=c;
+	}
+	
+
+	
 	public String getMPmms() {
 		return MPmms;
 	}
@@ -198,6 +243,17 @@ public class Measurement implements Serializable {
 		MPcomment = mPcomment;
 	}
 
+	public String getTPLocalComment() {
+		return TPLocalComment;
+	}
+	
+	
+	public void setTPLocalComment(String c) {
+		this.TPLocalComment=c;
+	}
+	
+
+	
 	public String getTPmms() {
 		return TPmms;
 	}

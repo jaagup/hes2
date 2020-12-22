@@ -24,7 +24,7 @@ public class MaintenanceItem implements Serializable{
 	private Date completionDate;
 	private String type;
 	private String devKey;
-	private Integer interval;
+	private Integer interval=0;
 	private Double cost=0.0;
 	private Double downtime=0.0;
 	private Double timeSpent=0.0;

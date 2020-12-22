@@ -186,8 +186,8 @@ public class Hooldus implements EntryPoint {
 			public void onSuccess(List<MaintenanceItem> items) {
 			
 				maintenance2=items;
-				Debug.log("uued saabusid");
-				Debug.log(maintenance2.toString());
+			//	Debug.log("uued saabusid");
+				//Debug.log(maintenance2.toString());
 				deviceTreeService.getCompanyMeasurements(sessionStore.getItem("Account"), getCompanyMeasurementsCallback);
 
 			}

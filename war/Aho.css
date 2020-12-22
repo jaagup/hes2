@@ -93,7 +93,25 @@ h1 {
 }
 
 .datePickerDay{
-	font-size: 200%;
+	font-size: 250%;
+}
+
+.datePickerDayIsValue{
+	border: solid;
+	border-color: 0x000000;
+	border-width: 1px;
+}
+
+.datePickerMonth{
+	font-size: 200%;	
+}
+
+.praegu{
+	background-color: lightgreen;
+}
+
+.html-face{
+	font-size: 600% !important;
 }
 
 .gwt-TextArea{
@@ -1133,6 +1151,14 @@ h1 {
 .gwt-Tree {
 	zoom: 2.3 !important;
 }
+
+.kastiga {
+	border: solid;
+	border-radius: 1px;
+	border-width: 1px;
+	border-color: #000000;
+}
+
 }
 
 @media print {
@@ -1149,7 +1175,6 @@ body {
 .dateBoxBig{
 	font-size: 50px;
 }
-
 @page {
 }
 

@@ -52,7 +52,7 @@ public interface DeviceTreeServiceAsync {
 	void storeRaport(Raport raport, AsyncCallback<String> callback) throws IllegalArgumentException;
 	void getRaports(String unitKey, AsyncCallback<List<Raport>> callback) throws IllegalArgumentException;
 	void getRaport(String raportKeyString, AsyncCallback<Raport> callback) throws IllegalArgumentException;
-	void getListRaports(AsyncCallback<List<Raport>> callback) throws IllegalArgumentException;
+	//void getListRaports(AsyncCallback<List<Raport>> callback) throws IllegalArgumentException;
 	void getRaportData(Raport raport, AsyncCallback<List<Measurement>> callback) throws IllegalArgumentException;
 	
 	void storeWorker(Worker w, AsyncCallback<String> callback) throws IllegalArgumentException;
@@ -79,4 +79,6 @@ public interface DeviceTreeServiceAsync {
     
     void getImageNames(String companyKey, AsyncCallback<List<String>> callback);
     void hideImageName(String imageURL, AsyncCallback<String> callback);
+    
+	void sendMail(String to, String subject, String message, String replyto, AsyncCallback<String> callback);
 }

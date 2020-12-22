@@ -178,7 +178,12 @@ public class MeasurementServlet extends HttpServlet {
         g.drawString("ge",250 , 20);
         int xmms=0, ymms=0, vanaxmms=0, vanaymms=0;
         int xde=0, yde=0, vanaxde=0, vanayde=0;
-        for(int i=0; i<valuesmms.size(); i++) {
+        System.out.println(valuesmms.size()+" "+valuesmms);
+        while(valuesmms.size()>18) {
+        	valuesmms.remove(0);
+        	pairs.remove(0);
+        }
+        for(int i=0; i<pairs.size(); i++) {
 //        	x=i*20+30; y=(int)(values.get(i)*koef);
         	xmms=i*20+30; ymms=alus-(int)(pairs.get(i).getRight().getLeft()*koef);
         	xde=i*20+30; yde=alus-(int)(pairs.get(i).getRight().getRight()*koef);
@@ -199,7 +204,7 @@ public class MeasurementServlet extends HttpServlet {
         }
         g.setColor(Color.black);
         AffineTransform orig = g.getTransform();
-        for(int i=0; i<valuesmms.size(); i++) {
+        for(int i=0; i<pairs.size(); i++) {
         	g.rotate(-Math.PI/2, i*20+30, 290);
         	g.drawString(pairs.get(i).getLeft().split("\\;")[0], i*20+30, 290);
             g.setTransform(orig);

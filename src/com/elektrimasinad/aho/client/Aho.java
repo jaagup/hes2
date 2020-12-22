@@ -76,15 +76,20 @@ public class Aho implements EntryPoint {
 
 	private String markingText;
 	private ExtendedTextArea commentTextArea;
+//	private ExtendedTextArea localCommentTextArea;
+	private TextBox localCommentNDE;
 	private TextBox mmsNDE;
 	private TextBox geNDE;
 	private TextBox commentNDE;
+	private TextBox localCommentDE;
 	private TextBox mmsDE;
 	private TextBox geDE;
 	private TextBox commentDE;
+	private TextBox localCommentMP;
 	private TextBox mmsMP;
 	private TextBox geMP;
 	private TextBox commentMP;
+	private TextBox localCommentTP;
 	private TextBox mmsTP;
 	private TextBox geTP;
 	private TextBox commentTP;
@@ -514,10 +519,12 @@ public class Aho implements EntryPoint {
 		backSavePanel.setCellHorizontalAlignment(lSaveMeasurement, HasHorizontalAlignment.ALIGN_RIGHT);
 		
 		VerticalPanel commentPanel = createCommentTextArea("Kokkuv\u00F5te");
+		//VerticalPanel localCommentPanel = createLocalCommentTextArea("Kohalik kommentaar");
+		localCommentNDE=new TextBox();
 		mmsNDE = new TextBox();
 		geNDE = new TextBox();
 		commentNDE = new TextBox();
-		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", mmsNDE, geNDE, commentNDE);
+		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", localCommentNDE, mmsNDE, geNDE, commentNDE);
 		final Image ndeImg=new Image();
 		ndeImg.setUrl("/res/tyhi_t.png");
 		ndePanel.add(ndeImg);
@@ -534,10 +541,11 @@ public class Aho implements EntryPoint {
 			
 		});
 
+		localCommentDE=new TextBox();
 		mmsDE = new TextBox();
 		geDE = new TextBox();
 		commentDE = new TextBox();
-		VerticalPanel dePanel = createMeasurementPanelUnit("DE", mmsDE, geDE, commentDE);
+		VerticalPanel dePanel = createMeasurementPanelUnit("DE", localCommentDE, mmsDE, geDE, commentDE);
 		final Image deImg=new Image();
 		deImg.setUrl("/res/tyhi_t.png");
 		dePanel.add(deImg);
@@ -555,10 +563,11 @@ public class Aho implements EntryPoint {
 		});
 
 		
+		localCommentMP=new TextBox();
 		mmsMP = new TextBox();
 		geMP = new TextBox();
 		commentMP = new TextBox();
-		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", mmsMP, geMP, commentMP);
+		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", localCommentMP, mmsMP, geMP, commentMP);
 		final Image mpImg=new Image();
 		mpImg.setUrl("/res/tyhi_t.png");
 		mpPanel.add(mpImg);
@@ -576,10 +585,11 @@ public class Aho implements EntryPoint {
 		});
 
 		
+		localCommentTP=new TextBox();
 		mmsTP = new TextBox();
 		geTP = new TextBox();
 		commentTP = new TextBox();
-		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", mmsTP, geTP, commentTP);
+		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", localCommentTP, mmsTP, geTP, commentTP);
 		final Image tpImg=new Image();
 		tpImg.setUrl("/res/tyhi_t.png");
 		tpPanel.add(tpImg);
@@ -609,6 +619,7 @@ public class Aho implements EntryPoint {
 		measurementPanel.add(markingPanel);
 		measurementPanel.add(commentPanel);
 		markingScrollPanel.add(measurementInputPanel);
+		//measurementPanel.add(localCommentPanel);
 		measurementPanel.add(markingScrollPanel);
 		measurementPanel.setCellHeight(markingScrollPanel, "100%");
 		measurementPanel.add(emptyPanel);
@@ -646,15 +657,20 @@ public class Aho implements EntryPoint {
 			imgO.setUrl("res/aho_o.png");
 		}
 		commentTextArea.setText(measurement.getComment());
+		//localCommentTextArea.setText(measurement.getLocalComment());
+		localCommentNDE.setText(measurement.getNDELocalComment());
 		mmsNDE.setText(measurement.getNDEmms());
 		geNDE.setText(measurement.getNDEge());
 		commentNDE.setText(measurement.getNDEcomment());
+		localCommentDE.setText(measurement.getDELocalComment());
 		mmsDE.setText(measurement.getDEmms());
 		geDE.setText(measurement.getDEge());
 		commentDE.setText(measurement.getDEcomment());
+		localCommentMP.setText(measurement.getMPLocalComment());
 		mmsMP.setText(measurement.getMPmms());
 		geMP.setText(measurement.getMPge());
 		commentMP.setText(measurement.getMPcomment());
+		localCommentTP.setText(measurement.getTPLocalComment());
 		mmsTP.setText(measurement.getTPmms());
 		geTP.setText(measurement.getTPge());
 		commentTP.setText(measurement.getTPcomment());
@@ -778,13 +794,72 @@ public class Aho implements EntryPoint {
 	    return aPanel;
 	}
 	
+
+	private VerticalPanel designCTextArea(VerticalPanel aPanel, ExtendedTextArea cArea, String labelText) {
+		aPanel.setStyleName("aho-panel1 expandable");
+		
+		final Label lLabel = new Label(labelText);
+		lLabel.setStyleName("aho-label1");
+		aPanel.add(lLabel);
+		
+		//commentTextArea = new ExtendedTextArea();
+		cArea.setStyleName("aho-autoExtendingTextArea");
+		cArea.setAlignment(TextAlignment.RIGHT);
+	    aPanel.add(cArea);
+		inputFieldList.add(cArea);
+		cArea.addFocusHandler(new FocusHandler() {
+
+			@Override
+			public void onFocus(FocusEvent event) {
+				currentFocusedInputField = inputFieldList.indexOf(cArea);
+				if (isMobileView) {
+					prevNextPanel.setVisible(true);
+				}
+			}
+			
+		});
+
+	    cArea.setVisibleLines(1);
+	    cArea.addKeyUpHandler(new KeyUpHandler()
+	    {
+	        @Override
+	        public void onKeyUp(KeyUpEvent event)
+	        {
+	           cArea.setHeight("auto");
+	           cArea.setHeight(cArea.getElement().getScrollHeight() + "px");
+	           updateWidgetSizes();
+	        }
+	    });
+
+	    cArea.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+	        @Override
+	        public void onValueChange(ValueChangeEvent<String> event) {
+	        	cArea.setHeight("auto");
+	        	cArea.setHeight(cArea.getElement().getScrollHeight() + "px");
+	        	updateWidgetSizes();
+	        }
+	    });
+	    
+		
+		return aPanel;
+	}
+	/*
+	private VerticalPanel createLocalCommentTextArea(String labelText) {
+		final VerticalPanel aPanel = new VerticalPanel();
+		localCommentTextArea = new ExtendedTextArea();
+		designCTextArea(aPanel, localCommentTextArea, labelText);
+	    return aPanel;
+	}*/
+	
+	
 	/**
 	 * Create measurement panel unit.
 	 * Example: DE panel with 2 input fields for taken measurements and 1 comment field.
 	 * @param name - panel name (DE, NDE etc.)
 	 * @return VerticalPanel with input fields.
 	 */
-	private VerticalPanel createMeasurementPanelUnit(String name, TextBox mms, TextBox ge, TextBox comment) {
+	private VerticalPanel createMeasurementPanelUnit(String name, TextBox lComment, TextBox mms, TextBox ge, TextBox comment) {
 		final VerticalPanel vPanel = new VerticalPanel();
 		vPanel.setStyleName("aho-panel1");
 		
@@ -792,13 +867,16 @@ public class Aho implements EntryPoint {
 		// imgNameSaved.setSize("17px", "12px");
 		// namePanel.add(imgNameSaved, 460, 20);
 		
+		final HorizontalPanel localCommentPanel = createTextInputPanel("M\u00F5\u00F5tepunkti kommentaar", lComment, false);
+		localCommentPanel.setStyleName("");
 		final HorizontalPanel valuePanelMMS = createTextInputPanel(name + " (mm/s)", mms, true);
 		valuePanelMMS.setStyleName("");
 		final HorizontalPanel valuePanelGE = createTextInputPanel(name + " (gE)", ge, true);
 		valuePanelGE.setStyleName("");
-		HorizontalPanel commentPanel = createTextInputPanel(name + " Kommentaar", comment, false);
+		HorizontalPanel commentPanel = createTextInputPanel("Kommentaar graafikule", comment, false);
 		commentPanel.setStyleName("");
 		
+		vPanel.add(localCommentPanel);
 		vPanel.add(valuePanelMMS);
 		vPanel.add(valuePanelGE);
 		vPanel.add(commentPanel);
@@ -858,15 +936,20 @@ public class Aho implements EntryPoint {
 		measurement.setDate(dtf.format(date, TimeZone.createTimeZone(0)));
 		measurement.setMarking(markingText);
 		measurement.setComment(commentTextArea.getText());
+	//	measurement.setLocalComment(localCommentTextArea.getText());
+		measurement.setNDELocalComment(localCommentNDE.getText());
 		measurement.setNDEmms(mmsNDE.getText());
 		measurement.setNDEge(geNDE.getText());
 		measurement.setNDEcomment(commentNDE.getText());
+		measurement.setDELocalComment(localCommentDE.getText());
 		measurement.setDEmms(mmsDE.getText());
 		measurement.setDEge(geDE.getText());
 		measurement.setDEcomment(commentDE.getText());
+		measurement.setMPLocalComment(localCommentMP.getText());
 		measurement.setMPmms(mmsMP.getText());
 		measurement.setMPge(geMP.getText());
 		measurement.setMPcomment(commentMP.getText());
+		measurement.setTPLocalComment(localCommentTP.getText());
 		measurement.setTPmms(mmsTP.getText());
 		measurement.setTPge(geTP.getText());
 		measurement.setTPcomment(commentTP.getText());

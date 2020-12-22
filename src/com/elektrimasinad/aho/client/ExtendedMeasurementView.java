@@ -36,15 +36,19 @@ public class ExtendedMeasurementView extends VerticalPanel {
 	private String markingText;
 	private TextBox dateInput;
 	private ExtendedTextArea commentTextArea;
+	private TextBox localCommentNDE;
 	private TextBox mmsNDE;
 	private TextBox geNDE;
 	private TextBox commentNDE;
+	private TextBox localCommentDE;
 	private TextBox mmsDE;
 	private TextBox geDE;
 	private TextBox commentDE;
+	private TextBox localCommentMP;
 	private TextBox mmsMP;
 	private TextBox geMP;
 	private TextBox commentMP;
+	private TextBox localCommentTP;
 	private TextBox mmsTP;
 	private TextBox geTP;
 	private TextBox commentTP;
@@ -93,15 +97,19 @@ public class ExtendedMeasurementView extends VerticalPanel {
 			imgO.setUrl("res/aho_o.png");
 		}
 		commentTextArea.setText(measurement.getComment());
+		localCommentNDE.setText(measurement.getNDELocalComment());
 		mmsNDE.setText(measurement.getNDEmms());
 		geNDE.setText(measurement.getNDEge());
 		commentNDE.setText(measurement.getNDEcomment());
+		localCommentDE.setText(measurement.getDELocalComment());
 		mmsDE.setText(measurement.getDEmms());
 		geDE.setText(measurement.getDEge());
 		commentDE.setText(measurement.getDEcomment());
+		localCommentMP.setText(measurement.getMPLocalComment());
 		mmsMP.setText(measurement.getMPmms());
 		geMP.setText(measurement.getMPge());
 		commentMP.setText(measurement.getMPcomment());
+		localCommentTP.setText(measurement.getTPLocalComment());
 		mmsTP.setText(measurement.getTPmms());
 		geTP.setText(measurement.getTPge());
 		commentTP.setText(measurement.getTPcomment());
@@ -216,10 +224,12 @@ public class ExtendedMeasurementView extends VerticalPanel {
 		
 		commentTextArea = new ExtendedTextArea();
 		VerticalPanel commentPanel = createExpandableTextArea("Kokkuv\u00F5te", commentTextArea);
+		localCommentNDE = new TextBox();
 		mmsNDE = new TextBox();
 		geNDE = new TextBox();
 		commentNDE = new TextBox();
-		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", mmsNDE, geNDE, commentNDE);
+		VerticalPanel ndePanel = createMeasurementPanelUnit("NDE", localCommentNDE, mmsNDE, geNDE, commentNDE);
+		localCommentDE = new TextBox();
 		mmsDE = new TextBox();
 		geDE = new TextBox();
 		final Image ndeImg=new Image();
@@ -238,7 +248,9 @@ public class ExtendedMeasurementView extends VerticalPanel {
 			
 		});
 		commentDE = new TextBox();
-		VerticalPanel dePanel = createMeasurementPanelUnit("DE", mmsDE, geDE, commentDE);
+		VerticalPanel dePanel = createMeasurementPanelUnit("DE", localCommentDE, mmsDE, geDE, commentDE);
+		localCommentMP = new TextBox();
+
 		mmsMP = new TextBox();
 		geMP = new TextBox();
 		final Image deImg=new Image();
@@ -257,7 +269,7 @@ public class ExtendedMeasurementView extends VerticalPanel {
 			
 		});
 		commentMP = new TextBox();
-		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", mmsMP, geMP, commentMP);
+		VerticalPanel mpPanel = createMeasurementPanelUnit("MP", localCommentMP, mmsMP, geMP, commentMP);
 		final Image mpImg=new Image();
 		mpImg.setUrl("/res/tyhi_t.png");
 		mpPanel.add(mpImg);
@@ -273,11 +285,12 @@ public class ExtendedMeasurementView extends VerticalPanel {
 			}
 			
 		});
+		localCommentTP = new TextBox();
 
 		mmsTP = new TextBox();
 		geTP = new TextBox();
 		commentTP = new TextBox();
-		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", mmsTP, geTP, commentTP);
+		VerticalPanel tpPanel = createMeasurementPanelUnit("TP", localCommentTP, mmsTP, geTP, commentTP);
 		final Image tpImg=new Image();
 		tpImg.setUrl("/res/tyhi_t.png");
 		tpPanel.add(tpImg);
@@ -415,7 +428,7 @@ public class ExtendedMeasurementView extends VerticalPanel {
 	 * @param name - panel name (DE, NDE etc.)
 	 * @return VerticalPanel with input fields.
 	 */
-	private VerticalPanel createMeasurementPanelUnit(String name, TextBox mms, TextBox ge, TextBox comment) {
+	private VerticalPanel createMeasurementPanelUnit(String name, TextBox localComment, TextBox mms, TextBox ge, TextBox comment) {
 		final VerticalPanel vPanel = new VerticalPanel();
 		vPanel.setStyleName("aho-panel1");
 		
@@ -423,13 +436,16 @@ public class ExtendedMeasurementView extends VerticalPanel {
 		// imgNameSaved.setSize("17px", "12px");
 		// namePanel.add(imgNameSaved, 460, 20);
 		
+		HorizontalPanel localCommentPanel = createTextInputPanel("M\u00F5\u00F5tepunkti kommentaar", localComment, false);
+		localCommentPanel.setStyleName("");
 		final HorizontalPanel valuePanelMMS = createTextInputPanel(name + " (mm/s)", mms, true);
 		valuePanelMMS.setStyleName("");
 		final HorizontalPanel valuePanelGE = createTextInputPanel(name + " (gE)", ge, true);
 		valuePanelGE.setStyleName("");
-		HorizontalPanel commentPanel = createTextInputPanel(name + " Kommentaar", comment, false);
+		HorizontalPanel commentPanel = createTextInputPanel("Kommentaar graafikule", comment, false);
 		commentPanel.setStyleName("");
 		
+		vPanel.add(localCommentPanel);
 		vPanel.add(valuePanelMMS);
 		vPanel.add(valuePanelGE);
 		vPanel.add(commentPanel);

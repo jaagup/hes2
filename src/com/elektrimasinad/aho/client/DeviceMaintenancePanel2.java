@@ -34,6 +34,11 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 
 public class DeviceMaintenancePanel2  extends VerticalPanel{
     DeviceCard deviceCard;
+    ListBox lb2Kogus=new ListBox();
+    ListBox lb2=new ListBox();
+    Button lopetusnupp = new Button("L\u00F5peta t\u00F6\u00F6!");
+	DatePicker dublicateDateBox= new DatePicker();
+	Label dublicateDateText = new Label();
 	private AsyncCallback<String> storeCallback;
 	
     public DeviceMaintenancePanel2(DeviceCard deviceCard) {
@@ -88,8 +93,10 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 //	    NamePanel.setWidth("100%");
 	    add(NamePanel);
 		
+	    VerticalPanel kategooriaPaneel=new VerticalPanel();
 	    HorizontalPanel DescriptionPanel = new HorizontalPanel();
-	    DescriptionPanel.setStyleName("aho-panel1");
+//	    DescriptionPanel.setStyleName("aho-panel1");
+	    kategooriaPaneel.setStyleName("aho-panel1");
 	    Label tb11 = new Label("T\u00F6\u00F6 kategooria");
 	    ListBox lb1=new ListBox();
 	    lb1.addItem("Planeeritud/korraline hooldust\u00F6\u00F6 (KH)");
@@ -110,9 +117,47 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		lb1.setStyleName("aho-textbox1");
 	    tb11.setStyleName("aho-label1");
 //	    DescriptionPanel.setWidth("100%");
-	    add(DescriptionPanel);
+	    HorizontalPanel prida=new HorizontalPanel();
+	    Label tbl2=new Label("Perioodilisus");
+	    tbl2.setStyleName("aho-label1");
+	    lb2.setStyleName("aho-textbox1");
+	    lb2.addItem("Puudub");
+	    lb2.addItem("Paev");
+	    lb2.addItem("Nadal");
+	    lb2.addItem("Kuu");
+	    lb2.addItem("Aasta");
+	    lb2.setStyleName("aho-textbox1");
+	    lb2Kogus.setStyleName("aho-textbox1");
+
+	    lb2.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				numbersToBox();
+			}	    	
+	    });
+	    lb2Kogus.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				calculateNewDate();
+			}	    	
+	    });
+	    prida.add(tbl2);
+	    prida.add(lb2);
+	    prida.add(lb2Kogus);
+        
+	    kategooriaPaneel.add(DescriptionPanel);
+	    kategooriaPaneel.add(prida);
+	    //add(DescriptionPanel);
+	    add(kategooriaPaneel);
+	    
+	    int interval=deviceCard.selectedMaintenanceItem.getMaintenanceInterval();
+	    lb2.setSelectedIndex(interval / 100);
+	    numbersToBox();
+	    lb2Kogus.setSelectedIndex((interval % 100)-1);
 //	    ProblemPanel.setCellHorizontalAlignment(tb1, HasHorizontalAlignment.ALIGN_RIGHT);
-		
+		calculateNewDate();
 	    HorizontalPanel ProbDescPanel = new HorizontalPanel();
 	    ProbDescPanel.setStyleName("aho-panel1 expandable");
 //	    ProbDescPanel.setWidth("100%");
@@ -167,7 +212,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    add(ProbDescPanel);
 	    
 		HorizontalPanel ReadyBy = new HorizontalPanel();
-		Label Time = new Label("T\u00F6\u00F6 valmib: ");
+		Label Time = new Label("Teostamise kuup\u00E4ev: ");
 	    ReadyBy.setStyleName("aho-panel1");
 //		DateBox dateBox = new DateBox();
 		DatePicker dateBox= new DatePicker();
@@ -189,9 +234,10 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	        dateBox.setValue(new Date());
 		} else {
 			dateBox.setCurrentMonth(ndate);
-			dateBox.setValue(ndate);
-            dateBox.setVisible(true);			
+			dateBox.setValue(ndate, true);
+            dateBox.setVisible(true);
 		}
+        dateBox.addStyleToDates("praegu", new Date());
         dateText.setText(dateString(dateBox.getValue()));
         
 	    ReadyBy.setStyleName("aho-panel1");
@@ -395,14 +441,21 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    			return;
 	    		}
 	    		MaintenanceItem m=deviceCard.selectedMaintenanceItem;
+	    		m.setDepartmentName(deviceCard.selectedDepartment.getDepartmentName());
+	    		m.setUnitName(deviceCard.selectedUnit.getUnit());
+	    		m.setDeviceName(deviceCard.selectedDevice.getDeviceName());
+	    		m.setDeviceID(deviceCard.selectedDevice.getId());
 	    		 m.setMaintenanceDevice(deviceCard.selectedDevice.getDeviceKey().toString());
 	    		  m.setMaintenanceName(tb0.getValue());
 //	    		  m.setMaintenanceDescription(tb1.getValue());
 	    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
+	    		  m.setMaintenanceInterval(lb2.getSelectedIndex()*100+Integer.parseInt(lb2Kogus.getSelectedValue()));
+	    		  
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  
-	    		  m.setMaintenanceAssignedTo(personTb.getValue());
+	    		  m.setMaintenanceAssignedTo(personTb.getValue()); 
+	    		  m.setMaintenanceAssignedToName(personTb.getTitle());
 	    		  List<String> supervisorMails=new ArrayList<String>();
 	    		  for(int i=0; i<supervisorLb.getItemCount(); i++) {
 	    			  if(supervisorLb.isItemSelected(i)) {
@@ -421,6 +474,29 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 			    	  deviceCard.deviceTreeService.updateMaintenanceEntry(m, storeCallback);
 
 	    		  }
+	    		  deviceCard.deviceTreeService.sendMail(m.getMaintenanceAssignedTo(), "Hooldus", 
+	    				   "Nimetus: "+m.getMaintenanceName()+ 
+	    				   "\nAeg: "+dateString(m.getMaintenanceCompleteDate())+
+	    				   "\nEttev\u00F5te: "+deviceCard.selectedCompany.getCompanyName()+
+	    				   "\nOsakond: "+m.getDepartmentName()+
+	    				   "\n\u00DCksus: "+m.getUnitName()+
+	    				   "\nSeade: "+m.getDeviceName()+
+	    				   "\nSeadme kood: "+m.getDeviceID()+ 
+	    			//	   "\nKirjeldus: "+m.getMaintenanceDescription()+
+	    				   
+	    				   "\nProbleemi kirjeldus: "+m.getMaintenanceProblemDescription()+
+	    				   "\nTeostaja: "+m.getMaintenanceAssignedToName()+
+	    				   "\nTeadlik: "+m.getMaintenanceAssignedSupervisor()
+	    				   
+	    				   , m.getMaintenanceAssignedSupervisor(), new AsyncCallback<String>() {
+	    			        public void onSuccess(String s) {
+	    			        	//Window.alert(s);	    			        
+	    			        }
+	    			        public void onFailure(Throwable ex) {
+	    			        	Window.alert(ex.getMessage());
+	    			        }
+	    			  
+	    		  });
 	    	}
 	    });
 	    if(deviceCard.selectedMaintenanceItem.getMaintenanceID()!=null) {
@@ -431,10 +507,8 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 
 	    HorizontalPanel dublicatePanel=new HorizontalPanel();
 	    dublicatePanel.setStyleName("aho-panel1");
-		final DatePicker dublicateDateBox= new DatePicker();
-		final Label dublicateDateText = new Label();
 
-	    
+	    /*
 	    Button dublicateButton=new Button("Loo duplikaat", new ClickHandler() {
 	    	@Override
 	    	public void onClick(ClickEvent event) {
@@ -462,7 +536,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		dublicateButton.setStyleName("panelButton");
 
 	    dublicatePanel.add(dublicateButton);
-	    
+	    */
 	    
 //		ReadyBy.add(Time);
 		dublicatePanel.add(dublicateDateText);
@@ -537,7 +611,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 		costPanel.add(costTb);
 		add(costPanel);
 		
-		Button w = new Button("L\u00F5peta t\u00F6\u00F6!", new ClickHandler() {
+		lopetusnupp.addClickHandler(new ClickHandler() {
 		      public void onClick(ClickEvent event) {
 		    		if(tb0.getText().trim().length()==0) {
 		    			Window.alert("Nimi puudub");
@@ -576,13 +650,100 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 			    	  deviceCard.deviceTreeService.updateMaintenanceEntry(mi, storeCallback);
 
 	    		  }
+	    		  
+	    		  if(lb2.getSelectedIndex()>0) {
+	  	    	//	MaintenanceItem m=deviceCard.selectedMaintenanceItem;
+	    			  MaintenanceItem m=new MaintenanceItem();
+			    		m.setDepartmentName(deviceCard.selectedDepartment.getDepartmentName());
+			    		m.setUnitName(deviceCard.selectedUnit.getUnit());
+			    		m.setDeviceName(deviceCard.selectedDevice.getDeviceName());
+			    		m.setDeviceID(deviceCard.selectedDevice.getId());
+		    		 m.setMaintenanceDevice(deviceCard.selectedDevice.getDeviceKey().toString());
+		    		  m.setMaintenanceName(tb0.getValue());
+		    		  if(!m.getMaintenanceName().endsWith("-auto")) {
+		    			  m.setMaintenanceName(m.getMaintenanceName()+"-auto");
+		    		  }
+		    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
+		    		  m.setMaintenanceInterval(lb2.getSelectedIndex()*100+Integer.parseInt(lb2Kogus.getSelectedValue()));
+		    		  m.setMaintenanceProblemDescription(tb2.getValue());
+		    		  //m.setMaintenanceState(state);
+		    		  m.setMaintenanceAssignedTo(personTb.getValue());
+		    		  m.setMaintenanceAssignedSupervisor(String.join(",", supervisorMails));
+		    		  m.setMaintenanceCompleteDate(dublicateDateBox.getValue());
+		    		  m.setMaintenanceMaterials(materialTb.getText());
+		    		  m.setMaintenanceNotes(notesTb.getValue());
+				      deviceCard.deviceTreeService.storeMaintenanceEntry(m, deviceCard.selectedCompany.getCompanyKey(), storeCallback);	    			  
+
+				      
+				      
+	    		  }
 		    	  } catch(Exception ex) {
 		    		  Window.alert("Lopetamisprobleem: "+ex);
 		    	  }
 //		    	  Window.alert("T\u00F6\u00F6 on l\u00F5petatud!");
 		      }
 		});
-		add(w);
-		w.setStyleName("panelButton");
+		add(lopetusnupp);
+		lopetusnupp.setStyleName("panelButton");
+		calculateNewDate();
+    }
+    void numbersToBox() {
+		lb2Kogus.clear();
+		if(lb2.getSelectedIndex()==1) {
+			for(int i=1; i<=6; i++) {
+				lb2Kogus.addItem(i+"");
+			}
+		}
+		if(lb2.getSelectedIndex()==2) {
+			for(int i=1; i<=4; i++) {
+				lb2Kogus.addItem(i+"");
+			}
+		}
+		if(lb2.getSelectedIndex()==3) {
+			for(int i=1; i<=12; i++) {
+				lb2Kogus.addItem(i+"");
+			}
+		}
+		if(lb2.getSelectedIndex()==4) {
+			for(int i=1; i<=10; i++) {
+				lb2Kogus.addItem(i+"");
+			}
+		}
+		
+    	if(lb2.getSelectedIndex()==0) {
+    		lopetusnupp.setText("L\u00F5peta t\u00F6\u00F6!");
+    	} else {
+    		lopetusnupp.setText("L\u00F5peta t\u00F6\u00F6 ja j\u00E4tka perioodilisust");
+    	}
+    	calculateNewDate();
+    }
+    void calculateNewDate() {
+    	long praegu=new Date().getTime();
+    	long uus=-1;
+    	if(lb2.getSelectedIndex()==1) {
+    		uus=praegu+(lb2Kogus.getSelectedIndex()+1)*24*3600*1000;
+    	}
+    	if(lb2.getSelectedIndex()==2) {
+    		uus=praegu+(lb2Kogus.getSelectedIndex()+1)*7*24*3600*1000;
+    	}
+    	if(lb2.getSelectedIndex()==3) {
+    		//uus=praegu+(lb2Kogus.getSelectedIndex()+1)*7*24*3600*1000;
+    		int kuu=new Date().getMonth();
+    		int aasta=new Date().getYear();
+    		kuu+=lb2Kogus.getSelectedIndex()+1;
+    		if(kuu>11) {
+    			kuu-=12;
+    			aasta+=1;
+    		}
+    		uus=new Date(aasta, kuu, new Date().getDate()).getTime();
+    	}
+    	if(lb2.getSelectedIndex()==4) {
+    		int aasta=new Date().getYear();
+    		uus=new Date(aasta+lb2Kogus.getSelectedIndex()+1, new Date().getMonth(), new Date().getDate()).getTime();
+    	}
+    	DebugClientSide.log(new Date(uus)+"");
+        dublicateDateBox.setValue(new Date(uus));
+        dublicateDateBox.setCurrentMonth(new Date(uus));
+        dublicateDateText.setText(dateString(dublicateDateBox.getValue()));
     }
 }

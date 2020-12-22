@@ -37,6 +37,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+
 public class DeviceCardPanel extends VerticalPanel {
 	private Device device;
 	private Department department;
@@ -51,6 +52,7 @@ public class DeviceCardPanel extends VerticalPanel {
 	
 	private int IMAGES_PER_ROW = 5;
 	private List<Image> images = new ArrayList<Image>();
+	private List<Image> uploadedFiles = new ArrayList<Image>();
 	private Widget pDeviceInput;
 	private Widget pDeviceFreeCommentInput;
 	private Widget pDeviceCommentInput;
@@ -103,12 +105,37 @@ public class DeviceCardPanel extends VerticalPanel {
   		hideButton.addClickHandler(new ClickHandler() {
   			@Override
   			public void onClick(ClickEvent e) {
+
   				deviceTreeService.hideImageName(bigImage.getUrl().substring(bigImage.getUrl().lastIndexOf("/")+1), hideImageCallback);
   			}
   		});
   		hideButton.setStyleName("loginBtn");
 
 	}
+	
+	private String asendused2(String sisend) {
+		//String muudetavad=" õäöüÕÄÖÜ";
+		sisend=sisend.replace("%C3%B5", "\u00D5");
+		sisend=sisend.replace("%C3%A4", "\u00C4");
+		sisend=sisend.replace("%C3%B6", "\u00D6");
+		sisend=sisend.replace("%C3%BC", "\u00DC");
+
+		sisend=sisend.replace("%C3%95", "\u00F5");
+		sisend=sisend.replace("%C3%84", "\u00E4");
+		sisend=sisend.replace("%C3%96", "\u00F6");
+		sisend=sisend.replace("%C3%9C", "\u00FC");
+		sisend=sisend.replace("%20", " ");
+		return sisend;
+	}
+	
+	
+	private String muuda(String milles, String mida, String millega) {
+		while(milles.indexOf(mida)>=0) {
+			milles=milles.substring(0, milles.indexOf(mida))+millega+milles.substring(milles.indexOf(mida)+mida.length());
+		}
+		return milles;
+	}
+	
 	public void createDeviceView(Company company, Department department, Unit location, Device device) {
 		//loadDeviceData(companyName, locationName, deviceName);
 		this.device = device;
@@ -119,12 +146,24 @@ public class DeviceCardPanel extends VerticalPanel {
 			@Override
 			public void onSuccess(List<String> items) {
 				images.clear();
-				//Debug.log("Pildinimed: "+items.toString());
+				uploadedFiles.clear();
+			//	Debug.log("Pildinimed: "+items.toString());
 				for(String rida: items) {
 					    String[] m=rida.split("/");
 					    Image im=new Image("/fileUpload/"+company.getCompanyKey().substring(company.getCompanyKey().length()-10)+"/"+m[0]);
-					    //im.setTitle(new String(Base64.getDecoder().decode(m[1])));
-						images.add(im);
+//					    im.setTitle(new String(Base64.getDecoder().decode(m[1])));
+					  //  im.setTitle(m[1].replace("%20", " "));
+					    if(m[1]!=null) {
+						    im.setTitle(asendused2(m[1]));
+					    	
+					    }
+//					    im.setTitle(muuda(m[1],"%20", " "));
+					    if(im.getUrl().endsWith(".jpg")) {
+						  images.add(im);
+					    } else {
+					      uploadedFiles.add(im);
+					    //  Debug.log("lisati "+im.getUrl());
+					    }
 
 				}
 				if(images.size()>0) {
@@ -329,6 +368,10 @@ public class DeviceCardPanel extends VerticalPanel {
 		Label lNotes = AhoWidgets.createLabel("Muud m\u00E4rkused", "aho-label3", null);
 		Label lDE = AhoWidgets.createLabel("Vedav ots (DE)", "aho-label3", null);
 		Label lNDE = AhoWidgets.createLabel("Tiivikupoolne ots (NDE)", "aho-label3", null);
+
+		HorizontalPanel chp=new HorizontalPanel();
+		chp.add(lFreecomment);
+
 		if (isCoupledDevice) {
 			device.hasCoupledDevice = true;
 			lDevice.setText("Seotud seade");
@@ -337,7 +380,7 @@ public class DeviceCardPanel extends VerticalPanel {
 			lDevicePower.setText("");
 			if (isEditView) {
 				cDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceName());
-				cDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getFreeComment3());
+				cDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 large", device.getFreeComment3());
 				cDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceComment());
 				cDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getCoupledDeviceType());
 				cDeviceManufacturerInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getCoupledDeviceManufacturer());
@@ -377,10 +420,11 @@ public class DeviceCardPanel extends VerticalPanel {
 			grid.setWidget(4, 2, cSimmer2);
 			grid.setWidget(4, 3, cTihend2);
 			grid.setWidget(4, 4, cNotes2);
+			chp.add(cDeviceFreeCommentInput);
 		} else {
 			if (isEditView) {
 				pDeviceInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceNickname());
-				pDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getFreeComment2());
+				pDeviceFreeCommentInput = AhoWidgets.createTextbox("aho-textbox1 large", device.getFreeComment2());
 				pDeviceCommentInput = AhoWidgets.createTextbox("aho-textbox1 medium", device.getDeviceComment());
 				pDevicePowerInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDevicekWrpm());
 				pDeviceTypeInput = AhoWidgets.createTextbox("aho-textbox1 small", device.getDeviceType());
@@ -395,7 +439,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				pNotes2 = AhoWidgets.createTextbox("aho-textbox1 medium", device.getNDEnotes());
 			} else {
 				pDeviceInput = AhoWidgets.createLabel(device.getDeviceNickname(), "aho-label3 blue", null);
-				pDeviceFreeCommentInput = AhoWidgets.createLabel(device.getFreeComment2(), "aho-label3 blue", null);
+				pDeviceFreeCommentInput = AhoWidgets.createLabel(device.getFreeComment2(), "aho-label3 blue ", null);
 				pDeviceCommentInput = AhoWidgets.createLabel(device.getDeviceComment(), "aho-label3 blue", null);
 				pDevicePowerInput = AhoWidgets.createLabel(device.getDevicekWrpm(), "aho-label3 blue", null);
 				pDeviceTypeInput = AhoWidgets.createLabel(device.getDeviceType(), "aho-label3  blue", null);
@@ -410,7 +454,7 @@ public class DeviceCardPanel extends VerticalPanel {
 				pNotes2 = AhoWidgets.createLabel(device.getNDEnotes(), "aho-label3  blue", null);
 			}
 			grid.setWidget(1, 0, pDeviceInput);
-			grid.setWidget(1, 1, pDeviceFreeCommentInput);
+//			grid.setWidget(1, 1, pDeviceFreeCommentInput);
 			grid.setWidget(1, 2, pDevicePowerInput);
 			grid.setWidget(1, 3, pDeviceTypeInput);
 			grid.setWidget(1, 4, pDeviceManufacturerInput);
@@ -423,10 +467,11 @@ public class DeviceCardPanel extends VerticalPanel {
 			grid.setWidget(4, 2, pSimmer2);
 			grid.setWidget(4, 3, pTihend2);
 			grid.setWidget(4, 4, pNotes2);
+			chp.add(pDeviceFreeCommentInput);
 		}
 		
 		grid.setWidget(0, 0, lDevice);
-		grid.setWidget(0, 1, lFreecomment);
+//		grid.setWidget(0, 1, lFreecomment);
 		grid.setWidget(0, 2, lDevicePower);
 		grid.setWidget(0, 3, lType);
 		grid.setWidget(0, 4, lManufacturer);
@@ -439,7 +484,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		createPhotosPanel();
 
 		insert(grid, getWidgetIndex(photosPanel));
-		
+		insert(chp, getWidgetIndex(photosPanel));
 		return grid;
 	}
 	
@@ -469,19 +514,20 @@ public class DeviceCardPanel extends VerticalPanel {
                                 bigImage.setUrl(image.getUrl());	
                                 bigImage.setStyleName("bigImage");
                                 bigImage.setTitle(image.getTitle());
+                               // Window.alert(image.getTitle());
 							}
 							
 						});
-						Debug.log(i+" "+j+" "+image.getUrl());
+						//Debug.log(i+" "+j+" "+image.getUrl());
 						photosGrid.setWidget(i, j, image);
-						Debug.log("pilt paigas");
+						//Debug.log("pilt paigas");
 					}
 				}
 			}
 			bigImage.setUrl("");
 			photosPanel.add(photosGrid);
 		} else {
-			Label placeholder = new Label("Pildid puuduvad!");
+			Label placeholder = new Label("Pildid puuduvad");
 			placeholder.setStyleName("aho-label1");
 			photosPanel.add(placeholder);
 			
@@ -506,9 +552,14 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	uploadSubmitButton.addClickHandler(new ClickHandler(){
 				@Override
 				public void onClick(ClickEvent event) {
+					String fname=upload.getFilename().replace("\\", "/");
+					if(fname.split("/").length>1) {
+						fname=fname.split("/")[fname.split("/").length-1];
+					}
+					//Window.alert(fname);
 					uploadForm.setAction("fileUpload/" + company.getCompanyKey().substring(company.getCompanyKey().length()-10)+
 					//		"/"+ device.getDeviceKey()+"/"+java.net.URLEncoder.encode(tb.getText()));
-					"/"+ device.getDeviceKey()+"/"+tb.getText().replace(" ", "%20"));
+					"/"+ device.getDeviceKey()+"/"+tb.getText().replace(" ", "%20")+"/"+fname);
 									uploadForm.submit();
 				}
 		  	});
@@ -528,6 +579,7 @@ public class DeviceCardPanel extends VerticalPanel {
 		  	});
 		  	panel.add(fileUrl);
 		    photosPanel.add(uploadForm);
+
 		}
 		
 		Grid g2=new Grid(1, 1);
@@ -538,6 +590,44 @@ public class DeviceCardPanel extends VerticalPanel {
 	  		photosPanel.add(hideButton);
 	  		hideButton.setVisible(false);
 	  	}
+	    if(!uploadedFiles.isEmpty()) {
+			VerticalPanel fileListPanel=new VerticalPanel();
+			Label fTitleLabel=new Label("Failid:");
+			fTitleLabel.setStyleName("aho-label1");
+			fileListPanel.add(fTitleLabel);
+			for(int i=0; i<uploadedFiles.size(); i++) {
+				HorizontalPanel hp=new HorizontalPanel();
+				final Label flabel=new Label("f: "+uploadedFiles.get(i).getTitle());
+				flabel.setStyleName("aho-label1");
+				final int nr=i;
+				flabel.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent e) {
+						Window.open(uploadedFiles.get(nr).getUrl(), "_blank", "");
+					}
+				});
+				hp.add(flabel);
+				if(editable) {
+					Label eLabel=new Label("eemalda");
+					hp.add(eLabel);
+			  		eLabel.addClickHandler(new ClickHandler() {
+			  			@Override
+			  			public void onClick(ClickEvent e) {
+                            if(Window.confirm("Kas eemaldada?")) {
+			  				deviceTreeService.hideImageName(uploadedFiles.get(nr).getUrl().substring(uploadedFiles.get(nr).getUrl().lastIndexOf("/")+1), hideImageCallback);
+                            }
+			  			}
+			  		});
+
+				}
+				fileListPanel.add(hp);
+			}
+			photosPanel.add(fileListPanel);
+		} else {
+			/*Label placeholder = new Label("Failid puuduvad!");
+			placeholder.setStyleName("aho-label1");
+			photosPanel.add(placeholder);*/
+			
+		}
 		
 		return photosPanel;
 	}
