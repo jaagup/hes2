@@ -449,8 +449,11 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 	    		  m.setMaintenanceName(tb0.getValue());
 //	    		  m.setMaintenanceDescription(tb1.getValue());
 	    		  m.setMaintenanceDescription(lb1.getSelectedIndex()+"");
-	    		  m.setMaintenanceInterval(lb2.getSelectedIndex()*100+Integer.parseInt(lb2Kogus.getSelectedValue()));
-	    		  
+	    		  if(lb2Kogus.getSelectedValue()==null) {
+	    			  m.setMaintenanceInterval(0);
+	    		  } else {
+	    		    m.setMaintenanceInterval(lb2.getSelectedIndex()*100+Integer.parseInt(lb2Kogus.getSelectedValue()));
+	    		  }
 	    		  m.setMaintenanceProblemDescription(tb2.getValue());
 	    		  //m.setMaintenanceState(state);
 	    		  
@@ -474,6 +477,7 @@ public class DeviceMaintenancePanel2  extends VerticalPanel{
 			    	  deviceCard.deviceTreeService.updateMaintenanceEntry(m, storeCallback);
 
 	    		  }
+
 	    		  deviceCard.deviceTreeService.sendMail(m.getMaintenanceAssignedTo(), "Hooldus", 
 	    				   "Nimetus: "+m.getMaintenanceName()+ 
 	    				   "\nAeg: "+dateString(m.getMaintenanceCompleteDate())+

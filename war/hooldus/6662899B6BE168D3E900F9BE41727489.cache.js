@@ -3,7 +3,7 @@ var __gwtModuleFunction = $wnd.hooldus;
 var $sendStats = __gwtModuleFunction.__sendStats;
 $sendStats('moduleStartup', 'moduleEvalStart');
 var $gwt_version = "2.8.1";
-var $strongName = 'B19E35E519E6CE2B5246C11EF3D5DE6C';
+var $strongName = '6662899B6BE168D3E900F9BE41727489';
 var $gwt = {};
 var $doc = $wnd.document;
 var $moduleName, $moduleBase;
@@ -2454,8 +2454,6 @@ _.equals_0 = function equals_8(other){
 var Lcom_elektrimasinad_aho_client_Hooldus$29_2_classLit = createForClass('com.elektrimasinad.aho.client', 'Hooldus/29', 221);
 function $onSuccess_3(this$static, items){
   this$static.this$01.maintenance2 = items;
-  isEnabledFlag_ && (console.log('uued saabusid') , undefined);
-  log_0(toString_8(this$static.this$01.maintenance2));
   $getCompanyMeasurements(($clinit_Hooldus() , deviceTreeService_1), $getItem(this$static.this$01.sessionStore.storage, 'Account'), this$static.this$01.getCompanyMeasurementsCallback);
 }
 
@@ -3315,6 +3313,7 @@ function $getMaintenanceShortDescription(this$static){
 
 function MaintenanceItem(){
   $clinit_MaintenanceItem();
+  this.interval = valueOf(0);
   this.cost = 0;
   this.downtime = 0;
   this.timeSpent = 0;

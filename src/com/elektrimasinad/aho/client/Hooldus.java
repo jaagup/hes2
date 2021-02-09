@@ -736,6 +736,7 @@ public class Hooldus implements EntryPoint {
 	    TextColumn<Measurement> kommentaarColumn = new TextColumn<Measurement>() {
 	      @Override
 	      public String getValue(Measurement object) {
+	    	// Debug.log(object.getComment());
 	        return object.getComment();
 	      }
 	     
