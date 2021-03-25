@@ -3,6 +3,8 @@ package com.elektrimasinad.aho.client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
@@ -11,6 +13,8 @@ import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Role;
+import com.elektrimasinad.aho.shared.StoreItem;
+import com.elektrimasinad.aho.shared.StoreMeta;
 import com.elektrimasinad.aho.shared.Unit;
 import com.elektrimasinad.aho.shared.Worker;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -81,4 +85,11 @@ public interface DeviceTreeServiceAsync {
     void hideImageName(String imageURL, AsyncCallback<String> callback);
     
 	void sendMail(String to, String subject, String message, String replyto, AsyncCallback<String> callback);
+	void getCompanyStoreMetas(String companyKeyString, AsyncCallback<Map<String, StoreMeta>> callback);
+	void getChildMetas(String key, AsyncCallback<List<StoreMeta>> callback);
+	void addChildMeta(String parentKey, String value, AsyncCallback<String> callback);
+	void deleteMeta(String key, AsyncCallback<String> callback);
+	void updateMeta(String key, String value, AsyncCallback<String> callback);
+	void getCompanyStoreItems(String companyKeyString, StoreItem queryItem, AsyncCallback<List<StoreItem>> callback);
+	void addCompanyStoreItem(StoreItem si, String companyKeyString, AsyncCallback<String> callback);
 }

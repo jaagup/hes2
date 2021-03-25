@@ -26,7 +26,6 @@ public class AhoWidgets {
 		Label lDeviceHeader = new Label(labelText);
 		lDeviceHeader.setStyleName("aho-label2");
 		headerPanel.add(lDeviceHeader);
-		
 		return headerPanel;
 	}
 	public static HorizontalPanel createDeviceContentHeader(String labelText, String deviceId, AsyncCallback<String> storeLogCallback) {

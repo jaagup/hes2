@@ -375,11 +375,11 @@ function login(){
     }
     var strongName;
     try {
-      unflattenKeylistIntoAnswers(['ie10'], '2D0844027CB05DE2EEE88D027D15A4B8');
-      unflattenKeylistIntoAnswers(['gecko1_8'], '6E74B3371B7DAC85D5E8E4F0D37ABCD8');
-      unflattenKeylistIntoAnswers(['ie9'], '71114D566863EE3002335E3839EA28F9');
-      unflattenKeylistIntoAnswers(['safari'], 'A3C864D7C8911AAEC21B0191D9AFC26D');
-      unflattenKeylistIntoAnswers(['ie8'], 'B9FDB57659D51DF2F0895CB19783FAE8');
+      unflattenKeylistIntoAnswers(['safari'], '348C5C5A2F2778116D63A3F0E5D26EAF');
+      unflattenKeylistIntoAnswers(['ie8'], '6FC6B9963D8315340256506E25AB78A3');
+      unflattenKeylistIntoAnswers(['ie9'], '703E34C3562CDE2EAC09109D9063B399');
+      unflattenKeylistIntoAnswers(['gecko1_8'], 'BE98C2060BEA3C676B51CB976B49F6CE');
+      unflattenKeylistIntoAnswers(['ie10'], 'D30BE88C0AFAB3F74BA283BFC2D43813');
       strongName = answers[computePropValue('user.agent')];
       var idx = strongName.indexOf(':');
       if (idx != -1) {

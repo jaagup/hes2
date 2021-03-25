@@ -459,7 +459,7 @@ public class Hooldus implements EntryPoint {
 				}
 			};
 			idColumn.setSortable(true);
-			table.addColumn(idColumn, "ID.nr");
+			table.addColumn(idColumn, "ID. nr");
 			
 			TextColumn<MaintenanceItem> deviceColumn = new TextColumn<MaintenanceItem>() {
 				@Override
@@ -721,7 +721,7 @@ public class Hooldus implements EntryPoint {
 	          return object.getDeviceID();
 	    	      }
 	    };
-	    table.addColumn(idColumn, "ID.nr");
+	    table.addColumn(idColumn, "ID. nr");
 	    
 	    // Add a text column to show the device name.
 	    TextColumn<Measurement> seadeColumn = new TextColumn<Measurement>() {
@@ -923,7 +923,7 @@ public class Hooldus implements EntryPoint {
 				return object.getDeviceID();
 			}
 		};
-		table.addColumn(idColumn, "ID.nr");
+		table.addColumn(idColumn, "ID. nr");
 		
 		TextColumn<MaintenanceItem> deviceColumn = new TextColumn<MaintenanceItem>() {
 			@Override

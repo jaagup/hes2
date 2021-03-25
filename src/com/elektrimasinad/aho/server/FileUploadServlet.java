@@ -111,6 +111,7 @@ public class FileUploadServlet extends HttpServlet {
     	 laiend="jpg";
     } else {return;}
     String fname=m[3].substring(m[3].length()-10)+"_"+((int)(1000000*Math.random()))+"."+laiend;
+    System.out.println(fname);
 //    outputChannel = gcsService.createOrReplace(new GcsFilename(m[2], fname), instance);
     outputChannel = gcsService.createOrReplace(new GcsFilename("hes-209307.appspot.com", fname), instance);
     String title="-";

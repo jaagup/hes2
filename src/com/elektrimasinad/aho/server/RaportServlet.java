@@ -75,6 +75,19 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 		return sb.toString();
 	}
 	
+	private String getStoreItemsCSV(String companyKey, String sep) {
+		List<StoreItem> items=getCompanyStoreItems(companyKey, null);
+		StringBuffer sb=new StringBuffer();
+		sb.append("süsteemi ID"+sep+"toote kood"+sep+"toote nimetus"+sep+"tegevuspõhine"+sep+"kategooria"+sep+"alamkategooria"+sep+
+				  "ladu"+sep+"riiul/tase"+sep+"tootja"+sep+"hankija"+sep+"laoseis"+sep+"min kogus"+sep+"hind"+sep+"osakond"+sep+"üksus"+sep+"seade\n");
+		for(StoreItem si:items) {
+			sb.append(si.getSysId()+sep+si.getProductCode()+sep+si.getProductName()+sep+si.getWorkingCode()+sep+si.getCategory()+sep+si.getSubCategory()+
+					  sep+si.getStoreName()+sep+si.getStorePlace()+sep+si.getProducer()+sep+si.getContractor()+sep+si.getAmount()+
+					  sep+si.getMinAmount()+sep+si.getPrice()+sep+si.getDepartmentName()+sep+si.getUnitName()+sep+si.getDeviceName()+"\n");
+		}
+		return sb.toString();
+	}
+	
 	private String sendDailyMessages() {
 		Entity e=new Entity("Konf");
 		Query query = new Query("Konf");
@@ -172,6 +185,18 @@ public class RaportServlet extends DeviceTreeServiceImpl {
 		  return;
 	   }
 		   resp.setContentType("text/csv");
+	   if(req.getParameter("export")!=null) {
+		   if(req.getParameter("export").equals("store")) {
+	           resp.setHeader("Content-Disposition", "attachment; filename=ladu.csv");
+	           if(req.getParameter("separator")!=null && req.getParameter("separator").contentEquals("semicolon")) {
+	       		  resp.getWriter().println(getStoreItemsCSV(req.getParameter("companyKey"), ";"));        	
+	             } else {
+	     		  resp.getWriter().println(getStoreItemsCSV(req.getParameter("companyKey"), ","));
+	             }
+			   
+		   }
+		   return;
+	   }
            resp.setHeader("Content-Disposition", "attachment; filename=hooldused.csv");
         if(req.getParameter("separator")!=null && req.getParameter("separator").contentEquals("semicolon")) {
   		  resp.getWriter().println(getMaintenanceItemsCSV(req.getParameter("companyKey"), ";"));        	

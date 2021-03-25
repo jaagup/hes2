@@ -2,6 +2,8 @@ package com.elektrimasinad.aho.client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
 import com.elektrimasinad.aho.shared.Device;
@@ -10,6 +12,8 @@ import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Role;
+import com.elektrimasinad.aho.shared.StoreItem;
+import com.elektrimasinad.aho.shared.StoreMeta;
 import com.elektrimasinad.aho.shared.Unit;
 import com.elektrimasinad.aho.shared.Worker;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -84,4 +88,11 @@ public interface DeviceTreeService extends RemoteService {
 	String hideImageName(String imageURL) throws IllegalArgumentException;
 	
 	String sendMail(String to, String subject, String message, String replyto);
+	Map<String, StoreMeta> getCompanyStoreMetas(String companyKeyString);
+	List<StoreMeta> getChildMetas(String key);
+	String addChildMeta(String parentKey, String value);
+	String deleteMeta(String key);
+	String updateMeta(String key, String value);
+	List<StoreItem> getCompanyStoreItems(String companyKeyString, StoreItem queryItem);
+	String addCompanyStoreItem(StoreItem si, String companyKeyString);
 }

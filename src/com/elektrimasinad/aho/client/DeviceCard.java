@@ -1,12 +1,13 @@
 package com.elektrimasinad.aho.client;
 
-import static java.util.stream.Collectors.toList;
+//import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.elektrimasinad.aho.shared.Company;
 import com.elektrimasinad.aho.shared.Department;
@@ -15,13 +16,20 @@ import com.elektrimasinad.aho.shared.MaintenanceItem;
 import com.elektrimasinad.aho.shared.Measurement;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Role;
+import com.elektrimasinad.aho.shared.StoreItem;
 import com.elektrimasinad.aho.shared.Unit;
 import com.elektrimasinad.aho.shared.Worker;
+import com.elektrimasinad.aho.shared.StoreMeta;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.dom.client.MouseDownHandler;
@@ -33,6 +41,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.TimeZone;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
@@ -45,6 +54,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DoubleBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
@@ -54,7 +64,9 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.sun.java.swing.plaf.windows.resources.windows;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -102,8 +114,20 @@ public class DeviceCard implements EntryPoint {
 	private VerticalPanel lastMeasurementPanel = new VerticalPanel();
 	private VerticalPanel maintenanceListPanel=new VerticalPanel();
 	private VerticalPanel workersPanel=new VerticalPanel();
-	private AbsolutePanel headerPanel;
+	private VerticalPanel storeConfigPanel=new VerticalPanel();
+	 private VerticalPanel tootjad=new VerticalPanel();
+	 private VerticalPanel hankijad=new VerticalPanel();
+	 private VerticalPanel tegevuspohised=new VerticalPanel();
+	 private VerticalPanel kategooriad=new VerticalPanel();
+	 private VerticalPanel laod=new VerticalPanel();
+	 private VerticalPanel metaStoreSisu=new VerticalPanel();
+	    private VerticalPanel storePanel=new VerticalPanel();
+	    private VerticalPanel storeAddPanel=new VerticalPanel();
+	    private VerticalPanel storeSearchPanel=new VerticalPanel();
+	    private VerticalPanel storeChangePanel=new VerticalPanel();
+   	private AbsolutePanel headerPanel;
 	private DeckPanel contentPanel;
+	private HorizontalPanel storeTypePanel=new HorizontalPanel();
 	//private Device device;
 	private String selectedDeviceName;
 	Company selectedCompany;
@@ -123,10 +147,11 @@ public class DeviceCard implements EntryPoint {
 	TextBox tbEmail=new TextBox();
 	Label lWorker=new Label("Tegija");
 	CheckBox cbWorker=new CheckBox();
-	Label lSupervisor=new Label("Nagija");
+	Label lSupervisor=new Label("N\u00E4gija");
 	CheckBox cbSupervisor=new CheckBox();
 	Label lActive=new Label("Aktiivne");
 	CheckBox cbActive=new CheckBox();
+	CellTable<StoreItem> storeTable=createStoreTable();
 
 	
 	private VerticalPanel companyListPanel = new VerticalPanel();
@@ -143,12 +168,13 @@ public class DeviceCard implements EntryPoint {
 	private boolean isMobileView;
 	private Storage sessionStore;
 	private String accountKey = null;
+	Map<String, StoreMeta> storeMetaMap=null;
 	DebugClientSide Debug = new DebugClientSide();
 	
 	@Override
 	public void onModuleLoad() {
 		Debug.enable();
-		Debug.log("Debug enabled");
+		//Debug.log("Debug enabled");
 		sessionStore = Storage.getSessionStorageIfSupported();
 		accountKey = sessionStore.getItem("Account");
 		if ( accountKey == null) {
@@ -156,9 +182,9 @@ public class DeviceCard implements EntryPoint {
 		}
 		String param=Window.Location.getParameter("dnr");
 		if(param!=null) {
-		   Debug.log("Tuli "+param);
+		   //Debug.log("Tuli "+param);
 		} else {
-		   Debug.log("dnr puudub");
+		  // Debug.log("dnr puudub");
 		}
 		getCompanyCallback = new AsyncCallback<Company>() {
 			
@@ -285,6 +311,7 @@ public class DeviceCard implements EntryPoint {
 				Debug.log("Maintenance Items error "+caught);
 			}
 		};
+	
 		
 		if (Window.Location.getHref().contains("127.0.0.1")) isDevMode = true;
 		else isDevMode = false;
@@ -569,12 +596,31 @@ public class DeviceCard implements EntryPoint {
 		contentPanel.add(deviceEditPanel);
 		contentPanel.add(maintenanceListPanel);
 		contentPanel.add(workersPanel);
+		contentPanel.add(storeConfigPanel);
+		contentPanel.add(storePanel);
 		companyNameLabel.setText(selectedCompany.getCompanyName());
 		mainPanel.setCellHorizontalAlignment(contentPanel, HasHorizontalAlignment.ALIGN_CENTER);
 		String deviceKey=Window.Location.getParameter("deviceKey");
 		if(deviceKey!=null) {
 			deviceTreeService.getDevice(deviceKey, getDeviceCallback);
 		}
+		
+		deviceTreeService.getCompanyStoreMetas(selectedCompany.getCompanyKey(), new AsyncCallback<Map<String, StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(Map<String, StoreMeta> result) {
+				//Debug.log(result+"");
+				storeMetaMap=result;
+
+			}
+		});
+
 	}
 	
 	
@@ -686,6 +732,18 @@ public class DeviceCard implements EntryPoint {
 			}
 			
 		});
+		
+		Label lStore=new Label("Ladu");
+		lStore.setStyleName("backSaveLabel wide");
+		lStore.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				createStorePanel();
+			}
+			
+		});
+		
 		Label lWorkers = new Label("T\u00F6\u00F6tajad");
 		lWorkers.setStyleName("backSaveLabel wide");
 		lWorkers.addClickHandler(new ClickHandler() {
@@ -702,10 +760,12 @@ public class DeviceCard implements EntryPoint {
 		buttonsPanel.add(lBackButton);
 		buttonsPanel.add(lBack);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
-		buttonsPanel.setCellWidth(lBack, "43%");
+		buttonsPanel.setCellWidth(lBack, "23%");
+		buttonsPanel.add(lStore);
 		buttonsPanel.add(lWorkers);
 		buttonsPanel.add(lNewLocation);
 //		buttonsPanel.setCellHorizontalAlignment(lNewLocation, HasHorizontalAlignment.ALIGN_RIGHT);
+		buttonsPanel.setCellWidth(lStore, "20%");
 		buttonsPanel.setCellWidth(lWorkers, "25%");
 		buttonsPanel.setCellWidth(lNewLocation, "25%");
 		departmentListPanel.add(buttonsPanel);
@@ -952,6 +1012,2232 @@ public class DeviceCard implements EntryPoint {
 		return deviceListPanel;
 	}
 	
+	private HorizontalPanel metaLabel(StoreMeta m, Panel startingPanel) {
+		HorizontalPanel hp=new HorizontalPanel();
+		hp.add(new Label(m.getValue()+" "));
+		final String sisu=m.getValue();
+		final String kood=m.getKey();
+		final Button b=new Button("x");
+		hp.add(b);
+	    final Button b2=new Button("m");
+	    hp.add(b2);
+		b.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				if(Window.confirm("Kas kustutada "+sisu+"?")) {
+					deviceTreeService.deleteMeta(kood, new AsyncCallback<String>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(String result) {
+							createStoreConfigPanel(startingPanel);		
+						}
+						
+					});
+				}
+			}
+		});
+		b2.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				String v=Window.prompt("uus", sisu);
+				deviceTreeService.updateMeta(m.getKey(), v, new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+                       // Debug.log(result);	
+                        createStoreConfigPanel(startingPanel);
+					}
+					
+				});
+			}
+		});
+	    return hp;
+	}
+	
+	private void createStoreConfigPanel() {
+	   createStoreConfigPanel(tootjad);	
+	}
+	
+	private void createStoreConfigPanel(Panel startingPanel) {
+		storeConfigPanel.clear();
+		tootjad.clear();
+		hankijad.clear();
+		tegevuspohised.clear();
+		kategooriad.clear();
+		laod.clear();
+		metaStoreSisu.clear();
+		metaStoreSisu.add(startingPanel);
+
+		
+		final Label lBack = new Label("Tagasi");
+		lBack.setStyleName("backSaveLabel");
+		lBack.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				contentPanel.showWidget(contentPanel.getWidgetIndex(departmentListPanel));
+			}
+			
+		});
+		final Button lBackButton = new Button();
+		lBackButton.setStyleName("backButton");
+		lBackButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				lBack.fireEvent(event);
+			}
+			
+		});
+		
+		final Label bLaoleht=new Label("Ladu");
+		bLaoleht.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+			   createStorePanel();
+			}
+		});
+		
+		final Button baTootjad=new Button("Tootjad");
+		baTootjad.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				metaStoreSisu.clear();
+				metaStoreSisu.add(tootjad);
+				
+			}});
+
+		final Button baHankijad=new Button("Hankijad");
+		baHankijad.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				metaStoreSisu.clear();
+				metaStoreSisu.add(hankijad);
+				
+			}});
+
+		final Button baTegevuspohised=new Button("Tegevusp\u00F5hised");
+		baTegevuspohised.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				metaStoreSisu.clear();
+				metaStoreSisu.add(tegevuspohised);
+				
+			}});
+		final Button baKategooriad=new Button("Kategooriad");
+		baKategooriad.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				metaStoreSisu.clear();
+				metaStoreSisu.add(kategooriad);
+				
+			}});
+		final Button baLaod=new Button("Laod");
+		baLaod.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				metaStoreSisu.clear();
+				metaStoreSisu.add(laod);
+				
+			}});
+
+		final Button baEksport=new Button("Eksport");
+		baEksport.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+		    	  Window.Location.assign("/getRaport/hooldusCSV?export=store&companyKey="+sessionStore.getItem("Account")+"&separator=semicolon");	
+				
+			}});
+
+
+		HorizontalPanel buttonsPanel = new HorizontalPanel();
+		buttonsPanel.setStyleName("backSavePanel");
+		buttonsPanel.add(lBackButton);
+		//buttonsPanel.add(lBack);
+		buttonsPanel.add(bLaoleht);
+		bLaoleht.setStyleName("suursinine");
+		buttonsPanel.add(baKategooriad);
+		buttonsPanel.add(baTegevuspohised);
+		buttonsPanel.add(baLaod);
+		buttonsPanel.add(baTootjad);
+		buttonsPanel.add(baHankijad);
+		buttonsPanel.add(baEksport);
+		buttonsPanel.setCellWidth(lBackButton, "7%");
+		//buttonsPanel.setCellWidth(lBack, "43%");
+        storeConfigPanel.add(buttonsPanel);
+        storeConfigPanel.add(metaStoreSisu);
+
+		
+//		Label lTootja=new Label("Tootja");
+//		storeConfigPanel.add(lTootja);
+		HorizontalPanel pTootja=new HorizontalPanel();
+		TextBox tbTootja=new TextBox();
+//		storeConfigPanel.add(tbTootja);
+		Button bTootja=new Button("Lisa tootja");
+//		storeConfigPanel.add(bTootja);
+		pTootja.add(bTootja);
+		pTootja.add(tbTootja);
+		storeConfigPanel.add(pTootja);
+		bTootja.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				deviceTreeService.addChildMeta(storeMetaMap.get("Tootjad").getKey(), tbTootja.getText(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						// TODO Auto-generated method stub
+						createStoreConfigPanel(tootjad);
+					}					
+				});
+				
+			}});
+//		VerticalPanel tootjad=new VerticalPanel();
+		//storeConfigPanel.add(tootjad);
+		tootjad.add(pTootja);
+
+		
+
+//		Label lHankija=new Label("Hankija");
+//		storeConfigPanel.add(lHankija);
+		HorizontalPanel pHankija=new HorizontalPanel();
+		TextBox tbHankija=new TextBox();
+//		storeConfigPanel.add(tbHankija);
+		Button bHankija=new Button("Lisa hankija");
+		storeConfigPanel.add(bHankija);
+		pHankija.add(bHankija);
+		pHankija.add(tbHankija);
+//		storeConfigPanel.add(pHankija);
+		bHankija.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				deviceTreeService.addChildMeta(storeMetaMap.get("Hankijad").getKey(), tbHankija.getText(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						// TODO Auto-generated method stub
+						createStoreConfigPanel(hankijad);
+					}					
+				});
+				
+			}});
+		
+	//	VerticalPanel hankijad=new VerticalPanel();
+	//	storeConfigPanel.add(hankijad);
+		hankijad.add(pHankija);
+
+		
+		HorizontalPanel pTegevuspoh=new HorizontalPanel();
+		TextBox tbTegevuspoh1=new TextBox();
+		TextBox tbTegevuspoh2=new TextBox();
+//		storeConfigPanel.add(tbHankija);
+		Button bTegevuspoh=new Button("Lisa tegevuspohine");
+//		storeConfigPanel.add(bHankija);
+		pTegevuspoh.add(bTegevuspoh);
+		pTegevuspoh.add(tbTegevuspoh1);
+		pTegevuspoh.add(new Label("-"));
+		pTegevuspoh.add(tbTegevuspoh2);
+		storeConfigPanel.add(pTegevuspoh);
+		bTegevuspoh.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				deviceTreeService.addChildMeta(storeMetaMap.get("Tegevuspohised").getKey(), tbTegevuspoh1.getText().replace('-', '_').trim()+"-"+tbTegevuspoh2.getText().replace('-', '_').trim(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						// TODO Auto-generated method stub
+						createStoreConfigPanel(tegevuspohised);
+					}					
+				});
+				
+			}});
+		
+		//VerticalPanel tegevuspohised=new VerticalPanel();
+	//	storeConfigPanel.add(tegevuspohised);
+		tegevuspohised.add(pTegevuspoh);
+
+		
+		HorizontalPanel pKategooria=new HorizontalPanel();
+		TextBox tbKategooria=new TextBox();
+		Button bKategooria=new Button("Lisa kategooria");
+		pKategooria.add(bKategooria);
+		pKategooria.add(tbKategooria);
+		storeConfigPanel.add(pKategooria);
+		bKategooria.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				deviceTreeService.addChildMeta(storeMetaMap.get("Kategooriad").getKey(), tbKategooria.getText(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						// TODO Auto-generated method stub
+						createStoreConfigPanel(kategooriad);
+					}					
+				});
+				
+			}});
+		
+		//VerticalPanel kategooriad=new VerticalPanel();
+		//storeConfigPanel.add(kategooriad);
+		kategooriad.add(pKategooria);
+
+		
+
+		HorizontalPanel pLadu=new HorizontalPanel();
+		TextBox tbLadu=new TextBox();
+		Button bLadu=new Button("Lisa ladu");
+		pLadu.add(bLadu);
+		pLadu.add(tbLadu);
+		storeConfigPanel.add(pLadu);
+		bLadu.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				if(tbLadu.getText().trim().length()==0) {return;}
+				deviceTreeService.addChildMeta(storeMetaMap.get("Laod").getKey(), tbLadu.getText(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						// TODO Auto-generated method stub
+						createStoreConfigPanel(laod);
+					}					
+				});
+				
+			}});
+		
+		//VerticalPanel laod=new VerticalPanel();
+		//storeConfigPanel.add(laod);
+        laod.add(pLadu);
+
+		
+		
+		
+		deviceTreeService.getCompanyStoreMetas(selectedCompany.getCompanyKey(), new AsyncCallback<Map<String, StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(Map<String, StoreMeta> result) {
+				//Debug.log(result+"");
+				storeMetaMap=result;
+				deviceTreeService.getChildMetas(storeMetaMap.get("Tootjad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						for(StoreMeta m: result) {
+							tootjad.add(metaLabel(m, tootjad));
+							/*
+							HorizontalPanel hp=new HorizontalPanel();
+							hp.add(new Label(m.getValue()));
+							final Button b=new Button("x");
+							hp.add(b);
+							tootjad.add(hp);
+							final String kood=m.getKey();
+							final String sisu=m.getValue();
+							b.addClickHandler(new ClickHandler() {
+								public void onClick(ClickEvent e) {
+									if(Window.confirm("Kas kustutada "+sisu+" ?")) {
+										deviceTreeService.deleteMeta(kood, new AsyncCallback<String>() {
+
+											@Override
+											public void onFailure(Throwable caught) {
+												// TODO Auto-generated method stub
+												
+											}
+
+											@Override
+											public void onSuccess(String result) {
+												Debug.log(result);
+												createStoreConfigPanel();
+											}
+											
+										});
+									}
+								}
+							});*/
+						}
+					}
+					
+				});
+
+				deviceTreeService.getChildMetas(storeMetaMap.get("Hankijad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						for(StoreMeta m: result) {
+//							hankijad.add(new Label(m.getValue()));
+							hankijad.add(metaLabel(m, hankijad));
+						}
+					}
+					
+				});
+			
+				deviceTreeService.getChildMetas(storeMetaMap.get("Tegevuspohised").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						for(StoreMeta m: result) {
+							//tegevuspohised.add(new Label(m.getValue()));
+							tegevuspohised.add(metaLabel(m, tegevuspohised));
+						}
+					}
+					
+				});
+			
+
+			
+				deviceTreeService.getChildMetas(storeMetaMap.get("Kategooriad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						
+						for(StoreMeta m: result) {
+							HorizontalPanel hp=new HorizontalPanel();
+							VerticalPanel vp1=new VerticalPanel();
+							final VerticalPanel vp2=new VerticalPanel();
+							hp.add(vp1);
+							hp.add(vp2);
+//							vp1.add(new Label(m.getValue()));
+							vp1.add(metaLabel(m, kategooriad));
+							final String kood=m.getKey();
+							final Button b=new Button("Lisa alamkategooria");
+							final TextBox tb=new TextBox();
+							vp1.add(tb);
+							vp1.add(b);
+							kategooriad.add(new Label("   "));
+							kategooriad.add(hp);
+							b.addClickHandler(new ClickHandler() {
+
+								@Override
+								public void onClick(ClickEvent event) {
+									deviceTreeService.addChildMeta(kood, tb.getText(), new AsyncCallback<String>(){
+
+										@Override
+										public void onFailure(Throwable caught) {
+											// TODO Auto-generated method stub
+											
+										}
+
+										@Override
+										public void onSuccess(String result) {
+											createStoreConfigPanel(kategooriad);
+										}
+										
+									});
+									
+								}});
+							
+							deviceTreeService.getChildMetas(kood, new AsyncCallback<List<StoreMeta>>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onSuccess(List<StoreMeta> result) {
+								  for(StoreMeta m: result) {
+								//	vp2.add(new Label(m.getValue()));
+									 vp2.add(metaLabel(m, kategooriad));
+								  }
+								}
+								
+							});
+					  }}});
+                        
+						
+					deviceTreeService.getChildMetas(storeMetaMap.get("Laod").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onSuccess(List<StoreMeta> result) {
+									
+									for(StoreMeta m: result) {
+										HorizontalPanel hp=new HorizontalPanel();
+										VerticalPanel vp1=new VerticalPanel();
+										final VerticalPanel vp2=new VerticalPanel();
+										hp.add(vp1);
+										hp.add(vp2);
+								//		vp1.add(new Label(m.getValue()));
+										vp1.add(metaLabel(m, laod));
+										final String kood=m.getKey();
+										final Button b=new Button("Lisa riiul/tase");
+										final TextBox tb=new TextBox();
+										vp1.add(tb);
+										vp1.add(b);
+										laod.add(hp);
+										b.addClickHandler(new ClickHandler() {
+
+											@Override
+											public void onClick(ClickEvent event) {
+												deviceTreeService.addChildMeta(kood, tb.getText(), new AsyncCallback<String>(){
+
+													@Override
+													public void onFailure(Throwable caught) {
+														// TODO Auto-generated method stub
+														
+													}
+
+													@Override
+													public void onSuccess(String result) {
+														createStoreConfigPanel(laod);
+													}
+													
+												});
+												
+											}});
+										deviceTreeService.getChildMetas(kood, new AsyncCallback<List<StoreMeta>>() {
+
+											@Override
+											public void onFailure(Throwable caught) {
+												// TODO Auto-generated method stub
+												
+											}
+
+											@Override
+											public void onSuccess(List<StoreMeta> result) {
+											  for(StoreMeta m: result) {
+												//vp2.add(new Label(m.getValue()));
+												  vp2.add(metaLabel(m, laod));
+											  }
+											}
+											
+										});
+
+						}
+					}
+					
+				});
+
+			
+			}
+			
+		});
+
+		metaStoreSisu.clear();
+		metaStoreSisu.add(kategooriad);
+
+		
+		contentPanel.showWidget(contentPanel.getWidgetIndex(storeConfigPanel));
+		
+	}
+	
+	
+	private void createStoreSearchPanel() {
+			   storeSearchPanel.clear();
+			   Label slabel=new Label("Laotoote otsing");
+			   slabel.setStyleName("suursinine");
+			   storeSearchPanel.add(slabel);
+			   storeSearchPanel.add(new Label(""));
+			   Grid g1=new Grid(16, 2);
+			   storeSearchPanel.add(g1);
+			   final TextBox tbSysId=new TextBox();
+			   final TextBox tbProductCode=new TextBox();
+			   final TextBox tbProductName=new TextBox();
+			   final ListBox lbTegevuspohine=new ListBox();
+			deviceTreeService.getChildMetas(storeMetaMap.get("Tegevuspohised").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					lbTegevuspohine.addItem("");
+					for(StoreMeta sm: result) {
+						lbTegevuspohine.addItem(sm.getValue().split("-")[1]);
+					}
+				}
+			});  
+			
+			   final ListBox lbKategooria=new ListBox();
+				  final ListBox lbAlamkategooria=new ListBox();
+				deviceTreeService.getChildMetas(storeMetaMap.get("Kategooriad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						lbKategooria.addItem("");
+						for(StoreMeta sm: result) {
+							lbKategooria.addItem(sm.getValue(), sm.getKey());
+						}
+						 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onSuccess(List<StoreMeta> result) {
+									lbAlamkategooria.clear();
+									lbAlamkategooria.addItem("");
+								    for(StoreMeta sm: result) {
+								    	lbAlamkategooria.addItem(sm.getValue());
+								    }	
+								}
+								 
+							 });
+
+					
+					}
+				});  
+
+			  lbKategooria.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+					 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<StoreMeta> result) {
+							lbAlamkategooria.clear();
+							lbAlamkategooria.addItem("");
+						    for(StoreMeta sm: result) {
+						    	lbAlamkategooria.addItem(sm.getValue());
+						    }	
+						}
+						 
+					 });
+					
+				}
+				  
+			  });
+
+			  final ListBox lbLadu=new ListBox();
+			  final ListBox lbLaokoht=new ListBox();
+			  
+				deviceTreeService.getChildMetas(storeMetaMap.get("Laod").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						lbLadu.addItem("");
+						for(StoreMeta sm: result) {
+							lbLadu.addItem(sm.getValue(), sm.getKey());
+						}
+						 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onSuccess(List<StoreMeta> result) {
+									lbLaokoht.clear();
+									lbLaokoht.addItem("");
+								    for(StoreMeta sm: result) {
+								    	lbLaokoht.addItem(sm.getValue());
+								    }	
+								}
+								 
+							 });
+
+					
+					}
+				});  
+
+			  lbLadu.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+					 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<StoreMeta> result) {
+							lbLaokoht.clear();
+							lbLaokoht.addItem("");
+						    for(StoreMeta sm: result) {
+						    	lbLaokoht.addItem(sm.getValue());
+						    }	
+						}
+						 
+					 });
+					
+				}
+				  
+			  });
+			  
+
+			   final ListBox lbTootja=new ListBox();
+			   final TextBox tbTootja=new TextBox();
+			deviceTreeService.getChildMetas(storeMetaMap.get("Tootjad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					lbTootja.addItem("");
+					for(StoreMeta sm: result) {
+						lbTootja.addItem(sm.getValue());
+					}
+				}
+			});  
+
+			   final ListBox lbHankija=new ListBox();
+			   final TextBox tbHankija=new TextBox();
+			deviceTreeService.getChildMetas(storeMetaMap.get("Hankijad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					lbHankija.addItem("");
+					for(StoreMeta sm: result) {
+						lbHankija.addItem(sm.getValue());
+					}
+				}
+			});  
+
+			lbTootja.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+					tbTootja.setText(lbTootja.getSelectedItemText());
+					
+				}});
+			
+			lbHankija.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+					tbHankija.setText(lbHankija.getSelectedItemText());
+					
+				}});
+			
+
+			
+			  final IntegerBox tbLaoseis=new IntegerBox();
+			  tbLaoseis.addKeyPressHandler(new KeyPressHandler() {
+
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+					            String c = event.getCharCode()+"";
+					            if(RegExp.compile("[^0-9]").test(c))
+					                tbLaoseis.cancelKey();
+					    }			
+				}
+				  
+			  });
+		      final IntegerBox tbMinkogus=new IntegerBox();
+			  tbMinkogus.addKeyPressHandler(new KeyPressHandler() {
+
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+					            String c = event.getCharCode()+"";
+					            if(RegExp.compile("[^0-9]").test(c))
+					                tbMinkogus.cancelKey();
+					    }			
+				}
+				  
+			  });
+			  final DoubleBox tbHind=new DoubleBox();
+			  tbHind.addKeyPressHandler(new KeyPressHandler() {
+
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+					        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+					            String c = event.getCharCode()+"";
+					            if(RegExp.compile("[^0-9]").test(c))
+					                tbHind.cancelKey();
+					    }			
+				}
+				  
+			  });
+
+			   final ListBox lbOsakond=new ListBox();
+			   final ListBox lbYksus=new ListBox();
+			   final ListBox lbSeade=new ListBox();
+			deviceTreeService.getDepartments(selectedCompany.getCompanyKey(), new AsyncCallback<List<Department>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<Department> result) {
+					lbOsakond.addItem("", "");
+					for(Department dm: result) {
+						lbOsakond.addItem(dm.getDepartmentName(), dm.getDepartmentKey());
+					}
+				}
+			});  
+		    lbOsakond.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+		             deviceTreeService.getUnits(lbOsakond.getSelectedValue(), new AsyncCallback<List<Unit>>(){
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<Unit> result) {
+							lbYksus.clear();
+							lbYksus.addItem("", "");
+							for(Unit u: result) {
+									lbYksus.addItem(u.getUnit(), u.getUnitKey());
+							}	
+							lbYksus.fireEvent(event);
+							lbSeade.clear();
+						}
+		            	 
+		             });			
+				}});
+			  
+		       lbYksus.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+		             deviceTreeService.getDevices(lbYksus.getSelectedValue(), new AsyncCallback<List<Device>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<Device> result) {
+							lbSeade.clear();
+							lbSeade.addItem("", "");
+							for(Device d: result) {
+								lbSeade.addItem(d.getDeviceName(), d.getDeviceKey());
+							}
+							
+						}});			
+				}});
+		       
+		       ListBox lbSeisund=new ListBox();
+		       lbSeisund.addItem("", "normal");
+		       lbSeisund.addItem("peidetud", "hidden");
+		       
+
+		       HorizontalPanel hpTootja=new HorizontalPanel();
+		       hpTootja.add(lbTootja);
+		       hpTootja.add(tbTootja);
+		    
+		       HorizontalPanel hpHankija=new HorizontalPanel();
+		       hpHankija.add(lbHankija);
+		       hpHankija.add(tbHankija);
+		    
+			   g1.setWidget(0, 0, new Label("S\u00FCst. ID"));
+			   g1.setWidget(0, 1, tbSysId);
+			   g1.setWidget(1, 0, new Label("Tootekood"));
+			   g1.setWidget(1, 1, tbProductCode);
+			   g1.setWidget(2, 0, new Label("Toote nimetus"));
+			   g1.setWidget(2, 1, tbProductName);
+			   g1.setWidget(3, 0, new Label("Tegevusp\u00F5hine"));
+			   g1.setWidget(3, 1, lbTegevuspohine);
+			   g1.setWidget(4, 0, new Label("Kategooria"));
+			   g1.setWidget(4, 1, lbKategooria);
+			   g1.setWidget(5, 0, new Label("Alamkategooria"));
+			   g1.setWidget(5, 1, lbAlamkategooria);
+			   g1.setWidget(6, 0, new Label("Ladu"));
+			   g1.setWidget(6, 1, lbLadu);
+			   g1.setWidget(7, 0, new Label("Riiul/ tase"));
+			   g1.setWidget(7, 1, lbLaokoht);
+			   g1.setWidget(8, 0, new Label("Tootja"));
+//			   g1.setWidget(8, 1, lbTootja);
+			   g1.setWidget(8, 1, hpTootja);
+			   g1.setWidget(9, 0, new Label("Hankija"));
+//			   g1.setWidget(9, 1, lbHankija);
+			   g1.setWidget(9, 1, hpHankija);
+/*			   g1.setWidget(10, 0, new Label("Laoseis"));
+			   g1.setWidget(10, 1, tbLaoseis);
+			   g1.setWidget(11, 0, new Label("Min kogus"));
+			   g1.setWidget(11, 1, tbMinkogus);
+			   g1.setWidget(12, 0, new Label("Hind"));
+			   g1.setWidget(12, 1, tbHind);
+*/			   g1.setWidget(10, 0, new Label("Osakond"));
+			   g1.setWidget(10, 1, lbOsakond);
+			   g1.setWidget(11, 0, new Label("\u00DCksus"));
+			   g1.setWidget(11, 1, lbYksus);
+			   g1.setWidget(12, 0, new Label("Seade"));
+			   g1.setWidget(12, 1, lbSeade);
+			   g1.setWidget(13, 0, new Label("Seisund"));
+			   g1.setWidget(13, 1, lbSeisund);
+			   
+			   Button bOtsi=new Button("Otsi");
+			   bOtsi.setStyleName("laoalanupp");
+			   StoreItem si=new StoreItem();
+			   bOtsi.addClickHandler(new ClickHandler() {
+				  public void onClick(ClickEvent e) {
+		               si.setSysId(tbSysId.getText().trim());
+		               si.setProductCode(tbProductCode.getText().trim());
+		               si.setProductName(tbProductName.getText().trim());
+		               si.setWorkingCode(lbTegevuspohine.getSelectedValue());
+		               si.setCategory(lbKategooria.getSelectedValue());
+		               si.setSubCategory(lbAlamkategooria.getSelectedItemText());
+		               si.setStoreName(lbLadu.getSelectedValue());
+		               si.setStorePlace(lbLaokoht.getSelectedItemText());
+//		               si.setProducer(lbTootja.getSelectedItemText());
+//		               si.setContractor(lbHankija.getSelectedItemText());
+		               si.setProducer(tbTootja.getText());
+		               si.setContractor(tbHankija.getText());
+		               si.setAmount(tbLaoseis.getText());
+		               si.setMinAmount(tbMinkogus.getText());
+		               si.setPrice(tbHind.getText());
+		               si.setDepartmentKey(lbOsakond.getSelectedValue());
+		               si.setUnitKey(lbYksus.getSelectedValue());
+		               si.setDeviceKey(lbSeade.getSelectedValue());
+		               si.setStatus(lbSeisund.getSelectedValue());
+		               displayStoreItems(si);
+				  } 
+			   });
+			   
+			   storeSearchPanel.add(bOtsi);
+			   
+			   
+
+			   
+			}
+		
+	
+	
+	private void createStoreAddPanel() {
+	   storeAddPanel.clear();
+	   Label slabel=new Label("Uue laotoote sisestus");
+	   slabel.setStyleName("suursinine");
+	   storeAddPanel.add(slabel);
+	   Grid g1=new Grid(16, 2);
+	   storeAddPanel.add(g1);
+	   final TextBox tbSysId=new TextBox();
+	   final TextBox tbProductCode=new TextBox();
+	   final TextBox tbProductName=new TextBox();
+	   final ListBox lbTegevuspohine=new ListBox();
+	deviceTreeService.getChildMetas(storeMetaMap.get("Tegevuspohised").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onSuccess(List<StoreMeta> result) {
+			lbTegevuspohine.addItem("");
+			for(StoreMeta sm: result) {
+				lbTegevuspohine.addItem(sm.getValue().split("-")[1]);
+			}
+		}
+	});  
+	
+	   final ListBox lbKategooria=new ListBox();
+		  final ListBox lbAlamkategooria=new ListBox();
+		deviceTreeService.getChildMetas(storeMetaMap.get("Kategooriad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<StoreMeta> result) {
+				lbKategooria.addItem("");
+				for(StoreMeta sm: result) {
+					lbKategooria.addItem(sm.getValue(), sm.getKey());
+				}
+				 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<StoreMeta> result) {
+							lbAlamkategooria.clear();
+						    for(StoreMeta sm: result) {
+						    	lbAlamkategooria.addItem(sm.getValue());
+						    }	
+						}
+						 
+					 });
+
+			
+			}
+		});  
+
+	  lbKategooria.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+			 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					lbAlamkategooria.clear();
+				    for(StoreMeta sm: result) {
+				    	lbAlamkategooria.addItem(sm.getValue());
+				    }	
+				}
+				 
+			 });
+			
+		}
+		  
+	  });
+
+	  final ListBox lbLadu=new ListBox();
+	  final ListBox lbLaokoht=new ListBox();
+	  
+		deviceTreeService.getChildMetas(storeMetaMap.get("Laod").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<StoreMeta> result) {
+				lbLadu.addItem("");
+				for(StoreMeta sm: result) {
+					lbLadu.addItem(sm.getValue(), sm.getKey());
+				}
+				 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<StoreMeta> result) {
+							lbLaokoht.clear();
+						    for(StoreMeta sm: result) {
+						    	lbLaokoht.addItem(sm.getValue());
+						    }	
+						}
+						 
+					 });
+
+			
+			}
+		});  
+
+	  lbLadu.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+			 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					lbLaokoht.clear();
+				    for(StoreMeta sm: result) {
+				    	lbLaokoht.addItem(sm.getValue());
+				    }	
+				}
+				 
+			 });
+			
+		}
+		  
+	  });
+	  
+
+	   final ListBox lbTootja=new ListBox();
+	   final TextBox tbTootja=new TextBox();
+	deviceTreeService.getChildMetas(storeMetaMap.get("Tootjad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onSuccess(List<StoreMeta> result) {
+			lbTootja.addItem("");
+			for(StoreMeta sm: result) {
+				lbTootja.addItem(sm.getValue());
+			}
+		}
+	});  
+	lbTootja.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+			tbTootja.setText(lbTootja.getSelectedItemText());
+			
+		}
+		
+	});
+
+	   final ListBox lbHankija=new ListBox();
+	   final TextBox tbHankija=new TextBox();
+	deviceTreeService.getChildMetas(storeMetaMap.get("Hankijad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onSuccess(List<StoreMeta> result) {
+			lbHankija.addItem("");
+			for(StoreMeta sm: result) {
+				lbHankija.addItem(sm.getValue());
+			}
+		}
+	});  
+	
+	lbHankija.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+			tbHankija.setText(lbHankija.getSelectedItemText());
+		}
+		
+	});
+
+	  final IntegerBox tbLaoseis=new IntegerBox();
+	  tbLaoseis.addKeyPressHandler(new KeyPressHandler() {
+
+		@Override
+		public void onKeyPress(KeyPressEvent event) {
+			if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+			            String c = event.getCharCode()+"";
+			            if(RegExp.compile("[^0-9]").test(c))
+			                tbLaoseis.cancelKey();
+			    }			
+		}
+		  
+	  });
+      final IntegerBox tbMinkogus=new IntegerBox();
+	  tbMinkogus.addKeyPressHandler(new KeyPressHandler() {
+
+		@Override
+		public void onKeyPress(KeyPressEvent event) {
+			if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+			            String c = event.getCharCode()+"";
+			            if(RegExp.compile("[^0-9]").test(c))
+			                tbMinkogus.cancelKey();
+			    }			
+		}
+		  
+	  });
+	  final DoubleBox tbHind=new DoubleBox();
+	  tbHind.addKeyPressHandler(new KeyPressHandler() {
+
+		@Override
+		public void onKeyPress(KeyPressEvent event) {
+			if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+			        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+			            String c = event.getCharCode()+"";
+			            if(RegExp.compile("[^0-9]").test(c))
+			                tbHind.cancelKey();
+			    }			
+		}
+		  
+	  });
+
+	   final ListBox lbOsakond=new ListBox();
+	   final ListBox lbYksus=new ListBox();
+	   final ListBox lbSeade=new ListBox();
+	deviceTreeService.getDepartments(selectedCompany.getCompanyKey(), new AsyncCallback<List<Department>>(){
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onSuccess(List<Department> result) {
+			lbOsakond.addItem("", "");
+			for(Department dm: result) {
+				lbOsakond.addItem(dm.getDepartmentName(), dm.getDepartmentKey());
+			}
+		}
+	});  
+    lbOsakond.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+ 			  lbYksus.clear();
+             deviceTreeService.getUnits(lbOsakond.getSelectedValue(), new AsyncCallback<List<Unit>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<Unit> result) {
+					lbYksus.addItem("", "");
+					for(Unit u: result) {
+							lbYksus.addItem(u.getUnit(), u.getUnitKey());
+					}	
+					lbYksus.fireEvent(event);
+					lbSeade.clear();
+				}
+            	 
+             });			
+		}});
+	  
+       lbYksus.addChangeHandler(new ChangeHandler() {
+
+		@Override
+		public void onChange(ChangeEvent event) {
+			lbSeade.clear();
+             deviceTreeService.getDevices(lbYksus.getSelectedValue(), new AsyncCallback<List<Device>>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<Device> result) {
+					lbSeade.addItem("", "");
+					for(Device d: result) {
+						lbSeade.addItem(d.getDeviceName(), d.getDeviceKey());
+					}
+					
+				}});			
+		}});
+    
+       HorizontalPanel hpTootja=new HorizontalPanel();
+       hpTootja.add(lbTootja);
+       hpTootja.add(tbTootja);
+       
+       HorizontalPanel hpHankija=new HorizontalPanel();
+       hpHankija.add(lbHankija);
+       hpHankija.add(tbHankija);
+       
+	   g1.setWidget(1, 0, new Label("Tootekood"));
+	   g1.setWidget(1, 1, tbProductCode);
+	   g1.setWidget(2, 0, new Label("Toote nimetus"));
+	   g1.setWidget(2, 1, tbProductName);
+	   g1.setWidget(3, 0, new Label("Tegevusp\u00F5hine"));
+	   g1.setWidget(3, 1, lbTegevuspohine);
+	   g1.setWidget(4, 0, new Label("Kategooria"));
+	   g1.setWidget(4, 1, lbKategooria);
+	   g1.setWidget(5, 0, new Label("Alamkategooria"));
+	   g1.setWidget(5, 1, lbAlamkategooria);
+	   g1.setWidget(6, 0, new Label("Ladu"));
+	   g1.setWidget(6, 1, lbLadu);
+	   g1.setWidget(7, 0, new Label("Riiul/ tase"));
+	   g1.setWidget(7, 1, lbLaokoht);
+	   g1.setWidget(8, 0, new Label("Tootja"));
+//	   g1.setWidget(8, 1, lbTootja);
+	   g1.setWidget(8, 1, hpTootja);
+	   g1.setWidget(9, 0, new Label("Hankija"));
+//	   g1.setWidget(9, 1, lbHankija);
+	   g1.setWidget(9, 1, hpHankija);
+	   g1.setWidget(10, 0, new Label("Laoseis"));
+	   g1.setWidget(10, 1, tbLaoseis);
+	   g1.setWidget(11, 0, new Label("Min kogus"));
+	   g1.setWidget(11, 1, tbMinkogus);
+	   g1.setWidget(12, 0, new Label("Hind"));
+	   g1.setWidget(12, 1, tbHind);
+	   g1.setWidget(13, 0, new Label("Osakond"));
+	   g1.setWidget(13, 1, lbOsakond);
+	   g1.setWidget(14, 0, new Label("\u00DCksus"));
+	   g1.setWidget(14, 1, lbYksus);
+	   g1.setWidget(15, 0, new Label("Seade"));
+	   g1.setWidget(15, 1, lbSeade);
+	   
+	   Button bSave=new Button("Lisa");
+	   bSave.setStyleName("laoalanupp");
+	   StoreItem si=new StoreItem();
+	   bSave.addClickHandler(new ClickHandler() {
+		  public void onClick(ClickEvent e) {
+               si.setSysId(tbSysId.getText().trim());
+			   if(tbProductCode.getText().trim().length()==0) {
+				   Window.alert("Tootekood puudub");
+				   return;
+			   }
+               si.setProductCode(tbProductCode.getText().trim());
+			   if(tbProductName.getText().trim().length()==0) {
+				   Window.alert("Toote nimetus puudub");
+				   return;
+			   }
+               si.setProductName(tbProductName.getText().trim());
+               if(lbTegevuspohine.getSelectedIndex()==0) {
+            	   Window.alert("Tegevusp\u00F5hine valimata");
+            	   return;
+               }
+               si.setWorkingCode(lbTegevuspohine.getSelectedValue());
+               if(lbKategooria.getSelectedIndex()==0) {
+            	   Window.alert("Kategooria valimata");
+            	   return;
+               }
+               si.setCategoryKey(lbKategooria.getSelectedValue());
+               si.setSubCategory(lbAlamkategooria.getSelectedItemText());
+               if(lbLadu.getSelectedIndex()==0) {
+            	   Window.alert("Ladu valimata");
+            	   return;
+               }
+               si.setStoreKey(lbLadu.getSelectedValue());
+               si.setStorePlace(lbLaokoht.getSelectedItemText());
+//               si.setProducer(lbTootja.getSelectedItemText());
+  //             si.setContractor(lbHankija.getSelectedItemText());
+               si.setProducer(tbTootja.getText());
+               si.setContractor(tbHankija.getText());
+               si.setAmount(tbLaoseis.getText());
+               si.setMinAmount(tbMinkogus.getText());
+               si.setPrice(tbHind.getText());
+               si.setDepartmentKey(lbOsakond.getSelectedValue());
+               si.setUnitKey(lbYksus.getSelectedValue());
+               si.setDeviceKey(lbSeade.getSelectedValue());
+			  deviceTreeService.addCompanyStoreItem(si, selectedCompany.getCompanyKey(), new AsyncCallback<String>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(String result) {
+                //  Debug.log(result);	
+                  createStorePanel();
+				}
+				  
+				  
+			  });
+		  } 
+	   });
+	   
+	   storeAddPanel.add(bSave);
+	   
+	   
+
+	   
+	}
+	
+	private void createStorePanel() {
+	   storePanel.clear();
+		final Label lBack = new Label("Tagasi");
+		lBack.setStyleName("backSaveLabel");
+		lBack.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				contentPanel.showWidget(contentPanel.getWidgetIndex(departmentListPanel));
+			}
+			
+		});
+		final Button lBackButton = new Button();
+		lBackButton.setStyleName("backButton");
+		lBackButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				lBack.fireEvent(event);
+			}
+			
+		});
+		HorizontalPanel nupupaneel = new HorizontalPanel();
+		//nupupaneel.setStyleName("backSavePanel");
+		nupupaneel.add(lBackButton);
+		//buttonsPanel.add(lBack);
+		//buttonsPanel.add(bLaoHaldus);
+      //storeAddPanel.add(buttonsPanel);
+//	   HorizontalPanel nupupaneel=new HorizontalPanel();
+	   
+		final Button bLaoHaldus=new Button("Lao haldus");
+		bLaoHaldus.setStyleName("suuremnupp");
+		bLaoHaldus.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				createStoreConfigPanel();
+			}
+		});
+		nupupaneel.add(bLaoHaldus);
+
+		final Button bOtsing=new Button("Lao otsing");
+		bOtsing.setStyleName("suuremnupp");
+		bOtsing.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+			   storeTypePanel.clear();
+			   createStoreSearchPanel();
+			   storeTypePanel.add(storeSearchPanel);
+			}
+		});
+		nupupaneel.add(bOtsing);
+
+		final Button bLisamine=new Button("Lattu lisamine");
+		bLisamine.setStyleName("suuremnupp");
+		bLisamine.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+			   storeTypePanel.clear();
+			   storeTypePanel.add(storeAddPanel);
+			}
+		});
+		nupupaneel.add(bLisamine);
+        storePanel.add(nupupaneel);
+		storePanel.add(storeTypePanel);
+	   createStoreAddPanel();
+	   createStoreSearchPanel();
+	   storeTypePanel.clear();
+	   storeTypePanel.add(storeSearchPanel);
+//       storePanel.add(storeTypePanel);	   
+
+//	   storePanel.add(storeTable);
+//	   displayStoreItems(null);
+	   contentPanel.showWidget(contentPanel.getWidgetIndex(storePanel));
+	}
+	
+	
+	private void displayStoreItems(StoreItem queryItem) {
+		   deviceTreeService.getCompanyStoreItems(selectedCompany.getCompanyKey(), queryItem, new AsyncCallback<List<StoreItem>>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreItem> result) {
+					Collections.sort(result, new Comparator<StoreItem>() {
+						public int compare(StoreItem s1, StoreItem s2) {
+							try {
+								return Integer.parseInt(s2.getSysId())-Integer.parseInt(s1.getSysId());
+							} catch(Exception ex) {return 0;}
+						}
+					});
+					storePanel.add(storeTable);
+					storeTable.setRowData(result);
+					if(result.size()==1) {
+						displaySelectedItem(result.get(0));
+					}
+				}
+				   
+			   });
+		
+	}
+	
+	private CellTable<StoreItem> createStoreTable(){
+		   CellTable<StoreItem> table=new CellTable<StoreItem>(500);
+		   TextColumn<StoreItem> cSysId=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getSysId();
+			  }		   
+		   };
+		   table.addColumn(cSysId, "S\u00FCst ID");
+		   TextColumn<StoreItem> cTooteKood=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getProductCode();
+			  }		   
+		   };
+		   table.addColumn(cTooteKood, "Toote kood");
+		   TextColumn<StoreItem> cTooteNimi=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getProductName();
+			  }		   
+		   };
+		   table.addColumn(cTooteNimi, "Toote nimetus");
+		   TextColumn<StoreItem> cTegevuspohine=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getWorkingCode();
+			  }		   
+		   };
+		   table.addColumn(cTegevuspohine, "Tegp.");
+		   TextColumn<StoreItem> cKategooria=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getCategory();
+			  }		   
+		   };
+		   table.addColumn(cKategooria, "Kategooria");
+		   TextColumn<StoreItem> cAlamkategooria=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getSubCategory();
+			  }		   
+		   };
+		   table.addColumn(cAlamkategooria, "Alamkategooria");
+
+		   TextColumn<StoreItem> cLadu=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getStoreName();
+			  }		   
+		   };
+		   table.addColumn(cLadu, "Ladu");
+		   TextColumn<StoreItem> cLaoAsukoht=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getStorePlace();
+			  }		   
+		   };
+		   table.addColumn(cLaoAsukoht, "Riiul/Tase");
+
+		   TextColumn<StoreItem> cTootja=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getProducer();
+			  }		   
+		   };
+		   table.addColumn(cTootja, "Tootja");
+		   TextColumn<StoreItem> cHankija=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getContractor();
+			  }		   
+		   };
+		   table.addColumn(cHankija, "Hankija");
+
+
+		   TextColumn<StoreItem> cLaoseis=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getAmount();
+			 }		   
+		   };
+		   table.addColumn(cLaoseis, "Laos");
+		   
+		   TextColumn<StoreItem> cMinkogus=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getMinAmount();
+			 }		   
+		   };
+		   table.addColumn(cMinkogus, "Min. kogus");
+		   
+		   TextColumn<StoreItem> cHind=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getPrice();
+			 }		   
+		   };
+		   table.addColumn(cHind, "Hind");
+		   
+		   
+		   TextColumn<StoreItem> cOsakond=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getDepartmentName();
+			 }		   
+		   };
+		   table.addColumn(cOsakond, "Osakond");
+		   
+		   TextColumn<StoreItem> cYksus=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getUnitName();
+			 }		   
+		   };
+		   table.addColumn(cYksus, "\u00DCksus");
+		   
+		   TextColumn<StoreItem> cSeade=new TextColumn<StoreItem>() {
+			  public String getValue(StoreItem si) {
+				 return si.getDeviceName();
+			 }		   
+		   };
+		   table.addColumn(cSeade, "Seade");
+		   table.setStyleName("laotabel", true);
+		   SingleSelectionModel<StoreItem> tableSelModel = new SingleSelectionModel<StoreItem>();
+			tableSelModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+				@Override
+				public void onSelectionChange(SelectionChangeEvent arg0) {
+					StoreItem selectedItem = (StoreItem) tableSelModel.getSelectedObject();
+					displaySelectedItem(selectedItem);
+				}
+				
+			});
+			table.setSelectionModel(tableSelModel);
+           return table;		
+	}
+
+	
+	private void displaySelectedItem(StoreItem si) {
+		//Debug.log(si.getProductCode());
+		createStoreChangePanel(si);
+		storeTypePanel.clear();
+		storeTypePanel.add(storeChangePanel);
+	}
+	
+	private void createStoreChangePanel(StoreItem selectedItem) {
+		   storeChangePanel.clear();
+		   Label slabel=new Label("Laotoote andmete muutmine");
+		   slabel.setStyleName("suurpunane");
+		   storeChangePanel.add(slabel);
+		   storeChangePanel.add(new Label(""));
+		   Grid g1=new Grid(17, 2);
+		   storeChangePanel.add(g1);
+		   final Label tbSysId=new Label(selectedItem.getSysId());
+		   final TextBox tbProductCode=new TextBox();
+		   tbProductCode.setText(selectedItem.getProductCode());
+		   final TextBox tbProductName=new TextBox();
+		   tbProductName.setText(selectedItem.getProductName());
+		   final ListBox lbTegevuspohine=new ListBox();
+		deviceTreeService.getChildMetas(storeMetaMap.get("Tegevuspohised").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<StoreMeta> result) {
+				int snr=0;
+				for(int i=0; i<result.size(); i++) {
+					lbTegevuspohine.addItem(result.get(i).getValue().split("-")[1]);
+					if(result.get(i).getValue().split("-")[1].equals(selectedItem.getWorkingCode())) {snr=i;}
+				}
+				lbTegevuspohine.setSelectedIndex(snr);
+			}
+		});  
+		
+		   final ListBox lbKategooria=new ListBox();
+			  final ListBox lbAlamkategooria=new ListBox();
+			deviceTreeService.getChildMetas(storeMetaMap.get("Kategooriad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					int snr=0;
+					for(int i=0; i<result.size(); i++) {
+						lbKategooria.addItem(result.get(i).getValue(), result.get(i).getKey());
+						if(result.get(i).getKey().equals(selectedItem.getCategoryKey())) {snr=i;}
+					}
+					lbKategooria.setSelectedIndex(snr);
+					 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public void onSuccess(List<StoreMeta> result) {
+								lbAlamkategooria.clear();
+								int sanr=0;
+								for(int i=0; i<result.size(); i++) {
+									lbAlamkategooria.addItem(result.get(i).getValue());
+									if(result.get(i).getValue().equals(selectedItem.getSubCategory())) {sanr=i;}
+								}
+								lbAlamkategooria.setSelectedIndex(sanr);
+							}
+							 
+						 });
+
+				
+				}
+			});  
+
+		  lbKategooria.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				 deviceTreeService.getChildMetas(lbKategooria.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						lbAlamkategooria.clear();
+						int sanr=0;
+						for(int i=0; i<result.size(); i++) {
+							lbAlamkategooria.addItem(result.get(i).getValue());
+							if(result.get(i).getValue().equals(selectedItem.getSubCategory())) {sanr=i;}
+						}
+//						lbAlamkategooria.setSelectedIndex(sanr);
+					}
+					 
+				 });
+				
+			}
+			  
+		  });
+
+		  final ListBox lbLadu=new ListBox();
+		  final ListBox lbLaokoht=new ListBox();
+		  
+			deviceTreeService.getChildMetas(storeMetaMap.get("Laod").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onSuccess(List<StoreMeta> result) {
+					int snr=0;
+					for(int i=0; i<result.size(); i++) {
+						lbLadu.addItem(result.get(i).getValue(), result.get(i).getKey());
+						if(result.get(i).getKey().equals(selectedItem.getStoreKey())) {snr=i;}
+					}
+					lbLadu.setSelectedIndex(snr);
+					 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public void onSuccess(List<StoreMeta> result) {
+								lbLaokoht.clear();
+							    int snr=0;
+							    for(int i=0; i<result.size(); i++) {
+							       lbLaokoht.addItem(result.get(i).getValue());
+							       if(selectedItem.getStorePlace().equals(result.get(i).getValue())) {snr=i;}
+							    }
+							    lbLaokoht.setSelectedIndex(snr);
+							}
+							 
+						 });
+
+				
+				}
+			});  
+
+		  lbLadu.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				 deviceTreeService.getChildMetas(lbLadu.getSelectedValue(), new AsyncCallback<List<StoreMeta>>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<StoreMeta> result) {
+						lbLaokoht.clear();
+					    for(StoreMeta sm: result) {
+					    	lbLaokoht.addItem(sm.getValue());
+					    }	
+					}
+					 
+				 });
+				
+			}
+			  
+		  });
+
+		  
+
+		   final TextBox tbTootja=new TextBox();
+
+		   final TextBox tbHankija=new TextBox();
+
+		   final ListBox lbTootja=new ListBox();
+		deviceTreeService.getChildMetas(storeMetaMap.get("Tootjad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<StoreMeta> result) {
+				int snr=-1;
+				lbTootja.addItem("");
+				for(int i=0; i<result.size(); i++) {
+				   lbTootja.addItem(result.get(i).getValue());
+				   if(selectedItem.getProducer().equals(result.get(i).getValue())) {snr=i;}
+				}
+				lbTootja.setSelectedIndex(snr+1);
+			}
+		});  
+
+		   final ListBox lbHankija=new ListBox();
+		deviceTreeService.getChildMetas(storeMetaMap.get("Hankijad").getKey(), new AsyncCallback<List<StoreMeta>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(List<StoreMeta> result) {
+				int snr=-1;
+				lbHankija.addItem("");
+				for(int i=0; i<result.size(); i++) {
+					lbHankija.addItem(result.get(i).getValue());
+					if(result.get(i).getValue().equals(selectedItem.getContractor())) {snr=i;}
+				}
+				lbHankija.setSelectedIndex(snr+1);
+			}
+		});  
+
+
+		lbTootja.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				tbTootja.setText(lbTootja.getSelectedItemText());
+				
+			}});
+		
+		lbHankija.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				tbHankija.setText(lbHankija.getSelectedItemText());
+				
+			}});
+		
+		tbTootja.setText(selectedItem.getProducer());
+		tbHankija.setText(selectedItem.getContractor());
+
+		final IntegerBox tbLaoseis=new IntegerBox();
+		  tbLaoseis.addKeyPressHandler(new KeyPressHandler() {
+
+			@Override
+			public void onKeyPress(KeyPressEvent event) {
+				if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+				            String c = event.getCharCode()+"";
+				            if(RegExp.compile("[^0-9]").test(c))
+				                tbLaoseis.cancelKey();
+				    }			
+			}
+			  
+		  });
+		  tbLaoseis.setText(selectedItem.getAmount());
+	      final IntegerBox tbMinkogus=new IntegerBox();
+		  tbMinkogus.addKeyPressHandler(new KeyPressHandler() {
+
+			@Override
+			public void onKeyPress(KeyPressEvent event) {
+				if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+				            String c = event.getCharCode()+"";
+				            if(RegExp.compile("[^0-9]").test(c))
+				                tbMinkogus.cancelKey();
+				    }			
+			}
+			  
+		  });
+		  tbMinkogus.setText(selectedItem.getMinAmount());
+		  final DoubleBox tbHind=new DoubleBox();
+		  tbHind.addKeyPressHandler(new KeyPressHandler() {
+
+			@Override
+			public void onKeyPress(KeyPressEvent event) {
+				if(event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_DELETE && 
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_BACKSPACE &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_LEFT &&
+				        event.getNativeEvent().getKeyCode()!=KeyCodes.KEY_RIGHT){
+				            String c = event.getCharCode()+"";
+				            if(RegExp.compile("[^0-9]").test(c))
+				                tbHind.cancelKey();
+				    }			
+			}
+			  
+		  });
+		  tbHind.setText(selectedItem.getPrice());
+
+		   final ListBox lbOsakond=new ListBox();
+		   final ListBox lbYksus=new ListBox();
+		   final ListBox lbSeade=new ListBox();
+		    lbOsakond.addChangeHandler(new ChangeHandler() {
+
+				@Override
+				public void onChange(ChangeEvent event) {
+		 			  lbYksus.clear();
+		             deviceTreeService.getUnits(lbOsakond.getSelectedValue(), new AsyncCallback<List<Unit>>(){
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<Unit> result) {
+							lbYksus.addItem("", "");
+							int snr=-1;
+							for(int i=0; i<result.size(); i++) {
+								lbYksus.addItem(result.get(i).getUnit(), result.get(i).getUnitKey());
+								if(selectedItem.getUnitKey().equals(result.get(i).getUnitKey())) {snr=i;}
+							}
+							lbYksus.setSelectedIndex(snr+1);
+							lbYksus.fireEvent(event);
+							lbSeade.clear();
+						}
+		            	 
+		             });			
+				}});
+			  
+         // Debug.log(selectedCompany.getCompanyKey()+" kompanii");
+		  deviceTreeService.getDepartments(selectedCompany.getCompanyKey(), new AsyncCallback<List<Department>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				Debug.log("probleem "+caught);
+			}
+
+			@Override
+			public void onSuccess(List<Department> result) {
+				lbOsakond.addItem("", "");
+				int snr=-1;
+				for(int i=0; i<result.size(); i++) {
+					lbOsakond.addItem(result.get(i).getDepartmentName(), result.get(i).getDepartmentKey());
+					if(selectedItem.getDepartmentKey()!=null && selectedItem.getDepartmentKey().length()>0 && selectedItem.getDepartmentKey().equals(result.get(i).getDepartmentKey())){snr=i;}
+				}
+				if(snr>=0) {
+				  lbOsakond.setSelectedIndex(snr+1);
+				  
+		             deviceTreeService.getUnits(lbOsakond.getSelectedValue(), new AsyncCallback<List<Unit>>(){
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void onSuccess(List<Unit> result) {
+							lbYksus.addItem("", "");
+							int snr=-1;
+							for(int i=0; i<result.size(); i++) {
+								lbYksus.addItem(result.get(i).getUnit(), result.get(i).getUnitKey());
+								if(selectedItem.getUnitKey().equals(result.get(i).getUnitKey())) {snr=i;}
+							}
+							if(snr>=0) {
+							  lbYksus.setSelectedIndex(snr+1);
+							  lbSeade.clear();
+					             deviceTreeService.getDevices(lbYksus.getSelectedValue(), new AsyncCallback<List<Device>>() {
+
+										@Override
+										public void onFailure(Throwable caught) {
+											// TODO Auto-generated method stub
+											
+										}
+
+										@Override
+										public void onSuccess(List<Device> result) {
+											lbSeade.addItem("", "");
+											int snr=-1;
+											for(int i=0; i<result.size(); i++) {
+												lbSeade.addItem(result.get(i).getDeviceName(), result.get(i).getDeviceKey());
+												if(selectedItem.getDeviceKey().equals(result.get(i).getDeviceKey())) {snr=i;}
+											}
+											lbSeade.setSelectedIndex(snr+1);
+										}});			
+							  
+							}
+						}
+		            	 
+		             });				  
+				}
+				
+			}
+		});  
+	       lbYksus.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				lbSeade.clear();
+	             deviceTreeService.getDevices(lbYksus.getSelectedValue(), new AsyncCallback<List<Device>>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(List<Device> result) {
+						lbSeade.addItem("", "");
+						int snr=-1;
+						for(int i=0; i<result.size(); i++) {
+							lbSeade.addItem(result.get(i).getDeviceName(), result.get(i).getDeviceKey());
+							if(selectedItem.getDeviceKey().equals(result.get(i).getDeviceKey())) {snr=i;}
+						}
+						lbSeade.setSelectedIndex(snr+1);
+					}});			
+			}});
+	       
+	       ListBox lbSeisund=new ListBox();
+	       lbSeisund.addItem("tavaline", "normal");
+	       lbSeisund.addItem("peidetud", "hidden");
+	       lbSeisund.addItem("kustutatud", "deleted");
+	       if(selectedItem.getStatus()!=null && selectedItem.getStatus().equals("hidden")) {lbSeisund.setSelectedIndex(1);}
+	       
+	       HorizontalPanel hpTootja=new HorizontalPanel();
+	       hpTootja.add(lbTootja);
+	       hpTootja.add(tbTootja);
+
+	       HorizontalPanel hpTarnija=new HorizontalPanel();
+	       hpTarnija.add(lbHankija);
+	       hpTarnija.add(tbHankija);
+	       
+
+	    
+		   g1.setWidget(0, 0, new Label("ID"));
+		   g1.setWidget(0, 1, tbSysId);
+		   g1.setWidget(1, 0, new Label("Tootekood"));
+		   g1.setWidget(1, 1, tbProductCode);
+		   g1.setWidget(2, 0, new Label("Toote nimetus"));
+		   g1.setWidget(2, 1, tbProductName);
+		   g1.setWidget(3, 0, new Label("Tegevusp\u00F5hine"));
+		   g1.setWidget(3, 1, lbTegevuspohine);
+		   g1.setWidget(4, 0, new Label("Kategooria"));
+		   g1.setWidget(4, 1, lbKategooria);
+		   g1.setWidget(5, 0, new Label("Alamkategooria"));
+		   g1.setWidget(5, 1, lbAlamkategooria);
+		   g1.setWidget(6, 0, new Label("Ladu"));
+		   g1.setWidget(6, 1, lbLadu);
+		   g1.setWidget(7, 0, new Label("Riiul/ tase"));
+		   g1.setWidget(7, 1, lbLaokoht);
+		   g1.setWidget(8, 0, new Label("Tootja"));
+//		   g1.setWidget(8, 1, lbTootja);
+		   g1.setWidget(8, 1, hpTootja);
+		   g1.setWidget(9, 0, new Label("Hankija"));
+//		   g1.setWidget(9, 1, lbHankija);
+		   g1.setWidget(9, 1, hpTarnija);
+		   g1.setWidget(10, 0, new Label("Laoseis"));
+		   g1.setWidget(10, 1, tbLaoseis);
+		   g1.setWidget(11, 0, new Label("Min kogus"));
+		   g1.setWidget(11, 1, tbMinkogus);
+		   g1.setWidget(12, 0, new Label("Hind"));
+		   g1.setWidget(12, 1, tbHind);
+		   g1.setWidget(13, 0, new Label("Osakond"));
+		   g1.setWidget(13, 1, lbOsakond);
+		   g1.setWidget(14, 0, new Label("\u00DCksus"));
+		   g1.setWidget(14, 1, lbYksus);
+		   g1.setWidget(15, 0, new Label("Seade"));
+		   g1.setWidget(15, 1, lbSeade);
+		   g1.setWidget(16, 0, new Label("Seisund"));
+		   g1.setWidget(16, 1, lbSeisund);
+		   
+		   Button bChange=new Button("Muuda");
+		   bChange.setStyleName("laoalapunane");
+		   StoreItem si=selectedItem;
+		   bChange.addClickHandler(new ClickHandler() {
+			  public void onClick(ClickEvent e) {
+	               si.setSysId(tbSysId.getText().trim());
+				   if(tbProductCode.getText().trim().length()==0) {
+					   Window.alert("Tootekood puudub");
+					   return;
+				   }
+	               si.setProductCode(tbProductCode.getText().trim());
+				   if(tbProductName.getText().trim().length()==0) {
+					   Window.alert("Toote nimetus puudub");
+					   return;
+				   }
+	               si.setProductName(tbProductName.getText().trim());
+	               si.setWorkingCode(lbTegevuspohine.getSelectedValue());
+	               si.setCategoryKey(lbKategooria.getSelectedValue());
+	               si.setSubCategory(lbAlamkategooria.getSelectedItemText());
+	               si.setStoreKey(lbLadu.getSelectedValue());
+	               si.setStorePlace(lbLaokoht.getSelectedItemText());
+//	               si.setProducer(lbTootja.getSelectedItemText());
+//	               si.setContractor(lbHankija.getSelectedItemText());
+	               si.setProducer(tbTootja.getText());
+	               si.setContractor(tbHankija.getText());
+	               si.setAmount(tbLaoseis.getText());
+	               si.setMinAmount(tbMinkogus.getText());
+	               si.setPrice(tbHind.getText());
+	               si.setDepartmentKey(lbOsakond.getSelectedValue());
+	               si.setUnitKey(lbYksus.getSelectedValue());
+	               si.setDeviceKey(lbSeade.getSelectedValue());
+	               if(lbSeisund.getSelectedValue().equals("deleted")) {
+	            	   if(!Window.confirm("Kas kindlasti soovid kustutada")) {
+	            		   return;
+	            	   }
+	               }
+	               si.setStatus(lbSeisund.getSelectedValue());
+				  deviceTreeService.addCompanyStoreItem(si, selectedCompany.getCompanyKey(), new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onSuccess(String result) {
+	                 // Debug.log(result);	
+	                  createStorePanel();
+					}
+					  
+					  
+				  });
+			  } 
+		   });
+		   
+		   storeChangePanel.add(bChange);
+		   
+		   
+
+		   
+		}
+
+	
+	
 	private void createWorkersPanel() {
 		
 		workersPanel.clear();
@@ -978,6 +3264,7 @@ public class DeviceCard implements EntryPoint {
 
 		Label lSave = new Label("Salvesta");
 		lSave.setStyleName("backSaveLabel wide");
+//		lSave.setStyleName("backButton");
 		lSave.addClickHandler(new ClickHandler() {	
 			
 			@Override
@@ -1031,7 +3318,7 @@ public class DeviceCard implements EntryPoint {
 			@Override
 			public String getValue(Worker object) {
 				// TODO Auto-generated method stub
-				return object.getRoles().get(0).isWorker()+"";
+				return object.getRoles().get(0).isWorker()?"jah":"ei";
 			}
 			
 		};
@@ -1042,17 +3329,17 @@ public class DeviceCard implements EntryPoint {
 			@Override
 			public String getValue(Worker object) {
 				// TODO Auto-generated method stub
-				return object.getRoles().get(0).isSupervisor()+"";
+				return object.getRoles().get(0).isSupervisor()?"jah":"ei";
 			}
 			
 		};
-		wtable.addColumn(supervisorColumn, "Nagija");
+		wtable.addColumn(supervisorColumn, "N\u00E4gija");
 		TextColumn<Worker> activeColumn=new TextColumn<Worker>() {
 
 			@Override
 			public String getValue(Worker object) {
 				// TODO Auto-generated method stub
-				return object.getRoles().get(0).isActive()+"";
+				return object.getRoles().get(0).isActive()?"jah":"ei";
 			}
 			
 		};
@@ -1084,10 +3371,10 @@ public class DeviceCard implements EntryPoint {
 		buttonsPanel.add(lBackButton);
 		buttonsPanel.add(lBack);
 		buttonsPanel.setCellWidth(lBackButton, "7%");
-		buttonsPanel.setCellWidth(lBack, "43%");
+		buttonsPanel.setCellWidth(lBack, "10%");
 		buttonsPanel.add(lSave);
-		buttonsPanel.setCellHorizontalAlignment(lSave, HasHorizontalAlignment.ALIGN_RIGHT);
-		buttonsPanel.setCellWidth(lSave, "50%");
+//		buttonsPanel.setCellHorizontalAlignment(lSave, HasHorizontalAlignment.ALIGN_RIGHT);
+		buttonsPanel.setCellWidth(lSave, "20%");
 		workersPanel.insert(buttonsPanel, 0);
         workersPanel.add(wtable);
 		

@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
@@ -32,6 +34,8 @@ import com.elektrimasinad.aho.shared.Measurement;
 //import com.elektrimasinad.aho.shared.DiagnostikaItem;
 import com.elektrimasinad.aho.shared.Raport;
 import com.elektrimasinad.aho.shared.Role;
+import com.elektrimasinad.aho.shared.StoreItem;
+import com.elektrimasinad.aho.shared.StoreMeta;
 import com.elektrimasinad.aho.shared.Unit;
 import com.elektrimasinad.aho.shared.Worker;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -869,7 +873,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		e.setProperty("DELocalComment", measurement.getDELocalComment());
 		e.setProperty("MPLocalComment", measurement.getMPLocalComment());
 		e.setProperty("TPLocalComment", measurement.getTPLocalComment());
-		System.out.print(" yld "+measurement.getComment()+" kohalik "+measurement.getLocalComment());
+		//System.out.print(" yld "+measurement.getComment()+" kohalik "+measurement.getLocalComment());
 		e.setProperty("NDEmms", measurement.getNDEmms());
 		e.setProperty("NDEge", measurement.getNDEge());
 		e.setProperty("NDEcomment", measurement.getNDEcomment());
@@ -1161,7 +1165,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			if(c.getCompanyName().contentEquals(r.getCompanyName())) {
 				for(Worker w:getCompanyWorkers(c.getCompanyKey())){
 					if(w.getRoles().get(0).isSupervisor()) {
-						System.out.println(w.getEmail()+ " "+s);
+						//System.out.println(w.getEmail()+ " "+s);
 						sendMail(w.getEmail(), "HES raport", s, "");
 					}
 				}
@@ -1278,37 +1282,12 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		Key unitKey = KeyFactory.stringToKey(raport.getUnitKey());
 		query = new Query("Measurement").setAncestor(unitKey).setFilter(filter).addSort("DeviceID", Query.SortDirection.ASCENDING);
 		for (Entity e : ds.prepare(query).asIterable()) {
+		 try {
 			Measurement m=getMeasurement(KeyFactory.keyToString(e.getKey()));
-/*			Measurement m = new Measurement();
-			try {
-				Entity device = ds.get(e.getParent());
-				m.setDeviceName(device.getProperty("DeviceName").toString());
-				m.setDeviceID(device.getProperty("DeviceId").toString());
-			} catch (EntityNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				m.setDeviceName(e.getProperty("DeviceName").toString());
-				m.setDeviceID(e.getProperty("DeviceID").toString());
-			}
-			m.setMeasurementKey(KeyFactory.keyToString(e.getKey()));
-			m.setRaportKey(e.getProperty("RaportKey").toString());
-			m.setDate(e.getProperty("Date").toString());
-			m.setComment(e.getProperty("Comment").toString());
-			try{m.setLocalComment(e.getProperty("LocalComment").toString());}catch(Exception ex) {}
-			m.setMarking(e.getProperty("Marking").toString());
-			m.setNDEmms(e.getProperty("NDEmms").toString());
-			m.setNDEge(e.getProperty("NDEge").toString());
-			m.setNDEcomment(e.getProperty("NDEcomment").toString());
-			m.setDEmms(e.getProperty("DEmms").toString());
-			m.setDEge(e.getProperty("DEge").toString());
-			m.setDEcomment(e.getProperty("DEcomment").toString());
-			m.setMPmms(e.getProperty("MPmms").toString());
-			m.setMPge(e.getProperty("MPge").toString());
-			m.setMPcomment(e.getProperty("MPcomment").toString());
-			m.setTPmms(e.getProperty("TPmms").toString());
-			m.setTPge(e.getProperty("TPge").toString());
-			m.setTPcomment(e.getProperty("TPcomment").toString());*/
 			measurementList.add(m);
+		 } catch(Exception ex) {
+			 ex.printStackTrace();
+		 }
 		}
 		//System.out.println("Leitud "+ measurementList);
 		return measurementList;
@@ -1457,7 +1436,7 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 		 }
 		  msg.setSubject(subject);
 		  msg.setText(message);
-		  System.out.println("saadeti "+to+" "+subject+" "+message+" "+replyto);
+		  //System.out.println("saadeti "+to+" "+subject+" "+message+" "+replyto);
 		  if(replyto.contains("@")) {
 		  m=replyto.split(",");
 		  InternetAddress[] addresses=new InternetAddress[m.length];
@@ -1474,6 +1453,304 @@ public class DeviceTreeServiceImpl extends RemoteServiceServlet implements Devic
 			 System.out.println(ex.getMessage());
 			 return ex.getMessage();}
 		return "sended";
+	}
+	
+	
+	public Map<String, StoreMeta> getCompanyStoreMetas(String companyKeyString) {
+		Query query = new Query("StoreMeta");
+		query.setFilter(FilterOperator.EQUAL.of("Parent", companyKeyString));
+		Iterable<Entity> metaIter=ds.prepare(query).asIterable();		
+		Map<String, StoreMeta> answer=new HashMap<String, StoreMeta>();
+		List<String> tyybid=new ArrayList<String>();
+		tyybid.add("Tegevuspohised");
+		tyybid.add("Laod");
+		tyybid.add("Kategooriad");
+		tyybid.add("Tootjad");
+		tyybid.add("Hankijad");
+		for(Entity e: metaIter) {
+			StoreMeta sm=new StoreMeta();
+    		sm.setKey(KeyFactory.keyToString(e.getKey()));
+			sm.setParent(companyKeyString);
+			sm.setValue(e.getProperty("Value").toString());
+			answer.put(sm.getValue(), sm);
+			tyybid.remove(sm.getValue());
+		}
+		for(String tyyp: tyybid) {
+			Entity e=new Entity("StoreMeta",  KeyFactory.stringToKey(companyKeyString));
+			e.setProperty("Parent", companyKeyString);
+		    e.setProperty("Value", tyyp);
+		    ds.put(e);
+			StoreMeta sm=new StoreMeta();
+    		sm.setKey(KeyFactory.keyToString(e.getKey()));
+			sm.setParent(companyKeyString);
+			sm.setValue(e.getProperty("Value").toString());
+			answer.put(sm.getValue(), sm);
+		}
+		return answer;
+	}
+	
+	public List<StoreMeta> getChildMetas(String key){
+		//System.out.println("otsib "+key);
+		List<StoreMeta> answer=new ArrayList<StoreMeta>();
+		Query query=new Query("StoreMeta");
+		query.setFilter(FilterOperator.EQUAL.of("Parent", key));
+		Iterable<Entity> metaIter=ds.prepare(query).asIterable();		
+        for(Entity e: metaIter) {
+        	//if(e.getParent().toString().equals(key)) {
+        		StoreMeta m=new StoreMeta();
+        		m.setParent(key);
+        		try {
+         		  m.setValue(e.getProperty("Value").toString());
+        		} catch(Exception ex) {
+        			m.setValue("");
+        		}
+        		//m.setKey(e.getKey().toString());
+        		m.setKey(KeyFactory.keyToString(e.getKey()));
+        		answer.add(m);
+        	//}
+        }		
+       // System.out.println(answer);
+        Collections.sort(answer, new Comparator<StoreMeta>() {
+        	public int compare(StoreMeta sm1, StoreMeta sm2) {
+        		return sm1.getValue().compareTo(sm2.getValue());
+        	}
+        });
+		return answer;
+	}
+	public String addChildMeta(String parentKey, String value) {
+		Entity e=new Entity("StoreMeta",  KeyFactory.stringToKey(parentKey));
+		e.setProperty("Parent", parentKey);
+	    e.setProperty("Value", value.trim());
+	    ds.put(e);
+		return e.getKey().toString();
+	}
+	public String deleteMeta(String key) {
+		Entity e=new Entity(KeyFactory.stringToKey(key));
+		if(e.getKind().equals("StoreMeta")) {
+			ds.delete(KeyFactory.stringToKey(key));
+			return "deleted";
+		}
+		return "not store meta";
+	}
+	public String updateMeta(String key, String value) {
+		Query query=new Query("StoreMeta");
+		query.setFilter(new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, KeyFactory.stringToKey(key)));
+		//query.
+		//Entity e=new Entity(KeyFactory.stringToKey(key));
+		Entity e=ds.prepare(query).asSingleEntity();
+		if(e.getKind().equals("StoreMeta")) {
+			e.setProperty("Value", value.trim());
+			ds.put(e);
+			return "updated";
+		}
+		return "not store meta";		
+	}
+	
+	public String metaValue(String key) {
+	 try {
+		Query query=new Query("StoreMeta");
+		query.setFilter(new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, KeyFactory.stringToKey(key)));
+		Entity e=ds.prepare(query).asSingleEntity();
+		if(e.getKind().equals("StoreMeta")) {
+			return e.getProperty("Value").toString();
+		}
+		return "unknown key "+key;		
+	 } catch (Exception ex) {
+		 return "x";
+	 }
+	}
+	
+	public List<StoreItem> getCompanyStoreItems(String companyKeyString, StoreItem queryItem){
+		Query query=new Query("StoreItem", KeyFactory.stringToKey(companyKeyString));
+		if(queryItem!=null) {
+			List<Query.Filter> filtrid=new ArrayList<Query.Filter>();
+			if(queryItem.getProductCode()!=null && queryItem.getProductCode().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("ProductCode", queryItem.getProductCode().trim()));
+			}
+			if(queryItem.getSysId()!=null && queryItem.getSysId().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("SysId", queryItem.getSysId().trim()));
+			}
+			if(queryItem.getProductName()!=null && queryItem.getProductName().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("ProductName", queryItem.getProductName().trim()));
+			}
+			if(queryItem.getWorkingCode()!=null && queryItem.getWorkingCode().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("WorkingCode", queryItem.getWorkingCode().trim()));
+			}
+			if(queryItem.getCategory()!=null && queryItem.getCategory().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("Category", queryItem.getCategory().trim()));
+			}
+			if(queryItem.getSubCategory()!=null && queryItem.getSubCategory().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("SubCategory", queryItem.getSubCategory().trim()));
+			}
+			if(queryItem.getStoreName()!=null && queryItem.getStoreName().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("StoreName", queryItem.getStoreName().trim()));
+			}
+			if(queryItem.getStorePlace()!=null && queryItem.getStorePlace().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("StorePlace", queryItem.getStorePlace().trim()));
+			}
+			if(queryItem.getProducer()!=null && queryItem.getProducer().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("Producer", queryItem.getProducer().trim()));
+				//FilterOperator.
+			}
+			if(queryItem.getContractor()!=null && queryItem.getContractor().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("Contractor", queryItem.getContractor().trim()));
+			}
+			if(queryItem.getDepartmentKey()!=null && queryItem.getDepartmentKey().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("DepartmentKey", queryItem.getDepartmentKey().trim()));
+			}
+			if(queryItem.getUnitKey()!=null && queryItem.getUnitKey().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("UnitKey", queryItem.getUnitKey().trim()));
+			}
+			if(queryItem.getDeviceKey()!=null && queryItem.getDeviceKey().trim().length()>0) {
+				filtrid.add(FilterOperator.EQUAL.of("DeviceKey", queryItem.getDeviceKey().trim()));
+			}
+
+		if(filtrid.size()>0) {
+			if(filtrid.size()==1) {
+			   query.setFilter(filtrid.get(0));	
+			} else {
+		 query.setFilter(new CompositeFilter(CompositeFilterOperator.AND, filtrid));
+			}
+		}
+		}
+		List<StoreItem> answer=new ArrayList<StoreItem>();
+		for(Entity e:ds.prepare(query).asIterable()) {
+			StoreItem si=new StoreItem();
+			boolean add=true;
+			if(e.getProperty("SysId")!=null) {
+			  si.setSysId(e.getProperty("SysId").toString());
+			}
+			si.setEntityKeyString(KeyFactory.keyToString(e.getKey()));
+			//si.setCompanyKeyString(e.getProperty("CompanyKeyString").toString());
+			if(e.getProperty("ProductCode")!=null) {
+			  si.setProductCode(e.getProperty("ProductCode").toString());
+			}
+			if(e.getProperty("ProductName")!=null) {
+			  si.setProductName(e.getProperty("ProductName").toString());
+			}
+			if(e.getProperty("WorkingCode")!=null) {
+			  si.setWorkingCode(e.getProperty("WorkingCode").toString());
+			}
+			if(e.getProperty("Category")!=null) {
+				si.setCategoryKey(e.getProperty("Category").toString());				
+			}
+			try {
+			si.setCategory(metaValue(e.getProperty("Category").toString()));
+			} catch(Exception ex) {}
+			if(e.getProperty("SubCategory")!=null) {
+			  si.setSubCategory(e.getProperty("SubCategory").toString());
+			}
+			if(e.getProperty("StoreName")!=null) {
+			  si.setStoreKey(e.getProperty("StoreName").toString());
+			}
+			try {
+			si.setStoreName(metaValue(e.getProperty("StoreName").toString()));
+			} catch(Exception ex) {}
+			if(e.getProperty("StorePlace")!=null) {
+			  si.setStorePlace(e.getProperty("StorePlace").toString());
+			}
+			if(e.getProperty("Producer")!=null) {
+			si.setProducer(e.getProperty("Producer").toString());
+			}
+			if(e.getProperty("Contractor")!=null) {
+			  si.setContractor(e.getProperty("Contractor").toString());
+			}
+			if(e.getProperty("Amount")!=null) {
+			si.setAmount(e.getProperty("Amount").toString());
+			}
+			if(e.getProperty("MinAmount")!=null) {
+			  si.setMinAmount(e.getProperty("MinAmount").toString());
+			}
+			si.setPrice(e.getProperty("Price").toString());
+			if(e.getProperty("DepartmentKey")!=null && e.getProperty("DepartmentKey").toString().length()>0) {
+				si.setDepartmentKey(e.getProperty("DepartmentKey").toString());
+				si.setDepartmentName(getDepartment(e.getProperty("DepartmentKey").toString()).getDepartmentName());
+				//System.out.println("Osakond: "+si.getDepartmentName());
+			} else {
+				//System.out.println("Osakond puudub");
+			}
+			if(e.getProperty("UnitKey")!=null && e.getProperty("UnitKey").toString().length()>0) {
+				si.setUnitKey(e.getProperty("UnitKey").toString());
+				si.setUnitName(getUnit(e.getProperty("UnitKey").toString()).getUnit());
+				//System.out.println("Yksus: "+si.getUnitName());
+		    }
+			if(e.getProperty("DeviceKey")!=null && e.getProperty("DeviceKey").toString().length()>0) {
+				si.setDeviceKey(e.getProperty("DeviceKey").toString());
+				si.setDeviceName(getDevice(e.getProperty("DeviceKey").toString()).getDeviceName());
+			}
+			  if(e.getProperty("Status")!=null && e.getProperty("Status").toString().equals("hidden")) {
+					   add=false;
+					   if(queryItem!=null && queryItem.getStatus()!=null && queryItem.getStatus().equals("hidden")) {
+						   add=true;
+						   si.setStatus("hidden");
+						}				   
+		  	  } else {
+		  		if(queryItem!=null && queryItem.getStatus()!=null && queryItem.getStatus().equals("hidden")) {add=false;}
+		  	  }
+			if(add) {
+			  answer.add(si);
+			}
+		}
+		return answer;
+	}
+	public String addCompanyStoreItem(StoreItem si, String companyKeyString) {
+		Entity e=null;
+		String message="added";
+		if(si.getEntityKeyString()==null) {
+			e=new Entity("StoreItem", KeyFactory.stringToKey(companyKeyString));
+			e.setProperty("SysId", companyStoreItemNewSysId(companyKeyString));
+		} else {
+			Query query=new Query("StoreItem", KeyFactory.stringToKey(companyKeyString));
+			query.setFilter(new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, KeyFactory.stringToKey(si.getEntityKeyString())));
+			e=ds.prepare(query).asSingleEntity();
+			message="changed";
+		}
+		//e.setProperty("CompanyKeyString", si.getCompanyKeyString());
+		e.setProperty("ProductName", si.getProductName());
+		e.setProperty("ProductCode", si.getProductCode());
+		e.setProperty("WorkingCode", si.getWorkingCode());
+		e.setProperty("Category", si.getCategoryKey());
+		e.setProperty("SubCategory", si.getSubCategory());
+		e.setProperty("StoreName", si.getStoreKey());
+		e.setProperty("StorePlace", si.getStorePlace());
+		e.setProperty("Producer", si.getProducer());
+		e.setProperty("Contractor", si.getContractor());
+		e.setProperty("Amount", si.getAmount());
+		e.setProperty("MinAmount", si.getMinAmount());
+		e.setProperty("Price", si.getPrice());
+		e.setProperty("DepartmentKey", si.getDepartmentKey());
+		e.setProperty("UnitKey", si.getUnitKey());
+		e.setProperty("DeviceKey", si.getDeviceKey());
+		if(si.getStatus().equals("hidden")) {
+			e.setProperty("Status", "hidden");
+		} else {
+			e.setProperty("Status", "normal");
+		}
+		if(si.getStatus().equals("deleted")) {
+			ds.delete(e.getKey());
+			return "deleted";
+		} else {
+   		  ds.put(e);
+		}
+		System.out.println(e);
+		return message;
+	}
+	public String companyStoreItemNewSysId(String companyKeyString) {
+	  try {
+		Entity e=ds.get(KeyFactory.stringToKey(companyKeyString));
+		//System.out.println("ettevote "+e);
+		String s=(String)e.getProperty("MaxSysId");
+		
+		int nr=0;
+		if(s!=null) {
+			nr=Integer.parseInt(s);
+		}
+		nr++;
+		e.setProperty("MaxSysId", nr+"");
+		ds.put(e);
+		return nr+"";
+	  } catch(Exception ex) {ex.printStackTrace();}
+	  return "-1";
 	}
 }
 

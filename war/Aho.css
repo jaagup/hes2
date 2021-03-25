@@ -144,7 +144,7 @@ h1 {
 
 .panelBackground.b {
 	display: block;
-	//overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 .mainBackground {
@@ -273,7 +273,7 @@ h1 {
 
 .aho-headerImage {
 	display: block;
-	//width: 100px;
+	/*width: 100px; */
 	height: 90px;
 	cursor: pointer;
 	float: left;
@@ -1003,6 +1003,12 @@ h1 {
 	transform: rotate(90deg);
 }
 
+
+.laotabel{
+	position: relative;
+	left: -7%;
+}
+
 @media screen and (max-width: 10000px) {
 .headerBackground {
 	height: 90px;
@@ -1022,7 +1028,7 @@ h1 {
     height: 1955px !important;
 }
 .aho-headerImage {
-	//height: 45%;
+	/*height: 45%;*/
 	width: auto;
 }
 
@@ -1102,7 +1108,7 @@ h1 {
 }
 .punataust{
 	background-color: red;
-	//font-size: 200%;
+	/*font-size: 200%;*/
 }
 .sinitaust{
 	color: green;
@@ -1134,9 +1140,10 @@ h1 {
 .aho-markingBlankPanel {
 	height: 105px;
 }
+/*
 .aho-autoExtendingTextArea {
-	//font-size: 44px;
-}
+	font-size: 44px;
+}*/
 .aho-textbox1 {
 	margin-top: 18px;
 	font-size: 26px;
@@ -1157,6 +1164,38 @@ h1 {
 	border-radius: 1px;
 	border-width: 1px;
 	border-color: #000000;
+}
+
+.suursinine{
+	font-size: 40px;
+	color: #006BA7;
+	margin-bottom: 30px;
+}
+
+.suurpunane{
+	font-size: 40px;
+	color: red;
+	margin-bottom: 30px;
+}
+
+.suuremnupp{
+	font-size: 35px;
+	padding: 15px;
+	margin: 10px;
+}
+
+.laoalanupp{
+	background-color: lightblue;
+	font-size: 25px;
+	padding: 10px;
+	
+}
+
+.laoalapunane{
+	background-color: lightblue;
+	color: red;
+	font-size: 25px;
+	padding: 10px;
 }
 
 }
